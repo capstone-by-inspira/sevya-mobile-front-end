@@ -4,7 +4,7 @@ import React from 'react'
 const Patients = () => {
   return (
     <View>
-      <Text>Patients</Text>
+      <Text>Patients screen</Text>
     </View>
   )
 }
