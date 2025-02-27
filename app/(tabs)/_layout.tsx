@@ -1,15 +1,40 @@
-import React from 'react';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import Header from '@/components/Header';
-import BottomTabsNavigation from '@/navigation/BottomTabsNavigation';
+
+import { Tabs } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+
+
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
-    <>
-      <Header />
-      <BottomTabsNavigation />
-    </>
+    <Tabs>
+      <Tabs.Screen
+        name="home"
+        options={{
+          title: "Home",
+          tabBarIcon: ({ color }) => <Ionicons name="home-outline" size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="caregiver"
+        options={{
+          title: "caregiver",
+          tabBarIcon: ({ color }) => <Ionicons name="heart-outline" size={24} color={color} />,
+        }}
+      />
+         <Tabs.Screen
+        name="shifts"
+        options={{
+          title: "shifts",
+          tabBarIcon: ({ color }) => <Ionicons name="timer-outline" size={24} color={color} />,
+        }}
+      />
+         <Tabs.Screen
+        name="patients"
+        options={{
+          title: "patients",
+          tabBarIcon: ({ color }) => <Ionicons name="people-outline" size={24} color={color} />,
+        }}
+      />
+    </Tabs>
   );
 }
