@@ -30,7 +30,7 @@ const LoginScreen: React.FC = () => {
     try {
       const { data } = await axios.post(`${API_URL}/auth/caregiver/firebase`, {
         idToken,
-        collectionName: "caregiver",
+        collectionName: "caregivers",
       });
 
       // Securely store token and user data
