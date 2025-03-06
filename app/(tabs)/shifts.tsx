@@ -3,7 +3,7 @@ import React from 'react'
 import { router } from 'expo-router';
 import { getDocuments } from '@/services/api'
 import { getSecureData } from "@/services/secureStorage";
-import { ProgressBar } from 'react-native-paper';
+import Button from '@/components/ui/Button'
 
 interface Shift {
   id: number
@@ -21,6 +21,10 @@ interface ShiftCardProps {
 }
 
 const ShiftCard: React.FC<ShiftCardProps> = ({ shift }) => {
+
+  const handleStartShift = async () => {
+    console.log("Start Shift")
+  }
   
   const handleAPICall = async () => {
     try {
@@ -42,35 +46,11 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift }) => {
       Alert.alert("Error", error.response?.data?.error || "Something went wrong.");
     }
   }
-  // const handleAPICall = async (e: any) => {
-  //   e.preventDefault();
-  //   try {
-  //     const token = await getSecureData("token");
-  //     // const API_URL = "http://localhost:8800/api";
-  //     // const { data } = await axios.post(`${API_URL}/document/shifts`, {
-  //     //   token,
-  //     // });
-  //     // console.log(data, "data");
-  //     const result = await getDocuments("shifts", token);
-  //     if (result.success) {
-  //       console.log(result.data);
-  //     } else {
-  //       console.error(result.error);
-  //     }
-
-  //   } catch (error) {
-  //     console.error("Login Error:", error);
-  //     Alert.alert("Error", "Invalid email or password");
-  //   }
-  // };
+  
   return (
     <View>
       <Text>Shifts</Text>
-      <ProgressBar 
-        progress={0.5} 
-        color="#E5989B" 
-        style={styles.progressBar} 
-      />
+
       <TouchableOpacity style={styles.button}
         onPress={() => router.push(`/shift/${shift.id}`)}>
         <Text style={styles.buttonText}>Today's Shift Details</Text>
@@ -83,12 +63,6 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift }) => {
 }
 
 const styles = StyleSheet.create({
-  progressBar: {
-    height: 15,
-    borderRadius: 5,
-    marginHorizontal: 20,
-    marginVertical: 20,
-  },
   button: {
     backgroundColor: '#E5989B',
     paddingVertical: 20,

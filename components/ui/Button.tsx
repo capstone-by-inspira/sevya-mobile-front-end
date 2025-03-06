@@ -4,11 +4,12 @@ import React from 'react';
 interface ButtonProps {
   handleButtonClick: () => void; 
   buttonText: string; 
+  disabled?: boolean; 
 }
 
-const Button: React.FC<ButtonProps> = ({ handleButtonClick, buttonText }) => {
+const Button: React.FC<ButtonProps> = ({ handleButtonClick, buttonText, disabled }) => {
   return (
-    <TouchableOpacity onPress={handleButtonClick} style={styles.button}>
+    <TouchableOpacity onPress={handleButtonClick} style={[styles.button, disabled && styles.disabledButton]} disabled={disabled}>
       <Text style={styles.buttonText}>{buttonText}</Text>
     </TouchableOpacity>
   );
@@ -22,12 +23,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 13,
     margin: 20,
-    width: 130,
+    width: 'auto',
     alignItems: 'center',
     borderRadius: 50,
   },
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+  disabledButton: {
+    backgroundColor: '#D3D3D3', // Gray color when button is disabled
   },
 });

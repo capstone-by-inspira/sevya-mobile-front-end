@@ -15,7 +15,7 @@ const API_URL = "http://localhost:8800/api";
       };
   
       if (method !== "GET") {
-        response.data = data;
+        request.data = data;
       } 
       const response = await axios(request);
       return { success: true, data: response.data };
@@ -39,6 +39,11 @@ const API_URL = "http://localhost:8800/api";
   // Read a single document by ID
   export const getDocumentById = (collection, id, token) =>
     apiRequest("GET", `${collection}/${id}`, {}, token);
+
+  // Read all documents by Key-Value 
+  export const getDocumentByKeyValue = (collection, key, value, token) => {
+    return apiRequest("GET", `${collection}/query?key=${encodeURIComponent(key)}&value=${encodeURIComponent(value)}`, {}, token);
+  };
   
   // Update a document by ID
   export const updateDocument = (collection, id, data, token) =>
