@@ -32,5 +32,5 @@ export default function Index() {
     );
   }
 
-  return isAuth ? <Redirect href="/(tabs)/patients" /> : <Redirect href="/login" />;
+  return isAuth ? <Redirect href="/(tabs)/home" /> : <Redirect href="/login" />;
 }

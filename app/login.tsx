@@ -54,7 +54,7 @@ const LoginScreen: React.FC = () => {
       if (!first_time_login) {
         router.replace("/screens/InfoScreen");
       } else {
-        router.replace("/(tabs)/patients");
+        router.replace("/(tabs)/home");
       }
 
       Alert.alert("Success", "Login Successful");
