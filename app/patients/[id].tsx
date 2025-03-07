@@ -1,27 +1,65 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import patientData2 from "../patients/patientData2";
-import PatientUCard from "@/components/PatientUCard";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { db } from "@/FirebaseConfig"; // Ensure this is your correct Firebase config path
+import { doc, getDoc } from "firebase/firestore";
 
 const PatientDetails = ({patients}) => {
   const router = useRouter();
-  const myPatient = patientData2[0]; 
-  const [expandedSections, setExpandedSections] = useState<{
-    [key: string]: boolean;
-  }>({
+  const { id } = useLocalSearchParams(); // Get the patient ID from the URL
+  const [patientData, setPatientData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [expandedSections, setExpandedSections] = useState({
     patientInfo: false,
     medicalInfo: false,
-    tasks: false,
+    shifts: false,
   });
 
+  // Fetch patient data from Firestore when component mounts
+  useEffect(() => {
+    const fetchPatientData = async () => {
+      if (!id) return;
+
+      try {
+        setLoading(true);
+        const docRef = doc(db, "patients", id as string);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          setPatientData(docSnap.data());
+        } else {
+          setError("Patient not found");
+        }
+      } catch (err) {
+        setError("Error fetching patient data");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPatientData();
+  }, [id]);
+
+  // Toggle dropdown sections
   const toggleSection = (section: string) => {
     setExpandedSections((prevState) => ({
       ...prevState,
       [section]: !prevState[section],
     }));
   };
+
+  if (loading) return <ActivityIndicator size="large" color="#2D5DA3" />;
+  if (error) return <Text style={styles.error}>{error}</Text>;
+  if (!patientData) return <Text>No patient data available.</Text>;
 
   return (
     <View style={styles.container}>
@@ -38,9 +76,9 @@ const PatientDetails = ({patients}) => {
       </TouchableOpacity>
       {expandedSections.patientInfo && (
         <View style={styles.sectionContent}>
-          <Text>Name: John Doe</Text>
-          <Text>Age: 45</Text>
-          <Text>Phone: 987654321</Text>
+          <Text>Name: {patientData.firstName}</Text>
+          <Text>Age: {patientData.age ?? "N/A"}</Text>
+          <Text>Phone: {patientData.phoneNumber}</Text>
         </View>
       )}
 
@@ -57,25 +95,39 @@ const PatientDetails = ({patients}) => {
       </TouchableOpacity>
       {expandedSections.medicalInfo && (
         <View style={styles.sectionContent}>
-          <Text>Conditions: Hypertension, Diabetes</Text>
-          <Text>Medications: Saridon</Text>
+          <Text>
+            Conditions: {patientData.medicalConditions?.join(", ") || "N/A"}
+          </Text>
+          <Text>
+            Medications: {patientData.medications?.join(", ") || "N/A"}
+          </Text>
         </View>
       )}
 
-      {/* Scheduled Tasks & Reminders */}
+      {/* Scheduled Shifts */}
       <TouchableOpacity
         style={styles.sectionHeader}
-        onPress={() => toggleSection("tasks")}
+        onPress={() => toggleSection("shifts")}
       >
-        <Text style={styles.sectionTitle}>Scheduled Tasks & Reminders</Text>
-        <AntDesign name={expandedSections.tasks ? "minus" : "plus"} size={20} />
+        <Text style={styles.sectionTitle}>Scheduled Shifts</Text>
+        <AntDesign
+          name={expandedSections.shifts ? "minus" : "plus"}
+          size={20}
+        />
       </TouchableOpacity>
-      {expandedSections.tasks && (
+      {expandedSections.shifts && (
         <View style={styles.sectionContent}>
-          <Text style={styles.taskTitle}>Today's Tasks:</Text>
-          <Text>- Morning Medication – 8:00 AM (Completed)</Text>
-          <Text>- Physical Therapy – 2:00 PM (Upcoming)</Text>
-          <Text>- BP Check – 6:00 PM (Upcoming)</Text>
+          {patientData.shifts && Object.keys(patientData.shifts).length > 0 ? (
+            Object.entries(patientData.shifts).map(
+              ([time, shift]: [string, any], index) => (
+                <Text key={index}>
+                  ⏰ {time}: {shift.firstName} ({shift.shiftDate})
+                </Text>
+              )
+            )
+          ) : (
+            <Text>No shifts available.</Text>
+          )}
         </View>
       )}
 
@@ -83,36 +135,24 @@ const PatientDetails = ({patients}) => {
       <View style={styles.bottomLinks}>
         <TouchableOpacity
           style={styles.link}
-          onPress={() =>
-            // navigation.navigate('CarePlan')}
-            router.push("/patients/CarePlan")
-          }
+          onPress={() => router.push("/patients/CarePlan")}
         >
           <FontAwesome5 name="calendar-alt" size={18} color="#2D5DA3" />
           <Text style={styles.linkText}>Generate Personalized Care Plan</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.link}
-          onPress={
-            () => router.push("/patients/Notes")
-            // navigation.navigate("Notes")
-          }
+          onPress={() => router.push({ pathname: "/patients/Notes", params: { id: patientData.id } })}
         >
           <FontAwesome5 name="calendar-alt" size={18} color="#2D5DA3" />
           <Text style={styles.linkText}>View Notes</Text>
         </TouchableOpacity>
       </View>
-
-      <PatientUCard
-        name={myPatient.name}
-        gender={myPatient.gender}
-        image={myPatient.image}
-        condition={myPatient.condition}
-      ></PatientUCard>
     </View>
   );
 };
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -146,10 +186,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  taskTitle: {
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
   bottomLinks: {
     position: "absolute",
     bottom: 20,
@@ -169,6 +205,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#2D5DA3",
     fontWeight: "bold",
+  },
+  error: {
+    color: "red",
+    textAlign: "center",
+    marginTop: 20,
   },
 });
 
