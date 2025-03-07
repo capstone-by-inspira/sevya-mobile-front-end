@@ -1,18 +1,29 @@
-import { View, Text, Alert, Image } from "react-native";
-import { useRouter } from "expo-router";
+import { View, Text, Image, Alert, StyleSheet } from "react-native";
 import AuthGuard from "../../components/AuthGuard";
-import { deleteSecureData } from "../../services/secureStorage"; // Secure storage import
 import Button from "@/components/ui/Button";
 import TodaysShift from "@/components/TodaysShift";
-import { getDocumentById, getDocumentByKeyValue } from '@/services/api'
-import { getSecureData } from "@/services/secureStorage";
-import { useEffect, useState } from "react";
+import { getDocumentById, getDocumentByKeyValue } from "@/services/api";
+
+import React, { useEffect, useState } from "react";
+import { useRouter } from "expo-router";
+import { deleteSecureData, getSecureData } from "../../services/secureStorage";
+import { DashNameBar } from "@/components/DashNameBar";
 
 export default function Home() {
-  
   const router = useRouter();
+  const [userData, setUserData] = useState<any>(null); // State to store user data
 
-  
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userString = await getSecureData("user");
+      if (userString) {
+        const user = JSON.parse(userString); // Parse the JSON string
+        setUserData(user);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   const logout = async () => {
     await deleteSecureData("token");
@@ -22,12 +33,20 @@ export default function Home() {
 
   return (
     <AuthGuard>
-      <View style={{backgroundColor: '#F0F6FF', display: 'flex', flexDirection: "column", width: "100%", flex: 1}}>
-        <View style={{height: 150}}>
+      <View
+        style={{
+          backgroundColor: "#F0F6FF",
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          flex: 1,
+        }}
+      >
+        <View style={{ height: 150 }}>
           <Image
-          style={{ width: 'auto', height: 150, borderRadius: 0, margin: 0}}
+            style={{ width: "auto", height: 150, borderRadius: 0, margin: 0 }}
             source={{
-              uri: 'https://images.unsplash.com/photo-1584515933487-779824d29309',
+              uri: "https://images.unsplash.com/photo-1584515933487-779824d29309",
             }}
           />
         </View>
@@ -37,3 +56,12 @@ export default function Home() {
     </AuthGuard>
   );
 }
+const btnStyle = StyleSheet.create({
+  container: {
+    backgroundColor: "black",
+    width: "50%",
+    alignSelf: "center",
+    borderRadius: 14,
+    marginTop: 10,
+  },
+});
