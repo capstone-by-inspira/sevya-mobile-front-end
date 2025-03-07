@@ -7,6 +7,9 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { AppProvider } from '../components/AuthGuard'; // Import AppProvider
+import { AuthGuard } from '../components/AuthGuard'; // Import AuthGuard
+
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -28,6 +31,7 @@ export default function RootLayout() {
   }
 
   return (
+    <AppProvider> 
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false, title: "Back" }} />
@@ -36,5 +40,7 @@ export default function RootLayout() {
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
+    </AppProvider>
+
   );
 }

@@ -31,7 +31,7 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
-        <Stack.Screen name="CarePlan" component={CarePlanScreen} />
+        {/* <Stack.Screen name="CarePlan" component={CarePlanScreen} /> */}
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

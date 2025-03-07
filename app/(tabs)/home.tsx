@@ -1,8 +1,8 @@
 import { View, Text, Image, Alert, StyleSheet } from "react-native";
-import AuthGuard from "../../components/AuthGuard";
+import {AuthGuard} from "../../components/AuthGuard";
 import Button from "@/components/ui/Button";
 import TodaysShift from "@/components/TodaysShift";
-import { getDocumentById, getDocumentByKeyValue } from "@/services/api";
+import { getDocumentById, getDocumentByKeyValue , getDocuments} from "@/services/api";
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
@@ -11,25 +11,44 @@ import { DashNameBar } from "@/components/DashNameBar";
 
 export default function Home() {
   const router = useRouter();
-  const [userData, setUserData] = useState<any>(null); // State to store user data
+  // const [userData, setUserData] = useState<any>(null); // State to store user data
+  // const [token, setToken] = useState<string | null>(null);
+  
+  // useEffect(() => {
+  //   const fetchUser = async () => {
+  //     const token = await getSecureData("token");
+  //     if(token){
+  //       setToken(token);
+  //     }
+  //     const userString = await getSecureData("user");
+  //     if (userString) {
+  //       const user = JSON.parse(userString); // Parse the JSON string
+  //       console.log('user>>>>>', user);
+  //       setUserData(user);
+  //     }
+  //   };
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const userString = await getSecureData("user");
-      if (userString) {
-        const user = JSON.parse(userString); // Parse the JSON string
-        setUserData(user);
-      }
-    };
+  //   fetchUser();
+  // }, []);
 
-    fetchUser();
-  }, []);
+
+  
+
+
+  
+
 
   const logout = async () => {
     await deleteSecureData("token");
     await deleteSecureData("user");
     router.replace("/login");
   };
+
+  // const refreshData = () => {
+  //   fetchPatients();
+  //   fetchCaregiver();
+  //   fetchShifts();
+  // };
 
   return (
     <AuthGuard>
@@ -50,7 +69,7 @@ export default function Home() {
             }}
           />
         </View>
-        <TodaysShift />
+       <TodaysShift />
         <Button handleButtonClick={logout} buttonText="Logout" />
       </View>
     </AuthGuard>

@@ -5,7 +5,7 @@ import { useRouter } from "expo-router";
 import patientData2 from "../patients/patientData2";
 import PatientUCard from "@/components/PatientUCard";
 
-const PatientDetails = () => {
+const PatientDetails = ({patients}) => {
   const router = useRouter();
   const myPatient = patientData2[0]; 
   const [expandedSections, setExpandedSections] = useState<{

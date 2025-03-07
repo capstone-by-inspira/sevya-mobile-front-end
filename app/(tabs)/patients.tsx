@@ -1,16 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
+import { View, Text, StyleSheet, FlatList, RefreshControl } from 'react-native';
 import SearchBar from "../../components/SearchBar"; // Import SearchBar component
 import PatientCard from "@/components/PatientCard";
 import patientsData from "../patients/patientData";
 import { useRouter } from 'expo-router';
 import { getSecureData } from '../../services/secureStorage'; // Import the secure storage function
+import { AppContext } from '../../components/AuthGuard';
 
 const Patients = () => {
+  const context = useContext(AppContext);
+
+  if (!context) {
+    return <Text>Error: AppContext not found</Text>;
+  }
+
+  const {isAuth, caregivers, patients, shifts, fetchData } = context;
+
+  console.log(patients);
   const [searchText, setSearchText] = useState("");
   const [filteredPatients, setFilteredPatients] = useState(patientsData);
   const [userData, setUserData] = useState<any>(null); // Store user data
+  const [refreshing, setRefreshing] = useState(false);
+
   const router = useRouter();
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchData(); // Call the function to reload data
+    setRefreshing(false);
+  }, []);
+
+  
 
   useEffect(() => {
     const fetchStoredUserData = async () => {
@@ -52,7 +72,6 @@ const Patients = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>My Patients</Text>
-
       {/* Conditionally render user data */}
       {/* {userData ? (
         <Text style={styles.userInfo}>Welcome, {userData.name}</Text> // Display user data (example)
@@ -62,9 +81,9 @@ const Patients = () => {
 
       <SearchBar placeholder="Search patients..." value={searchText} onChangeText={handleSearch} />
 
-      {filteredPatients.length > 0 ? (
+      {patients.length > 0 ? (
         <FlatList
-          data={filteredPatients}
+          data={patients}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <PatientCard
@@ -74,6 +93,9 @@ const Patients = () => {
               onPress={() => handlePatientPress(item.id)} // Pass id to navigate
             />
           )}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         />
       ) : (
         <Text style={styles.noDataText}>No patients found</Text>
