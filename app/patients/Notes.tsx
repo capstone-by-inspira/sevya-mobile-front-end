@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,26 +9,118 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  ScrollView,
 } from "react-native";
+import { getSecureData } from "../../services/secureStorage";
+import { useLocalSearchParams } from "expo-router";
+import { db } from "@/FirebaseConfig"; // Ensure correct Firebase path
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  arrayUnion,
+  Timestamp,
+} from "firebase/firestore";
 
 const Notes = () => {
+  const { id } = useLocalSearchParams(); // Get patient ID
+  const [notes, setNotes] = useState<any[]>([]);
   const [note, setNote] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  // Fetch notes from Firebase
+  useEffect(() => {
+    const fetchNotes = async () => {
+      if (!id) return;
+
+      try {
+        const docRef = doc(db, "patients", id as string);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          setNotes(docSnap.data().notes || []);
+        }
+      } catch (error) {
+        console.error("Error fetching notes:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNotes();
+  }, [id]);
+
+  // Add a new note to Firebase
+  const addNote = async () => {
+    if (!id || !note.trim()) return;
+
+    try {
+      // Retrieve caregiver's name from user data
+      const userData = await getSecureData("user");
+
+      if (!userData) {
+        console.error("User data not found.");
+        return;
+      }
+
+      const user = JSON.parse(userData); // Parse JSON only if userData exists
+
+      if (!user?.name) {
+        console.error("User name is missing.");
+        return;
+      }
+
+      const newNote = {
+        caregiverName: user.name, // Use the actual caregiver name from user data
+        myNote: note,
+        date: Timestamp.now(),
+      };
+
+      // Firestore update: Push the new note to the patient's document
+      const docRef = doc(db, "patients", id as string);
+      await updateDoc(docRef, {
+        notes: arrayUnion(newNote),
+      });
+
+      // Update local state and clear input field
+      setNotes((prevNotes) => [...prevNotes, newNote]);
+      setNote(""); // Clear input
+      console.log("Note added successfully!");
+    } catch (error) {
+      console.error("Error adding note:", error);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.innerContainer}>
           <Text style={styles.title}>Patient Notes</Text>
-          <Text style={styles.content}>
-            Here you can view and manage notes related to the patient...
-          </Text>
+
+          <ScrollView contentContainerStyle={styles.notesContainer}>
+            {loading ? (
+              <Text>Loading...</Text>
+            ) : notes.length > 0 ? (
+              notes.map((item, index) => (
+                <View key={index} style={styles.noteBubble}>
+                  <Text style={styles.noteAuthor}>{item.caregiverName}</Text>
+                  <Text style={styles.noteText}>{item.myNote}</Text>
+                  <Text style={styles.noteDate}>
+                    {new Date(item.date.seconds * 1000).toLocaleString()}
+                  </Text>
+                </View>
+              ))
+            ) : (
+              <Text>No notes available.</Text>
+            )}
+          </ScrollView>
         </View>
       </TouchableWithoutFeedback>
 
-      {/* Bottom input area */}
+      {/* Input Section */}
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.textInput}
@@ -36,19 +128,16 @@ const Notes = () => {
           onChangeText={setNote}
           placeholder="Type your note here..."
           multiline
-          numberOfLines={1}
         />
-        <TouchableOpacity
-          style={styles.sendButton}
-          onPress={() => alert("Send clicked")}
-        >
-          <Text style={styles.sendText}>Save</Text>
+        <TouchableOpacity style={styles.sendButton} onPress={addNote}>
+          <Text style={styles.sendText}>Send</Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
   );
 };
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -56,32 +145,46 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     padding: 20,
   },
   title: {
     fontSize: 22,
     fontWeight: "bold",
+    textAlign: "center",
     marginBottom: 10,
   },
-  content: {
+  notesContainer: {
+    flexGrow: 1,
+    paddingBottom: 100, // Avoid input overlap
+  },
+  noteBubble: {
+    backgroundColor: "#DCF8C6", // WhatsApp-style bubble
+    padding: 10,
+    borderRadius: 8,
+    marginVertical: 5,
+    alignSelf: "flex-start",
+    maxWidth: "80%",
+  },
+  noteAuthor: {
+    fontWeight: "bold",
+    color: "#075E54",
+  },
+  noteText: {
     fontSize: 16,
-    textAlign: "center",
-    marginBottom: 20,
+    marginVertical: 5,
+  },
+  noteDate: {
+    fontSize: 12,
+    color: "gray",
+    alignSelf: "flex-end",
   },
   inputContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
     flexDirection: "row",
     alignItems: "center",
     padding: 10,
     backgroundColor: "#fff",
     borderTopWidth: 1,
     borderTopColor: "#ccc",
-    marginBottom: 15,
   },
   textInput: {
     flex: 1,
@@ -99,8 +202,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     backgroundColor: "#0078D4",
     borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
   },
   sendText: {
     color: "#fff",
