@@ -21,12 +21,26 @@ import {
   arrayUnion,
   Timestamp,
 } from "firebase/firestore";
+import { SelectList } from 'react-native-dropdown-select-list';
+import { translatePatientNotes } from "@/services/api";
 
 const Notes = () => {
   const { id } = useLocalSearchParams(); // Get patient ID
   const [notes, setNotes] = useState<any[]>([]);
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(true);
+  const [selectedLanguage, setSelectedLanguage] = useState("English");
+  const [translatedNotes, setTranslatedNotes] = useState<{ [key: number]: string }>({});
+  const languages = [
+    { key: "en", value: "English" },
+    { key: "pa", value: "Punjabi" },
+    { key: "hi", value: "Hindi" },
+    { key: "fr", value: "French" },
+    { key: "ja", value: "Japanese" },
+    { key: "tl", value: "Filipino" },
+    { key: "zh", value: "Chinese" },
+    { key: "es", value: "Spanish" },
+  ];
 
   // Fetch notes from Firebase
   useEffect(() => {
@@ -49,6 +63,23 @@ const Notes = () => {
 
     fetchNotes();
   }, [id]);
+
+  const translateNote = async (text: string, index: number) => {
+    try {
+      const targetLang = languages.find(lang => lang.value === selectedLanguage)?.key || "en";
+
+      const patientData = {
+        notes: text,
+        language: targetLang,
+      }
+      const response = translatePatientNotes(patientData)
+      console.log('translated', response);
+      
+      // setTranslatedNotes(prev => ({ ...prev, [index]: translatedText }));
+    } catch (error) {
+      console.error("Translation failed:", error);
+    }
+  };
 
   // Add a new note to Firebase
   const addNote = async () => {
@@ -98,8 +129,18 @@ const Notes = () => {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.innerContainer}>
-          <Text style={styles.title}>Patient Notes</Text>
-
+          <View style={styles.headerContainer}>
+            <Text style={styles.title}>Patient Notes</Text>
+            <SelectList
+              setSelected={(val) => setSelectedLanguage(val)}
+              data={languages}
+              save="value"
+              defaultOption={{ key: "en", value: "English" }} // Default selection
+              boxStyles={styles.dropdown}
+              dropdownStyles={styles.dropdownList}
+            />
+          </View>
+          
           <ScrollView
             contentContainerStyle={styles.notesContainer}
             keyboardShouldPersistTaps="handled" // Ensure taps outside input dismiss keyboard
@@ -111,6 +152,12 @@ const Notes = () => {
                 <View key={index} style={styles.noteBubble}>
                   <Text style={styles.noteAuthor}>{item.caregiverName}</Text>
                   <Text style={styles.noteText}>{item.myNote}</Text>
+                  <TouchableOpacity
+                    onPress={() => translateNote(item.myNote, index)}
+                    style={styles.translateButton}
+                  >
+                    <Text style={styles.translateText}>Translate</Text>
+                  </TouchableOpacity>
                   <Text style={styles.noteDate}>
                     {new Date(item.date.seconds * 1000).toLocaleString()}
                   </Text>
@@ -159,6 +206,7 @@ const styles = StyleSheet.create({
   notesContainer: {
     flexGrow: 1,
     paddingBottom: 100, // Avoid input overlap
+    width: '100%'
   },
   noteBubble: {
     backgroundColor: "#DCF8C6", // WhatsApp-style bubble
@@ -166,7 +214,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginVertical: 5,
     alignSelf: "flex-start",
-    maxWidth: "80%",
+    maxWidth: "100%",
   },
   noteAuthor: {
     fontWeight: "bold",
@@ -216,6 +264,32 @@ const styles = StyleSheet.create({
   sendText: {
     color: "#fff",
     fontSize: 16,
+    fontWeight: "bold",
+  },
+  dropdown: { 
+    borderWidth: 1, 
+    borderColor: "#ccc", 
+    borderRadius: 5, 
+    paddingHorizontal: 10 
+  },
+  dropdownList: { 
+    borderWidth: 1, 
+    borderColor: "#ccc", 
+    borderRadius: 5 
+  },
+  headerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  translateButton: {
+    backgroundColor: "#0078D4",
+    padding: 5,
+    borderRadius: 5,
+    marginTop: 5,
+    alignSelf: "flex-start",
+  },
+  translateText: {
+    color: "white",
     fontWeight: "bold",
   },
 });
