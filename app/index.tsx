@@ -3,6 +3,7 @@ import { View, ActivityIndicator } from "react-native";
 import { Redirect } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { getSecureData } from "../services/secureStorage"; // Import utility
+import EmergencyCall from "@/components/EmergencyCall";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -28,6 +29,7 @@ export default function Index() {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" />
+        <EmergencyCall/>
       </View>
     );
   }

@@ -8,6 +8,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { deleteSecureData, getSecureData } from "../../services/secureStorage";
 import { DashNameBar } from "@/components/DashNameBar";
+import EmergencyHelpScreen from "@/components/EmergencyComponent";
 
 export default function Home() {
   const router = useRouter();
@@ -70,6 +71,7 @@ export default function Home() {
           />
         </View>
        <TodaysShift />
+       <EmergencyHelpScreen/>
         <Button handleButtonClick={logout} buttonText="Logout" />
       </View>
     </AuthGuard>
