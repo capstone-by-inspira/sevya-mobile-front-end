@@ -6,6 +6,7 @@ import { useLocalSearchParams } from "expo-router";
 const CarePlan = () => {
   const { plan } = useLocalSearchParams(); // Get patient ID
 
+  console.log(plan, 'plan >>>>>>>>>>>>');
   const planArr =[plan]
   return (
     plan && (

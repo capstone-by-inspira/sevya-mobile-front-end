@@ -1,58 +1,43 @@
-import { View, Text, Image, Alert, StyleSheet } from "react-native";
-import {AuthGuard} from "../../components/AuthGuard";
+import {
+  View,
+  Text,
+  Image,
+  Alert,
+  StyleSheet,
+  SafeAreaView,
+} from "react-native";
+import { AppProvider, AuthGuard } from "../../components/AuthGuard";
 import Button from "@/components/ui/Button";
 import TodaysShift from "@/components/TodaysShift";
-import { getDocumentById, getDocumentByKeyValue , getDocuments} from "@/services/api";
+import {
+  getDocumentById,
+  getDocumentByKeyValue,
+  getDocuments,
+} from "@/services/api";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useRouter } from "expo-router";
 import { deleteSecureData, getSecureData } from "../../services/secureStorage";
 import { DashNameBar } from "@/components/DashNameBar";
 import EmergencyHelpScreen from "@/components/EmergencyComponent";
+import { AppContext } from "@/components/AuthGuard";
+import EmergencyCall from "@/components/EmergencyCall";
 
 export default function Home() {
   const router = useRouter();
-  // const [userData, setUserData] = useState<any>(null); // State to store user data
-  // const [token, setToken] = useState<string | null>(null);
-  
-  // useEffect(() => {
-  //   const fetchUser = async () => {
-  //     const token = await getSecureData("token");
-  //     if(token){
-  //       setToken(token);
-  //     }
-  //     const userString = await getSecureData("user");
-  //     if (userString) {
-  //       const user = JSON.parse(userString); // Parse the JSON string
-  //       console.log('user>>>>>', user);
-  //       setUserData(user);
-  //     }
-  //   };
 
-  //   fetchUser();
-  // }, []);
+  const context = useContext(AppContext);
 
+  if (!context) {
+    return <Text>Error: AppContext not found</Text>;
+  }
 
-  
+  const { isAuth, caregivers, patients, shifts, fetchData } = context;
 
-
-  
-
-
-  const logout = async () => {
-    await deleteSecureData("token");
-    await deleteSecureData("user");
-    router.replace("/login");
-  };
-
-  // const refreshData = () => {
-  //   fetchPatients();
-  //   fetchCaregiver();
-  //   fetchShifts();
-  // };
+  console.log("caregiver??", caregivers);
 
   return (
-    <AuthGuard>
+    <AppProvider>
       <View
         style={{
           backgroundColor: "#F0F6FF",
@@ -70,11 +55,10 @@ export default function Home() {
             }}
           />
         </View>
-       <TodaysShift />
-       <EmergencyHelpScreen/>
-        <Button handleButtonClick={logout} buttonText="Logout" />
+        <TodaysShift />
+        <EmergencyHelpScreen />
       </View>
-    </AuthGuard>
+    </AppProvider>
   );
 }
 const btnStyle = StyleSheet.create({

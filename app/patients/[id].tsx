@@ -66,7 +66,7 @@ const PatientDetails = () => {
       
       // Split the plan into bullet points if it's in a text format
       const planArray = generatedPlan.split('\n').filter(line => line.trim() !== '');
-      router.push({ pathname:"/patients/CarePlan", params: { plan: planArray }})
+      router.push({ pathname:"/patients/CarePlan", params: { plan: generatedPlan }})
       setPlan(planArray);
     } catch (error) {
       setError('Error generating healthcare plan');

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext } from "react";
-import { View, Text, StyleSheet, FlatList, RefreshControl } from "react-native";
+import { View, Text, StyleSheet, FlatList, RefreshControl , SafeAreaView } from "react-native";
 import SearchBar from "../../components/SearchBar"; // Import SearchBar component
 import PatientCard from "@/components/PatientCard";
 import { useRouter } from "expo-router";
@@ -72,6 +72,7 @@ const Patients = () => {
   };
 
   return (
+    <SafeAreaView style={styles.container}>
     <View style={styles.container}>
       <Text style={styles.title}>My Patients</Text>
       <SearchBar
@@ -99,6 +100,7 @@ const Patients = () => {
         <Text style={styles.noDataText}>No patients found</Text>
       )}
     </View>
+    </SafeAreaView>
   );
 };
 

@@ -1,5 +1,7 @@
 import { 
-  Alert, StyleSheet, Text, TouchableOpacity, View, Modal, FlatList, RefreshControl, SectionList 
+  Alert, StyleSheet, Text, TouchableOpacity, View, Modal, FlatList, RefreshControl, ScrollView, 
+  SafeAreaView,
+  SectionList
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { Calendar } from 'react-native-calendars';

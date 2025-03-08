@@ -24,7 +24,7 @@ export const saveSecureData = async (key: string, value: string) => {
 export const getSecureData = async (key: string): Promise<string | null> => {
   try {
     const value = await SecureStore.getItemAsync(key);
-    console.log(`🔍 Retrieved: ${key} = ${value}`);
+    // console.log(`🔍 Retrieved: ${key} = ${value}`);
     return value;
   } catch (error) {
     console.error(`❌ Error retrieving ${key}:`, error);
@@ -39,7 +39,7 @@ export const getSecureData = async (key: string): Promise<string | null> => {
 export const deleteSecureData = async (key: string) => {
   try {
     await SecureStore.deleteItemAsync(key);
-    console.log(`🗑️ Deleted: ${key}`);
+    // console.log(`🗑️ Deleted: ${key}`);
   } catch (error) {
     console.error(`❌ Error deleting ${key}:`, error);
   }
