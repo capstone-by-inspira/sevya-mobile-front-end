@@ -8,6 +8,7 @@ import { Card, Divider, Icon, ProgressBar } from "react-native-paper";
 import Button from "@/components/ui/Button";
 import { formatDateOnly, formatTimeOnly } from "@/services/utils";
 import { AppContext } from "@/components/AuthGuard";
+import PatientUCard from "@/components/PatientUCard";
 
 interface Shift {
   id: number;
@@ -23,6 +24,14 @@ interface Shift {
   checkInTime: string;
 }
 
+interface Patient {
+  id: number;
+  firstName: string;
+  gender: string;
+  medicalConditions?: string[];
+  image?:  any;
+}
+
 
 const ShiftCard: React.FC = () => {
   const [shift, setShift] = useState<Shift | null>(null);
@@ -35,6 +44,8 @@ const ShiftCard: React.FC = () => {
   const [shiftTime, setShiftTime] = useState();
   const [checkIn, setCheckIn] = useState(false);
   const { id } = useLocalSearchParams<{ id: string }>();
+  const [patient, setPatient] = useState<Patient | null>(null);
+
   console.log("id:::", id);
   const context = useContext(AppContext);
   if (!context) {
@@ -58,15 +69,19 @@ const ShiftCard: React.FC = () => {
     return () => clearInterval(interval);
   }, [shift]);
 
+  const getPatientDetails = (patientId) => {
+    const patient = patients.find((p) => p.id === patientId);
+    setPatient(patient);
+  }
+
   const getShiftDetails = () => {
     if(shifts) {
       const shift = shifts.find(shift => shift.id === id);
-      console.log('shiftCheckin:::::', !!shift.checkIn)
       setShift(shift);
       setLocation(shift.location);
       setShiftTime(shift.startTime);
       setCheckIn(shift.checkIn);
-      console.log('shiftCheckin:::::', !!shift.checkIn)
+      getPatientDetails(shift.patientId);
       if (shift?.checkIn) {
         setShiftStartButton(true);
         setShiftEndButton(false);
@@ -210,6 +225,14 @@ const ShiftCard: React.FC = () => {
       </Card>
       <Divider />
       <Text style={styles.shiftInfoHeading}>Your Patients</Text>
+      <View style={styles.patientList}>
+        <PatientUCard
+          name={patient?.firstName ?? ""}
+          gender={patient?.gender || ''}
+          condition={patient?.medicalConditions?.join(", ") ?? ""} 
+          image={patient?.image}
+        />
+      </View>
     </View>
   );
 };
@@ -279,6 +302,9 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     marginVertical: 10,
   },
+  patientList: {
+    marginHorizontal: 20,
+  }
 });
 
 export default ShiftCard;
