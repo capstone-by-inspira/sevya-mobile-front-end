@@ -43,7 +43,7 @@ export default function RootLayout() {
             options={{ headerShown: false, title: "Back" }}
           />
           <Stack.Screen name="+not-found" />
-          <Stack.Screen name="CarePlan" />
+          <Stack.Screen name="CarePlan"/>
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>

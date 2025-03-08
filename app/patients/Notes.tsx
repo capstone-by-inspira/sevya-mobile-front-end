@@ -51,11 +51,11 @@ const Notes = () => {
     fetchNotes();
   }, [id]);
 
-  // useEffect(() => {
-  //   if (id) {
-  //     navigation.setOptions({ title: `Notes` }); // Set the header title
-  //  }
-  // }, [id, navigation]);
+  useEffect(() => {
+    if (id) {
+      navigation.setOptions({ title: `Notes` }); // Set the header title
+   }
+  }, [id, navigation]);
   // Add a new note to Firebase
   const addNote = async () => {
     if (!id || !note.trim()) return;

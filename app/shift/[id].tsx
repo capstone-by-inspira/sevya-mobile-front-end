@@ -41,7 +41,7 @@ const ShiftCard: React.FC = () => {
   const [endTime, setEndTime] = useState();
   const [location, setLocation] = useState();
   const [shiftTime, setShiftTime] = useState();
-  const [patient, setPatient] = useState<Patient | null>(null);
+
   const [checkIn, setCheckIn] = useState(false);
   const { id } = useLocalSearchParams<{ id: string }>();
   const [patient, setPatient] = useState<Patient | null>(null);

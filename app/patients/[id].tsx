@@ -39,11 +39,11 @@ const PatientDetails = () => {
     shifts: false,
   });
 
-  // useEffect(() => {
-  //       if (patientData) {
-  //         navigation.setOptions({ title: patientData.firstName }); // Set the header title
-  //      }
-  //     }, [patientData, navigation]);
+  useEffect(() => {
+        if (patientData) {
+          navigation.setOptions({ title: patientData.firstName }); // Set the header title
+       }
+      }, [patientData, navigation]);
 
   // Toggle dropdown sections
   const toggleSection = (section: string) => {

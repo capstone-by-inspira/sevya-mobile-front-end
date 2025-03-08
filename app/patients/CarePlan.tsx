@@ -1,12 +1,20 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+
 import { View, Text, StyleSheet, ScrollView } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 
 const CarePlan = () => {
   const { plan } = useLocalSearchParams(); // Get patient ID
+  const navigation = useNavigation();
 
   console.log(plan, 'plan >>>>>>>>>>>>');
   const planArr = [plan];
+
+  useEffect(() => {
+    if (plan) {
+      navigation.setOptions({ title: `AI Care Plan` }); // Set the header title
+   }
+  }, [plan, navigation]);
 
   return (
     plan && (
