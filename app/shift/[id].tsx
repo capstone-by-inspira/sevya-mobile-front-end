@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { router, useRouter } from "expo-router";
 import { getDocumentById, getDocuments, updateDocument } from "@/services/api";
 import { getSecureData } from "@/services/secureStorage";
@@ -7,6 +7,7 @@ import { useLocalSearchParams } from "expo-router";
 import { Card, Divider, Icon, ProgressBar } from "react-native-paper";
 import Button from "@/components/ui/Button";
 import { formatDateOnly, formatTimeOnly } from "@/services/utils";
+import { AppContext } from "@/components/AuthGuard";
 
 interface Shift {
   id: number;
@@ -16,107 +17,138 @@ interface Shift {
   endTime: string;
   adminId: number;
   status: string;
-  checkIn: string;
+  checkIn: boolean;
   checkOut: string;
+  checkOutTime: string;
+  checkInTime: string;
 }
 
 
 const ShiftCard: React.FC = () => {
   const [shift, setShift] = useState<Shift | null>(null);
   const [progress, setProgress] = useState(0);
-  const [shiftStarted, setShiftStarted] = useState(false);
+  const [shiftStartButton, setShiftStartButton] = useState(false);
+  const [shiftEndButton, setShiftEndButton] = useState(false);
   const [startTime, setStartTime] = useState();
   const [endTime, setEndTime] = useState();
   const [location, setLocation] = useState();
   const [shiftTime, setShiftTime] = useState();
+  const [checkIn, setCheckIn] = useState(false);
   const { id } = useLocalSearchParams<{ id: string }>();
   console.log("id:::", id);
+  const context = useContext(AppContext);
+  if (!context) {
+    return <Text>Error: AppContext not found</Text>;
+  }
+  const { isAuth, caregivers, patients, shifts, fetchData } = context;
+  console.log('shifts::::', shifts);
+
 
   useEffect(() => {
     getShiftDetails();
-    updateProgress();
   }, []);
 
-  const getShiftDetails = async () => {
-    const token = await getSecureData("token");
-    if (!token) {
-      Alert.alert("Error", "No authentication token found. Please log in.");
-      return;
-    }
-    if (id) {
-      const result = await getDocumentById("shifts", id, token);
-      if (result.success) {
-        setShift(result.data);
-        setLocation(result.data.location);
-        setShiftTime(result.data.startTime);
-        !!result.data.checkIn ? setShiftStarted(true) : setShiftStarted(false);
+  useEffect(() => {
+    if (!shift?.startTime || !shift?.endTime) return;
+
+    const interval = setInterval(() => {
+      updateProgress(shift.startTime, shift.endTime);
+    }, 10000); // Update every 10 seconds
+
+    return () => clearInterval(interval);
+  }, [shift]);
+
+  const getShiftDetails = () => {
+    if(shifts) {
+      const shift = shifts.find(shift => shift.id === id);
+      console.log('shiftCheckin:::::', !!shift.checkIn)
+      setShift(shift);
+      setLocation(shift.location);
+      setShiftTime(shift.startTime);
+      setCheckIn(shift.checkIn);
+      console.log('shiftCheckin:::::', !!shift.checkIn)
+      if (shift?.checkIn) {
+        setShiftStartButton(true);
+        setShiftEndButton(false);
       } else {
-        console.error("API Error:", result.error);
-        Alert.alert("API Error", result.error);
+        setShiftStartButton(false);
+        setShiftEndButton(true);
       }
     }
   };
 
   const handleStartShift = async () => {
-    updateProgress();
-
     if (!shift) return;
-    // const token = await getSecureData("token");
-    // const currentUtcTime = new Date().toISOString();
-    // const updateData = {
-    //   ...shift,
-    //   checkInTime: currentUtcTime,
-    //   checkIn: true,
-    // };
-    // const updateResult = await updateDocument("shifts", id, updateData, token);
-    // console.log("updated", updateResult);
-    // if (updateResult.success) {
-    //   setShiftStarted(true);
-    //   updateProgress();
-    // } else {
-    //   Alert.alert("Error", "Failed to update check-in time.");
-    // }
-    
+    const token = await getSecureData("token");
+    const currentUtcTime = new Date().toISOString();
+    const updateData = {
+      ...shift,
+      checkInTime: currentUtcTime,
+      checkIn: true,
+    };
+    const updateResult = await updateDocument("shifts", id, updateData, token);
+    console.log("updated", updateResult);
+    if (updateResult.success) {
+      setCheckIn(true);
+      const updatedShift = 
+      setShift((prevShift) => prevShift ? { ...prevShift, checkIn: true } : prevShift);
+      setShiftStartButton(true);
+      setShiftEndButton(false);
+      updateProgress(shift.startTime, shift.endTime);
+      Alert.alert("Confirmation", "Shift started successfully");
+    } else {
+      Alert.alert("Error", "Failed to update check-in time.");
+    }
+
   };
 
-  const handleEndShift = () => {
-    setShiftStarted(false);
-    setProgress(0);
+  const handleEndShift = async() => {
+    const token = await getSecureData("token");
+    const currentUtcTime = new Date().toISOString();
+    const updateData = {
+      ...shift,
+      checkOutTime: currentUtcTime,
+      checkIn: true,
+    };
+    const updateResult = await updateDocument("shifts", id, updateData, token);
+    console.log("updated", updateResult);
+    if (updateResult.success) {
+      setShiftEndButton(true);
+      setShiftStartButton(true);
+      setProgress(1);
+    } else {
+      Alert.alert("Error", "Failed to update check-out time.");
+    }
   };
 
-  const updateProgress = () => {
-    console.log("time::::");
-    if (!shift) return;
-    const startTime = new Date(shift.startTime).getTime();
-    const endTime = new Date(shift.endTime).getTime();
+  const updateProgress = (start: string, end: string) => {
+    if (!start || !end) return;
+
+    const startTime = new Date(start).getTime();
+    const endTime = new Date(end).getTime();
     const now = Date.now();
-    // const now = new Date('2025-03-05T08:24:50.773Z').getTime();
-    console.log("time::::", startTime, endTime, now);
-    // if (now >= endTime) {
-    //   setProgress(1);
-    //   setShiftStarted(false);
-    // } else {
-    //   console.log(now, "now");
-    //   console.log(startTime, "startTime");
-    //   console.log(endTime, "endTime");
+    console.log('timers:::', now, startTime, endTime);
 
-    //   const progressValue = (now - startTime) / (endTime - startTime);
-    //   setProgress(progressValue);
-    //   setShiftStarted(true);
-    // }
-
-    if (now >= endTime) {
-      setProgress(1); // Shift is complete
-      setShiftStarted(false); // Optional: Mark shift as finished
-  } else if (now <= startTime) {
-      setProgress(0); // Shift hasn't started yet
-      setShiftStarted(false);
-  } else {
-      const progressValue = (now - startTime) / (endTime - startTime);
-      console.log(progressValue,'PROFRESS')
-      setProgress(progressValue); // No need to divide by 100
-      setShiftStarted(true);
-  }
+    if(shift?.checkIn) {
+      if (now >= endTime) {
+        setProgress(1);
+        setShiftEndButton(true);
+        setShiftStartButton(true);
+      } else if (now >= startTime && now < endTime) {
+        const progressValue = (now - startTime) / (endTime - startTime);
+        setProgress(progressValue);
+        setShiftStartButton(true);
+        setShiftEndButton(false);
+      } else {
+        setProgress(0);
+        setShiftStartButton(true);
+        setShiftEndButton(false);
+      }
+    } else {
+      setProgress(0);
+      setShiftStartButton(false);
+      setShiftEndButton(true);
+    }
   };
 
   const handleViewSchedule = async () => {
@@ -130,12 +162,12 @@ const ShiftCard: React.FC = () => {
         <Button
           handleButtonClick={handleStartShift}
           buttonText="Start Shift"
-          disabled={shiftStarted}
+          disabled={shiftStartButton}
         />
         <Button
           handleButtonClick={handleEndShift}
           buttonText="End Shift"
-          disabled={!shiftStarted}
+          disabled={shiftEndButton}
         />
       </View>
 
