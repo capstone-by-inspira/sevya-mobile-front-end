@@ -117,7 +117,7 @@ const caregiver = caregivers;
         <>
           {shift && shift.id ? (
             <Button
-              handleButtonClick={() => router.push(`/shift/${shift.id}`)}
+              handleButtonClick={() => router.replace(`/shift/${shift.id}`)}
               buttonText="Ready for your shift?"
             />
           ) : (

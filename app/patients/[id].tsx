@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -8,14 +8,26 @@ import {
 } from "react-native";
 import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { db } from "@/FirebaseConfig"; // Ensure this is your correct Firebase config path
-import { doc, getDoc } from "firebase/firestore";
 
-const PatientDetails = ({patients}) => {
+import { AppContext } from "../../components/AuthGuard";
+
+const PatientDetails = () => {
+
+  const context = useContext(AppContext);
+
+  if (!context) {
+    return <Text>Error: AppContext not found</Text>;
+  }
+
+  const { isAuth, caregivers, patients, shifts, fetchData } = context;
+
   const router = useRouter();
   const { id } = useLocalSearchParams(); // Get the patient ID from the URL
-  const [patientData, setPatientData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+
+  const patient = patients.find((p:any) => p.id === id);
+
+  const [patientData, setPatientData] = useState<any>(patient);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState({
     patientInfo: false,
@@ -23,31 +35,6 @@ const PatientDetails = ({patients}) => {
     shifts: false,
   });
 
-  // Fetch patient data from Firestore when component mounts
-  useEffect(() => {
-    const fetchPatientData = async () => {
-      if (!id) return;
-
-      try {
-        setLoading(true);
-        const docRef = doc(db, "patients", id as string);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          setPatientData(docSnap.data());
-        } else {
-          setError("Patient not found");
-        }
-      } catch (err) {
-        setError("Error fetching patient data");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPatientData();
-  }, [id]);
 
   // Toggle dropdown sections
   const toggleSection = (section: string) => {
