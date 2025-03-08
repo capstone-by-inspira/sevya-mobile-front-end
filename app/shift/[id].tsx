@@ -32,7 +32,6 @@ interface Patient {
   image?:  any;
 }
 
-
 const ShiftCard: React.FC = () => {
   const [shift, setShift] = useState<Shift | null>(null);
   const [progress, setProgress] = useState(0);
@@ -42,6 +41,7 @@ const ShiftCard: React.FC = () => {
   const [endTime, setEndTime] = useState();
   const [location, setLocation] = useState();
   const [shiftTime, setShiftTime] = useState();
+  const [patient, setPatient] = useState<Patient | null>(null);
   const [checkIn, setCheckIn] = useState(false);
   const { id } = useLocalSearchParams<{ id: string }>();
   const [patient, setPatient] = useState<Patient | null>(null);
@@ -51,7 +51,7 @@ const ShiftCard: React.FC = () => {
   if (!context) {
     return <Text>Error: AppContext not found</Text>;
   }
-  const { isAuth, caregivers, patients, shifts, fetchData } = context;
+  const { isAuth, caregivers, patients, shifts, fetchData, token } = context;
   console.log('shifts::::', shifts);
 
 
@@ -78,6 +78,8 @@ const ShiftCard: React.FC = () => {
     if(shifts) {
       const shift = shifts.find(shift => shift.id === id);
       setShift(shift);
+      const patient = patients.find((p:any) => p.id === shift.patientId);
+      setPatient(patient);
       setLocation(shift.location);
       setShiftTime(shift.startTime);
       setCheckIn(shift.checkIn);
@@ -215,6 +217,7 @@ const ShiftCard: React.FC = () => {
           </View>
         </View>
         <Divider />
+
         <TouchableOpacity
           style={styles.scheduleButton}
           onPress={handleViewSchedule}
