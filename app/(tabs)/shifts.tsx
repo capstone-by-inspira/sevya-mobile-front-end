@@ -1,5 +1,6 @@
 import { 
-  Alert, StyleSheet, Text, TouchableOpacity, View, Modal, FlatList, RefreshControl, ScrollView 
+  Alert, StyleSheet, Text, TouchableOpacity, View, Modal, FlatList, RefreshControl, ScrollView, 
+  SafeAreaView
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { Calendar } from 'react-native-calendars';
@@ -61,6 +62,7 @@ const ShiftCard: React.FC = () => {
   };
 
   return (
+
     <ScrollView 
       style={styles.scrollView}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
@@ -104,6 +106,7 @@ const ShiftCard: React.FC = () => {
         )}
       </View>
     </ScrollView>
+
   );
 };
 
