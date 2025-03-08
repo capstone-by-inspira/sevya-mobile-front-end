@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import axios from "axios";
 
 import { AppContext } from "../../components/AuthGuard";
 
@@ -29,6 +30,7 @@ const PatientDetails = () => {
   const [patientData, setPatientData] = useState<any>(patient);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [plan, setPlan] = useState('');
   const [expandedSections, setExpandedSections] = useState({
     patientInfo: false,
     medicalInfo: false,
@@ -47,6 +49,33 @@ const PatientDetails = () => {
   if (loading) return <ActivityIndicator size="large" color="#2D5DA3" />;
   if (error) return <Text style={styles.error}>{error}</Text>;
   if (!patientData) return <Text>No patient data available.</Text>;
+
+
+
+  const generateCaregiverPlan = async () =>{
+
+    try {
+      // Make the API call to your backend
+      const response = await axios.post('http://192.168.1.212:8800/api/auth/generate-health-plan', {
+        patientData: patientData,
+      });
+
+      // Assuming the healthcare plan is in the response's text field
+      const generatedPlan = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Failed to generate plan';
+      console.log(generatedPlan, 'GEENRATED PLAN');
+      
+      // Split the plan into bullet points if it's in a text format
+      const planArray = generatedPlan.split('\n').filter(line => line.trim() !== '');
+      router.push({ pathname:"/patients/CarePlan", params: { plan: planArray }})
+      setPlan(planArray);
+    } catch (error) {
+      setError('Error generating healthcare plan');
+    } finally {
+      setLoading(false);
+    }
+
+  
+  }
 
   return (
     <View style={styles.container}>
@@ -122,7 +151,7 @@ const PatientDetails = () => {
       <View style={styles.bottomLinks}>
         <TouchableOpacity
           style={styles.link}
-          onPress={() => router.push("/patients/CarePlan")}
+          onPress= {generateCaregiverPlan}
         >
           <FontAwesome5 name="calendar-alt" size={18} color="#2D5DA3" />
           <Text style={styles.linkText}>Generate Personalized Care Plan</Text>
