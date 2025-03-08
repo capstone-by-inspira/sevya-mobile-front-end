@@ -79,6 +79,7 @@ const ShiftCard: React.FC = () => {
   ];
 
   return (
+
     <SectionList 
       style={styles.scrollView}
       sections={sections}
@@ -105,6 +106,7 @@ const ShiftCard: React.FC = () => {
                 </View>
               </Modal>
             </View>
+           
           );
         }
         return renderShiftDetailCard({ item });
@@ -114,11 +116,13 @@ const ShiftCard: React.FC = () => {
       )}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     />
+
   );
 };
 
 const styles = StyleSheet.create({
   scrollView: { 
+  
     flex: 1
   },
   container: {
@@ -134,6 +138,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   sectionHeader: {
+
     fontSize: 20,
     fontWeight: 'bold',
     padding: 10,

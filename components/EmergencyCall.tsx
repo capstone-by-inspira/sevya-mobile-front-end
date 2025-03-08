@@ -12,7 +12,7 @@ const EmergencyCall = () => {
       const acceleration = Math.sqrt(x * x + y * y + z * z);
 
       // Adjust the threshold for sensitivity
-      if (acceleration > 5.8 && !isAlertVisible) {
+      if (acceleration > 3.8 && !isAlertVisible) {
         handleShake();
       }
     });

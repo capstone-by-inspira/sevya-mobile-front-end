@@ -8,6 +8,7 @@ import { Card, Divider, Icon, ProgressBar } from "react-native-paper";
 import Button from "@/components/ui/Button";
 import { formatDateOnly, formatTimeOnly } from "@/services/utils";
 import { AppContext } from "@/components/AuthGuard";
+import PatientUCard from "@/components/PatientUCard";
 
 interface Shift {
   id: number;
@@ -23,6 +24,13 @@ interface Shift {
   checkInTime: string;
 }
 
+interface Patient {
+  id: number;
+  firstName: string;
+  gender: string;
+  medicalConditions?: string[];
+  image?:  any;
+}
 
 const ShiftCard: React.FC = () => {
   const [shift, setShift] = useState<Shift | null>(null);
@@ -33,6 +41,7 @@ const ShiftCard: React.FC = () => {
   const [endTime, setEndTime] = useState();
   const [location, setLocation] = useState();
   const [shiftTime, setShiftTime] = useState();
+  const [patient, setPatient] = useState<Patient | null>(null);
   const [checkIn, setCheckIn] = useState(false);
   const { id } = useLocalSearchParams<{ id: string }>();
   console.log("id:::", id);
@@ -40,7 +49,7 @@ const ShiftCard: React.FC = () => {
   if (!context) {
     return <Text>Error: AppContext not found</Text>;
   }
-  const { isAuth, caregivers, patients, shifts, fetchData } = context;
+  const { isAuth, caregivers, patients, shifts, fetchData, token } = context;
   console.log('shifts::::', shifts);
 
 
@@ -58,11 +67,23 @@ const ShiftCard: React.FC = () => {
     return () => clearInterval(interval);
   }, [shift]);
 
+
+  const findById = (patients: any[], patientId: string) => {
+    return patients.find(patient => patient.id === patientId);
+  };
+  
+
+
+
+
+  
   const getShiftDetails = () => {
     if(shifts) {
       const shift = shifts.find(shift => shift.id === id);
       console.log('shiftCheckin:::::', !!shift.checkIn)
       setShift(shift);
+      const patient = patients.find((p:any) => p.id === shift.patientId);
+      setPatient(patient);
       setLocation(shift.location);
       setShiftTime(shift.startTime);
       setCheckIn(shift.checkIn);
@@ -200,6 +221,7 @@ const ShiftCard: React.FC = () => {
           </View>
         </View>
         <Divider />
+
         <TouchableOpacity
           style={styles.scheduleButton}
           onPress={handleViewSchedule}
@@ -210,6 +232,17 @@ const ShiftCard: React.FC = () => {
       </Card>
       <Divider />
       <Text style={styles.shiftInfoHeading}>Your Patients</Text>
+      <PatientUCard
+      name={patient? patient.firstName: 'anonymous'} // Adjust based on your patient data structure
+      gender={patient? patient.gender : 'male'} // Adjust based on your patient data structure
+      condition={patient? patient.medicalConditions?.join(", ") || "N/A" : 'N/A'} // Adjust based on your patient data structure
+      image={patient? patient.image : ""} // Adjust based on your patient data structure
+      onPress={() => {
+        // Navigate to patient details or perform any action
+        router.push(`/patients/${patient? patient.id : "1"}`);
+        // console.log(`Viewing details for ${item.firstName}`);
+      }}
+    />
     </View>
   );
 };

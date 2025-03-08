@@ -19,15 +19,16 @@ export default function TabLayout() {
          <Tabs.Screen
         name="shifts"
         options={{
-          title: "shifts",
-          headerShown:false,
+          title: "Shifts",
+          headerTitle:"SHIFTS SCHEDULE",
+          headerShown:true,
           tabBarIcon: ({ color }) => <Ionicons name="timer-outline" size={24} color={color} />,
         }}
       />
          <Tabs.Screen
         name="patients"
         options={{
-          title: "patients",
+          title: "Patients",
           headerShown:false,
           tabBarIcon: ({ color }) => <Ionicons name="people-outline" size={24} color={color} />,
         }}
@@ -35,7 +36,7 @@ export default function TabLayout() {
        <Tabs.Screen
         name="settings"
         options={{
-          title: "settings",
+          title: "Settings",
           headerShown:false,
           tabBarIcon: ({ color }) => <Ionicons name="settings-outline" size={24} color={color} />,
         }}

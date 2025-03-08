@@ -25,7 +25,6 @@ import EmergencyHelpScreen from "@/components/EmergencyComponent";
 import { AppContext } from "@/components/AuthGuard";
 import EmergencyCall from "@/components/EmergencyCall";
 import PatientUCard from "@/components/PatientUCard";
-import PatientCard from "@/components/PatientCard";
 
 export default function Home() {
   const router = useRouter();
@@ -39,6 +38,7 @@ export default function Home() {
   const { isAuth, caregivers, patients, shifts, fetchData } = context;
 
   console.log("caregiver??", caregivers);
+
   const renderPatientCard = ({ item }) => (
     <PatientUCard
       name={item.firstName} // Adjust based on your patient data structure
@@ -52,6 +52,8 @@ export default function Home() {
       }}
     />
   );
+
+  
   return (
     <AppProvider>
        <View style={{ height: 150 }}>
@@ -79,7 +81,7 @@ export default function Home() {
             <TodaysShift />
           </View>
 
-          <View>
+          <View >
             <FlatList
               data={patients}
               renderItem={renderPatientCard}

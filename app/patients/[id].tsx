@@ -62,7 +62,7 @@ const PatientDetails = () => {
     setLoading(true);
     try {
       // Make the API call to your backend
-      const response = await axios.post('http://localhost:8800/api/auth/generate-health-plan', {
+      const response = await axios.post('http://192.168.1.212:8800/api/auth/generate-health-plan', {
         patientData: patientData,
       });
 
