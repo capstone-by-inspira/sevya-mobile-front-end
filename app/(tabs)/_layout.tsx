@@ -11,6 +11,7 @@ export default function TabLayout() {
         name="home"
         options={{
           title: "Home",
+          headerShown: false,
           tabBarIcon: ({ color }) => <Ionicons name="home-outline" size={24} color={color} />,
         }}
       />
@@ -18,6 +19,7 @@ export default function TabLayout() {
         name="caregiver"
         options={{
           title: "caregiver",
+          headerShown: false,
           tabBarIcon: ({ color }) => <Ionicons name="heart-outline" size={24} color={color} />,
         }}
       />
@@ -25,6 +27,7 @@ export default function TabLayout() {
         name="shifts"
         options={{
           title: "shifts",
+          headerShown: false,
           tabBarIcon: ({ color }) => <Ionicons name="timer-outline" size={24} color={color} />,
         }}
       />
@@ -32,6 +35,7 @@ export default function TabLayout() {
         name="patients"
         options={{
           title: "patients",
+          headerShown: false,
           tabBarIcon: ({ color }) => <Ionicons name="people-outline" size={24} color={color} />,
         }}
       />

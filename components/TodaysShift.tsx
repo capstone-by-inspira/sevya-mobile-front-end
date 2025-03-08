@@ -117,7 +117,7 @@ const TodaysShift = () => {
                 <>
                     {shift && shift.id ? (
                         <Button
-                            handleButtonClick={() => router.replace(`/shift/${shift.id}`)}
+                            handleButtonClick={() => router.push(`/shift/${shift.id}`)}
                             buttonText="Ready for your shift?"
                         />
                     ) : (
