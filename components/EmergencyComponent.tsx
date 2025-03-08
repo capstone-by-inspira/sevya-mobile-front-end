@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "transparent",
-    height: 10,
+    
   },
   card: {
     backgroundColor: "transparent",

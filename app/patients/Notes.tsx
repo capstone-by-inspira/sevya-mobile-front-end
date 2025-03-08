@@ -12,7 +12,7 @@ import {
   ScrollView,
 } from "react-native";
 import { getSecureData } from "../../services/secureStorage";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import { db } from "@/FirebaseConfig"; // Ensure correct Firebase path
 import {
   doc,
@@ -28,6 +28,7 @@ const Notes = () => {
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const navigation = useNavigation();
   // Fetch notes from Firebase
   useEffect(() => {
     const fetchNotes = async () => {
@@ -50,6 +51,11 @@ const Notes = () => {
     fetchNotes();
   }, [id]);
 
+  // useEffect(() => {
+  //   if (id) {
+  //     navigation.setOptions({ title: `Notes` }); // Set the header title
+  //  }
+  // }, [id, navigation]);
   // Add a new note to Firebase
   const addNote = async () => {
     if (!id || !note.trim()) return;
