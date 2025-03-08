@@ -100,7 +100,10 @@ const Notes = () => {
         <View style={styles.innerContainer}>
           <Text style={styles.title}>Patient Notes</Text>
 
-          <ScrollView contentContainerStyle={styles.notesContainer}>
+          <ScrollView
+            contentContainerStyle={styles.notesContainer}
+            keyboardShouldPersistTaps="handled" // Ensure taps outside input dismiss keyboard
+          >
             {loading ? (
               <Text>Loading...</Text>
             ) : notes.length > 0 ? (
@@ -181,20 +184,27 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 10,
-    backgroundColor: "#fff",
+    paddingTop: 20,
+    paddingBottom: 50,
+    marginBottom:80,
+    paddingHorizontal: 10,
+    backgroundColor: "transparent",
     borderTopWidth: 1,
     borderTopColor: "#ccc",
   },
   textInput: {
+    backgroundColor:'white',
+    display:"flex",
+    justifyContent:'center',
+    alignItems:'center',
+  
     flex: 1,
-    height: 40,
+    padding:10,
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 20,
     paddingLeft: 10,
     fontSize: 16,
-    backgroundColor: "#f0f0f0",
   },
   sendButton: {
     marginLeft: 10,
