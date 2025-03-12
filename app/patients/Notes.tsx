@@ -10,10 +10,11 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   ScrollView,
+  Image,
 } from "react-native";
 import { getSecureData } from "../../services/secureStorage";
 import { useLocalSearchParams } from "expo-router";
-import { db } from "@/FirebaseConfig"; // Ensure correct Firebase path
+import { db } from "@/FirebaseConfig";
 import {
   doc,
   getDoc,
@@ -21,14 +22,15 @@ import {
   arrayUnion,
   Timestamp,
 } from "firebase/firestore";
+import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 
 const Notes = () => {
-  const { id } = useLocalSearchParams(); // Get patient ID
+  const { id } = useLocalSearchParams();
   const [notes, setNotes] = useState<any[]>([]);
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(true);
+  const [imageUri, setImageUri] = useState<string | null>(null);
 
-  // Fetch notes from Firebase
   useEffect(() => {
     const fetchNotes = async () => {
       if (!id) return;
@@ -50,45 +52,59 @@ const Notes = () => {
     fetchNotes();
   }, [id]);
 
-  // Add a new note to Firebase
   const addNote = async () => {
-    if (!id || !note.trim()) return;
+    if (!id || (!note.trim() && !imageUri)) return;
 
     try {
-      // Retrieve caregiver's name from user data
       const userData = await getSecureData("user");
-
       if (!userData) {
         console.error("User data not found.");
         return;
       }
 
-      const user = JSON.parse(userData); // Parse JSON only if userData exists
-
+      const user = JSON.parse(userData);
       if (!user?.name) {
         console.error("User name is missing.");
         return;
       }
 
       const newNote = {
-        caregiverName: user.name, // Use the actual caregiver name from user data
-        myNote: note,
+        caregiverName: user.name,
+        myNote: note || "",
+        imageUrl: imageUri || null,
         date: Timestamp.now(),
       };
 
-      // Firestore update: Push the new note to the patient's document
       const docRef = doc(db, "patients", id as string);
       await updateDoc(docRef, {
         notes: arrayUnion(newNote),
       });
 
-      // Update local state and clear input field
       setNotes((prevNotes) => [...prevNotes, newNote]);
-      setNote(""); // Clear input
+      setNote("");
+      setImageUri(null);
       console.log("Note added successfully!");
     } catch (error) {
       console.error("Error adding note:", error);
     }
+  };
+
+  const handleImagePick = () => {
+    launchImageLibrary({ mediaType: "photo" }, (response) => {
+      if (response.didCancel) return;
+      if (response.assets) {
+        setImageUri(response.assets[0].uri ?? null);
+      }
+    });
+  };
+
+  const handleCameraOpen = () => {
+    launchCamera({ mediaType: "photo" }, (response) => {
+      if (response.didCancel) return;
+      if (response.assets) {
+        setImageUri(response.assets[0].uri ?? null);
+      }
+    });
   };
 
   return (
@@ -108,6 +124,9 @@ const Notes = () => {
                 <View key={index} style={styles.noteBubble}>
                   <Text style={styles.noteAuthor}>{item.caregiverName}</Text>
                   <Text style={styles.noteText}>{item.myNote}</Text>
+                  {item.imageUrl && (
+                    <Image source={{ uri: item.imageUrl }} style={styles.noteImage} />
+                  )}
                   <Text style={styles.noteDate}>
                     {new Date(item.date.seconds * 1000).toLocaleString()}
                   </Text>
@@ -120,7 +139,6 @@ const Notes = () => {
         </View>
       </TouchableWithoutFeedback>
 
-      {/* Input Section */}
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.textInput}
@@ -129,10 +147,18 @@ const Notes = () => {
           placeholder="Type your note here..."
           multiline
         />
+        <TouchableOpacity style={styles.imageButton} onPress={handleImagePick}>
+          <Text style={styles.iconText}>📷</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.imageButton} onPress={handleCameraOpen}>
+          <Text style={styles.iconText}>📸</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.sendButton} onPress={addNote}>
           <Text style={styles.sendText}>Send</Text>
         </TouchableOpacity>
       </View>
+
+      {imageUri && <Image source={{ uri: imageUri }} style={styles.previewImage} />}
     </KeyboardAvoidingView>
   );
 };
@@ -155,10 +181,10 @@ const styles = StyleSheet.create({
   },
   notesContainer: {
     flexGrow: 1,
-    paddingBottom: 100, // Avoid input overlap
+    paddingBottom: 100,
   },
   noteBubble: {
-    backgroundColor: "#DCF8C6", // WhatsApp-style bubble
+    backgroundColor: "#DCF8C6",
     padding: 10,
     borderRadius: 8,
     marginVertical: 5,
@@ -172,6 +198,12 @@ const styles = StyleSheet.create({
   noteText: {
     fontSize: 16,
     marginVertical: 5,
+  },
+  noteImage: {
+    width: 150,
+    height: 150,
+    borderRadius: 8,
+    marginTop: 5,
   },
   noteDate: {
     fontSize: 12,
@@ -196,6 +228,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: "#f0f0f0",
   },
+  imageButton: {
+    marginLeft: 10,
+    padding: 8,
+  },
+  iconText: {
+    fontSize: 22,
+  },
   sendButton: {
     marginLeft: 10,
     paddingHorizontal: 20,
@@ -207,6 +246,13 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  previewImage: {
+    width: 100,
+    height: 100,
+    alignSelf: "center",
+    marginTop: 10,
+    borderRadius: 8,
   },
 });
 
