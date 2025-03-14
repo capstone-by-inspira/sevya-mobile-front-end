@@ -13,9 +13,9 @@ import { useRouter } from "expo-router";
 import axios from "axios";
 import { auth } from "../config/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { saveSecureData, getSecureData } from "../services/secureStorage"; // Import Secure Storage utility
+import { saveSecureData, getSecureData } from "../services/secureStorage"; // Import Seure Storage utility
 
-const API_URL = "http://192.168.1.212:8800/api";
+const API_URL = "http://10.128.229.103:8800/api";
 
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState<string>("nammy@caregiver.com");
@@ -31,7 +31,7 @@ const LoginScreen: React.FC = () => {
         password
       );
       const idToken = await userCredential.user.getIdToken();
-      console.log("Firebase Token:", idToken);
+      // console.log("Firebase Token:", idToken);
       await authenticate(idToken);
     } catch (error) {
       console.error("Login Error:", error);
@@ -46,7 +46,7 @@ const LoginScreen: React.FC = () => {
         collectionName: "caregivers",
       });
 
-      console.log("Full data received from API:", data);
+      // console.log("Full data received from API:", data);
 
       // Securely store token and user data
       await saveSecureData("token", data.token);
@@ -84,10 +84,7 @@ const LoginScreen: React.FC = () => {
           secureTextEntry
           style={styles.input}
         />
-    
-      {/* <TouchableOpacity onPress={handleLogin} style={styles.button}>
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity> */}
+  
       <Button
           handleButtonClick={handleLogin}
           buttonText="Login"

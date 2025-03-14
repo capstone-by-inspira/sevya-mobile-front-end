@@ -6,7 +6,7 @@ import {
 import React, { useContext, useEffect, useState } from 'react';
 import { Calendar } from 'react-native-calendars';
 import ShiftDetailCard from '@/components/ShiftDetailCard';
-import { AppContext } from '@/components/AuthGuard';
+import { AppContext } from '@/components/AppContext';
 
 const ShiftCard: React.FC = () => {
   const context = useContext(AppContext);
@@ -46,7 +46,7 @@ const ShiftCard: React.FC = () => {
   // Pull-to-refresh function
   const onRefresh = async () => {
     setRefreshing(true);
-    await fetchData(); // Re-fetch all data (calendar + shifts)
+    await fetchData(); // Re-fetcall data (calendar + shifts)
     setRefreshing(false);
     console.log('refreshing')
   };

@@ -1,13 +1,12 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
-// import defaultImage from '../assets/images/anonymous-patient.png'
 
 interface PatientCardProps {
   name: string;
   gender: string;
   condition: string;
-  image: string;
+  image: any;
   onPress?: () => void;
 }
 
@@ -21,7 +20,8 @@ const PatientUCard: React.FC<PatientCardProps> = ({
   return (
     <View style={styles.card}>
       <Image
-        source={require("../assets/images/anonymous-patient.png")}
+        source={{uri:image}
+}
         style={styles.image}
       />
       <Text style={styles.name}>{name}</Text>

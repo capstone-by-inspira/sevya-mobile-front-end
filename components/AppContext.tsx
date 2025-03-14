@@ -3,6 +3,7 @@ import { getSecureData } from '../services/secureStorage';
 import { View, ActivityIndicator, Text } from 'react-native';
 import { Redirect } from 'expo-router';
 import { getDocuments, getDocumentById, getDocumentByKeyValue } from '@/services/api';
+import { useRouter } from 'expo-router';
 
 interface AppContextType {
   isAuth: boolean;
@@ -15,7 +16,7 @@ interface AppContextType {
   token:any;
 }
 
-const AppContext = createContext<AppContextType | undefined>(undefined);
+const AppContext = createContext<AppContextType | undefined>(undefined); // CREATING CONTEXT
 
 interface AppProviderProps {
   children: ReactNode;
@@ -31,44 +32,52 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUserAndData = async () => {
+      setLoading(true); // Start loading
+  
       try {
+        // Step 1: Fetch token and user data
         const token = await getSecureData("token");
+        const userString = await getSecureData("user");
+  
         if (token) {
           setToken(token);
           setIsAuth(true);
+  
+          if (userString) {
+            const user = JSON.parse(userString);
+            setUserData(user);
+  
+            // Step 2: Fetch additional data (patients, caregivers, shifts)
+            const [patientsResponse, caregiversResponse, shiftsResponse] = await Promise.all([
+              getDocuments("patients", token),
+              getDocumentById("caregivers", user.uid, token),
+              getDocumentByKeyValue("shifts", "caregiverId", user.uid, token),
+            ]);
+  
+            // Filter patients for the current caregiver
+            const patientsWithCaregiver = patientsResponse.data.filter((patient: any) =>
+              Object.values(patient.shifts).some((shift: any) => shift.id === user.uid)
+            );
+  
+            // Update state with fetched data
+            setPatients(patientsWithCaregiver);
+            setCaregivers(caregiversResponse.data);
+            setShifts(shiftsResponse.data);
+          }
         } else {
-            setIsAuth(false);
-        }
-        const userString = await getSecureData("user");
-        if (userString) {
-          setUserData(JSON.parse(userString));
+          setIsAuth(false); // No token found
         }
       } catch (error) {
-        console.error("Error fetching user data:", error);
-        setIsAuth(false);
+        console.error("Error fetching data:", error);
+        setIsAuth(false); // Authentication failed
       } finally {
-        setLoading(false);
+        setLoading(false); // Stop loading
       }
     };
-    fetchUser();
+  
+    fetchUserAndData(); // Call the combined function
   }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (token && userData) {
-        setLoading(true);
-        try {
-          await Promise.all([fetchPatients(), fetchCaregiver(), fetchShifts()]);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-    fetchData();
-  }, [token, userData]);
 
   const fetchData = () => {
     fetchCaregiver();
@@ -118,27 +127,18 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   return (
     <AppContext.Provider value={{ isAuth, caregivers, patients, shifts, fetchData, setIsAuth, loading, token }}>
-      {children}
-    </AppContext.Provider>
-  );
-};
-
-const AuthGuard = ({ children }: { children: React.ReactNode }) => {
-  const context = useContext(AppContext);
-  if (!context) {
-    return <Text>Error: AppContext not found</Text>;
-  }
-  const { isAuth, loading } = context;
-
-  if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    {loading ? (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" />
       </View>
-    );
-  }
-
-  return isAuth ? <>{children}</> : <Redirect href="/login" />;
+    ) : (
+      children
+    )}
+  </AppContext.Provider>
+);
 };
 
-export { AppContext, AppProvider, AuthGuard };
+
+export { AppContext, AppProvider };
+
+// AuthGuard.tsx

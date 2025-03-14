@@ -1,13 +1,16 @@
 
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { AppProvider } from "@/components/AppContext";
 
 
 
 export default function TabLayout() {
   return (
+ <AppProvider>
     <Tabs >
       <Tabs.Screen
+    
         name="home"
         options={{
           title: "Home",
@@ -42,5 +45,6 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
+    </AppProvider>
   );
 }

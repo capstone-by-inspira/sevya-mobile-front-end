@@ -6,7 +6,7 @@ import { router } from "expo-router";
 import { getDocumentById, getDocumentByKeyValue } from "@/services/api";
 import { getSecureData } from "@/services/secureStorage";
 import { formatDateOnly, formatTimeOnly } from "@/services/utils";
-import { AppContext } from '../components/AuthGuard';
+import { AppContext } from '../components/AppContext';
 
 interface Shift {
     id: number;
@@ -45,8 +45,8 @@ const TodaysShift = () => {
     const { isAuth, caregivers, patients, shifts, fetchData } = context;
 
     const caregiver = caregivers;
-    console.log("agyecaregivers", caregiver);
-    console.log("agyeshifts", shifts);
+    // console.log("agyecaregivers", caregiver);
+    // console.log("agyeshifts", shifts);
     const [location, setLocation] = useState("");
     const [shiftTime, setShiftTime] = useState("");
     const [shift, setShift] = useState<Shift | null>(shifts);
@@ -70,11 +70,11 @@ const TodaysShift = () => {
             "-" +
             String(today.getDate()).padStart(2, "0");
 
-        console.log("result.data::", localDate);
+        // console.log("result.data::", localDate);
         const todaysShifts = shifts.filter((shift) =>
             shift.startTime.startsWith(localDate)
         );
-        console.log("result.data::", todaysShifts);
+        // console.log("result.data::", todaysShifts);
         if (todaysShifts.length === 0) {
             setNoShift(true);
             return null;
@@ -92,7 +92,7 @@ const TodaysShift = () => {
         if (shifts.length != 0) {
             const earliestShift = await getTodaysShiftData(shifts);
             if (earliestShift) {
-                console.log("result.data::", earliestShift);
+                // console.log("result.data::", earliestShift);
                 setShift(earliestShift);
                 setLocation(earliestShift.location || "No location provided");
                 setShiftTime(earliestShift.startTime || "No time provided");

@@ -10,7 +10,7 @@ import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
 import axios from "axios";
 
-import { AppContext } from "../../components/AuthGuard";
+import { AppContext } from "@/components/AppContext";
 import SevyaLoader from "@/components/SevyaLoader";
 
 const PatientDetails = () => {
@@ -23,6 +23,8 @@ const PatientDetails = () => {
   }
 
   const { isAuth, caregivers, patients, shifts, fetchData } = context;
+
+  console.log(patients, 'patient>>>>>>>>>>');
 
   const router = useRouter();
   const { id } = useLocalSearchParams(); // Get the patient ID from the URL
@@ -62,13 +64,13 @@ const PatientDetails = () => {
     setLoading(true);
     try {
       // Make the API call to your backend
-      const response = await axios.post('http://192.168.1.212:8800/api/auth/generate-health-plan', {
+      const response = await axios.post('http://10.128.229.103:8800/api/auth/generate-health-plan', {
         patientData: patientData,
       });
 
       // Assuming the healthcare plan is in the response's text field
       const generatedPlan = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Failed to generate plan';
-      console.log(generatedPlan, 'GEENRATED PLAN');
+    //  console.log(generatedPlan, 'GEENRATED PLAN');
       setLoading(false);
       
       // Split the plan into bullet points if it's in a text format

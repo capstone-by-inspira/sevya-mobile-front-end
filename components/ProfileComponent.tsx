@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, ActivityIndicator } from 'react-native';
-import { AppContext } from './AuthGuard'; // Adjust path as needed
+import { AppContext } from './AppContext'; // Adjust path as needed
 import { getSecureData } from '../services/secureStorage'; // Import secure storage
 import * as ImagePicker from 'expo-image-picker';
 import { updateDocument } from '../services/api'; // Import your uploadImage and updateDocument functions

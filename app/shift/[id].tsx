@@ -7,7 +7,7 @@ import { useLocalSearchParams } from "expo-router";
 import { Card, Divider, Icon, ProgressBar } from "react-native-paper";
 import Button from "@/components/ui/Button";
 import { formatDateOnly, formatTimeOnly } from "@/services/utils";
-import { AppContext } from "@/components/AuthGuard";
+import { AppContext } from "@/components/AppContext";
 import PatientUCard from "@/components/PatientUCard";
 
 interface Shift {
@@ -46,13 +46,13 @@ const ShiftCard: React.FC = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [patient, setPatient] = useState<Patient | null>(null);
 
-  console.log("id:::", id);
+  // console.log("id:::", id);
   const context = useContext(AppContext);
   if (!context) {
     return <Text>Error: AppContext not found</Text>;
   }
   const { isAuth, caregivers, patients, shifts, fetchData, token } = context;
-  console.log('shifts::::', shifts);
+  // console.log('shifts:::', shifts);
 
 
   useEffect(() => {
@@ -104,7 +104,7 @@ const ShiftCard: React.FC = () => {
       checkIn: true,
     };
     const updateResult = await updateDocument("shifts", id, updateData, token);
-    console.log("updated", updateResult);
+    // console.log("updated", updateResult);
     if (updateResult.success) {
       setCheckIn(true);
       const updatedShift = 
@@ -128,7 +128,7 @@ const ShiftCard: React.FC = () => {
       checkIn: true,
     };
     const updateResult = await updateDocument("shifts", id, updateData, token);
-    console.log("updated", updateResult);
+    // console.log("updated", updateResult);
     if (updateResult.success) {
       setShiftEndButton(true);
       setShiftStartButton(true);
@@ -144,7 +144,7 @@ const ShiftCard: React.FC = () => {
     const startTime = new Date(start).getTime();
     const endTime = new Date(end).getTime();
     const now = Date.now();
-    console.log('timers:::', now, startTime, endTime);
+    // console.log('timers:::', now, startTime, endTime);
 
     if(shift?.checkIn) {
       if (now >= endTime) {

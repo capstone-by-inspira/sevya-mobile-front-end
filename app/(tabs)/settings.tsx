@@ -12,6 +12,7 @@ const settings = () => {
     const logout = async () => {
         await deleteSecureData("token");
         await deleteSecureData("user");
+        await deleteSecureData("first_time_login");
         router.replace("/login");
       };
   return (

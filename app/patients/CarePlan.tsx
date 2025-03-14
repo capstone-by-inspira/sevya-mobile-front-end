@@ -7,7 +7,7 @@ const CarePlan = () => {
   const { plan } = useLocalSearchParams(); // Get patient ID
   const navigation = useNavigation();
 
-  console.log(plan, 'plan >>>>>>>>>>>>');
+//  console.log(plan, 'plan >>>>>>>>>>>>');
   const planArr = [plan];
 
   useEffect(() => {

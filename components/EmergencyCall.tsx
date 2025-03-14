@@ -3,7 +3,7 @@ import { View, Text, Alert, StyleSheet, Linking } from "react-native";
 import { Accelerometer } from "expo-sensors";
 
 const EmergencyCall = () => {
-  const phoneNumber = "1234567890"; // Replace with actual emergency contact
+  const phoneNumber = "911"; // Replace with actual emergency contact
   const [subscription, setSubscription] = useState<any>(null);
   const [isAlertVisible, setIsAlertVisible] = useState(false); // Flag to track alert visibility
 
@@ -23,7 +23,7 @@ const EmergencyCall = () => {
 
   const handleShake = () => {
     if (!isAlertVisible) {
-      console.log("Shake detected!");
+    //   console.log("Shake detected!");
       setIsAlertVisible(true); // Set the alert visibility flag
 
       Alert.alert(

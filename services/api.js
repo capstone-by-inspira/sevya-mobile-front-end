@@ -1,12 +1,12 @@
 import axios from "axios";
 
-const API_URL = "http://192.168.1.212:8800/api";
+const API_URL = "http://10.128.229.103:8800/api";
 
   const apiRequest = async (method, endpoint, data = {}, token = "") => {
-    console.log(method, 'method');
-    console.log(endpoint, 'endpoint');
-    console.log(data, 'data');
-    console.log(token, 'token');
+    // console.log(method, 'method');
+    // console.log(endpoint, 'endpoint');
+    // console.log(data, 'data');
+    // console.log(token, 'token');
     try {
       const request =  {
         method,

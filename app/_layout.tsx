@@ -11,7 +11,7 @@ import { useEffect } from "react";
 import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { AppProvider } from "../components/AuthGuard"; // Import AppProvider
+import { AppProvider } from "../components/AppContext"; // Import AppProvider
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -43,10 +43,12 @@ export default function RootLayout() {
             options={{ headerShown: false, title: "Back" }}
           />
           <Stack.Screen name="+not-found" />
-          <Stack.Screen name="CarePlan"/>
+          {/* <Stack.Screen name="CarePlan"/> */}
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>
-    </AppProvider>
+      </AppProvider>
   );
 }
+
+// layout.tsx

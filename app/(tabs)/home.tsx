@@ -1,70 +1,58 @@
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import {
   View,
   Text,
   Image,
-  Alert,
-  StyleSheet,
-  SafeAreaView,
   FlatList,
   ScrollView,
+  RefreshControl,
+  ActivityIndicator,
 } from "react-native";
-import { AppProvider, AuthGuard } from "../../components/AuthGuard";
-import Button from "@/components/ui/Button";
-import TodaysShift from "@/components/TodaysShift";
-import {
-  getDocumentById,
-  getDocumentByKeyValue,
-  getDocuments,
-} from "@/services/api";
 
-import React, { useEffect, useState, useContext } from "react";
-import { useRouter } from "expo-router";
-import { deleteSecureData, getSecureData } from "../../services/secureStorage";
-import { DashNameBar } from "@/components/DashNameBar";
+import PatientList from "@/components/PatientList";
+import TodaysShift from "@/components/TodaysShift";
 import EmergencyHelpScreen from "@/components/EmergencyComponent";
-import { AppContext } from "@/components/AuthGuard";
 import EmergencyCall from "@/components/EmergencyCall";
-import PatientUCard from "@/components/PatientUCard";
+import { AppContext } from "@/components/AppContext";
 
 export default function Home() {
-  const router = useRouter();
-
   const context = useContext(AppContext);
 
   if (!context) {
     return <Text>Error: AppContext not found</Text>;
   }
 
-  const { isAuth, caregivers, patients, shifts, fetchData } = context;
+  const { shifts, fetchData, caregivers, patients, loading } = context;
 
-  console.log("caregiver??", caregivers);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const renderPatientCard = ({ item }) => (
-    <PatientUCard
-      name={item.firstName} // Adjust based on your patient data structure
-      gender={item.gender} // Adjust based on your patient data structure
-      condition={item.medicalConditions?.join(", ") || "N/A"} // Adjust based on your patient data structure
-      image={item.image} // Adjust based on your patient data structure
-      onPress={() => {
-        // Navigate to patient details or perform any action
-        router.push(`/patients/${item.id}`);
-        // console.log(`Viewing details for ${item.firstName}`);
-      }}
-    />
-  );
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
   return (
-    <AppProvider>
-       <View style={{ height: 150 }}>
-            <Image
-              style={{ width: "auto", height: 150, borderRadius: 0, margin: 0 }}
-              source={{
-                uri: "https://images.unsplash.com/photo-1584515933487-779824d29309",
-              }}
-            />
-          </View>
-      <ScrollView>
+    <>
+      <View style={{ height: 150 }}>
+        <Image
+          style={{ width: "auto", height: 150, borderRadius: 0, margin: 0 }}
+          source={{
+            uri: "https://images.unsplash.com/photo-1584515933487-779824d29309",
+          }}
+        />
+      </View>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={fetchData} />
+        }
+      >
         <View
           style={{
             backgroundColor: "#F0F6FF",
@@ -72,29 +60,23 @@ export default function Home() {
             flexDirection: "column",
             width: "100%",
             flex: 1,
-            gap:50,
-         
+            gap: 50,
           }}
         >
-         
-          <View >
-            <TodaysShift />
+          <View>
+            <TodaysShift/>
           </View>
 
-          <View >
-            <FlatList
-              data={patients}
-              renderItem={renderPatientCard}
-              keyExtractor={(item) => item.id.toString()} // Ensure each item has a unique key
-              horizontal
-              showsHorizontalScrollIndicator={false}
-            />
+          <View>
+            <PatientList patients={patients}></PatientList>
           </View>
+
           <View>
             <EmergencyHelpScreen />
+            <EmergencyCall />
           </View>
         </View>
       </ScrollView>
-    </AppProvider>
+    </>
   );
 }

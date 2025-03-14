@@ -4,7 +4,7 @@ import SearchBar from "../../components/SearchBar"; // Import SearchBar componen
 import PatientCard from "@/components/PatientCard";
 import { useRouter } from "expo-router";
 import { getSecureData } from "../../services/secureStorage"; // Import secure storage function
-import { AppContext } from "../../components/AuthGuard";
+import { AppContext } from "../../components/AppContext";
 
 const Patients = () => {
   const context = useContext(AppContext);
@@ -67,7 +67,7 @@ const Patients = () => {
 
   // Navigate to patient details
   const handlePatientPress = (id: string) => {
-    console.log(id);
+  //  console.log(id);
     router.push(`/patients/${id}`);
   };
 
