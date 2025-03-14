@@ -30,9 +30,11 @@ const Patients = () => {
   }, []);
 
   useEffect(() => {
-    if (userData?.uid) {
-      fetchPatients(userData.uid);
-    }
+    // if (userData?.uid) {
+      const userID = "oP0l5aPKimWP2im6fPQFa68wmb83"
+      fetchPatients(userID);
+      // fetchPatients(userData.uid);
+    // }
     // console.log('====================================');
     // console.log(userData?.uid);
     // console.log('====================================');

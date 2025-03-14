@@ -30,7 +30,9 @@ const PatientDetails = () => {
 
       try {
         setLoading(true);
-        const docRef = doc(db, "patients", id as string);
+        const myid = "P0YUuUGAY4LQzOiSs4OS"
+        const docRef = doc(db, "patients", myid as string);
+        // const docRef = doc(db, "patients", id as string);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {

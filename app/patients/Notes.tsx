@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import * as ImagePicker from "expo-image-picker";
 import {
   View,
   Text,
@@ -36,7 +37,9 @@ const Notes = () => {
       if (!id) return;
 
       try {
-        const docRef = doc(db, "patients", id as string);
+        const myid = "P0YUuUGAY4LQzOiSs4OS";
+        const docRef = doc(db, "patients", myid as string);
+        // const docRef = doc(db, "patients", id as string);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
@@ -89,33 +92,47 @@ const Notes = () => {
     }
   };
 
-  const handleImagePick = () => {
-    launchImageLibrary({ mediaType: "photo" }, (response) => {
-      if (response.didCancel) return;
-      if (response.assets) {
-        setImageUri(response.assets[0].uri ?? null);
-      }
+  const handleImagePick = async () => {
+    console.log("Gallery button clicked!");
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"], // ✅ Use an array instead of MediaTypeOptions.Photo
+      allowsEditing: true,
+      quality: 1,
     });
+
+    console.log("Gallery Response:", result);
+
+    if (!result.canceled && result.assets.length > 0) {
+      setImageUri(result.assets[0].uri);
+    }
   };
 
-  const handleCameraOpen = () => {
-    launchCamera({ mediaType: "photo" }, (response) => {
-      if (response.didCancel) return;
-      if (response.assets) {
-        setImageUri(response.assets[0].uri ?? null);
-      }
+  const handleCameraOpen = async () => {
+    console.log("Camera button clicked!");
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ["images"], // ✅ Updated usage
+      allowsEditing: true,
+      quality: 1,
     });
+
+    console.log("Camera Response:", result);
+
+    if (!result.canceled && result.assets.length > 0) {
+      setImageUri(result.assets[0].uri);
+    }
   };
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === "ios" ? "padding" : "position"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.innerContainer}>
           <Text style={styles.title}>Patient Notes</Text>
-
           <ScrollView contentContainerStyle={styles.notesContainer}>
             {loading ? (
               <Text>Loading...</Text>
@@ -125,7 +142,10 @@ const Notes = () => {
                   <Text style={styles.noteAuthor}>{item.caregiverName}</Text>
                   <Text style={styles.noteText}>{item.myNote}</Text>
                   {item.imageUrl && (
-                    <Image source={{ uri: item.imageUrl }} style={styles.noteImage} />
+                    <Image
+                      source={{ uri: item.imageUrl }}
+                      style={styles.noteImage}
+                    />
                   )}
                   <Text style={styles.noteDate}>
                     {new Date(item.date.seconds * 1000).toLocaleString()}
@@ -140,6 +160,18 @@ const Notes = () => {
       </TouchableWithoutFeedback>
 
       <View style={styles.inputContainer}>
+        {imageUri && (
+          <View style={styles.imagePreviewWrapper}>
+            <Image source={{ uri: imageUri }} style={styles.previewImage} />
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setImageUri(null)}
+            >
+              <Text style={styles.closeText}>✖</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         <TextInput
           style={styles.textInput}
           value={note}
@@ -147,6 +179,7 @@ const Notes = () => {
           placeholder="Type your note here..."
           multiline
         />
+
         <TouchableOpacity style={styles.imageButton} onPress={handleImagePick}>
           <Text style={styles.iconText}>📷</Text>
         </TouchableOpacity>
@@ -157,8 +190,6 @@ const Notes = () => {
           <Text style={styles.sendText}>Send</Text>
         </TouchableOpacity>
       </View>
-
-      {imageUri && <Image source={{ uri: imageUri }} style={styles.previewImage} />}
     </KeyboardAvoidingView>
   );
 };
@@ -214,6 +245,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 10,
+    marginBottom: 10,
     backgroundColor: "#fff",
     borderTopWidth: 1,
     borderTopColor: "#ccc",
@@ -247,12 +279,49 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  imagePreviewContainer: {
+    position: "absolute",
+    top: 10, // Adjust the positioning
+    left: 10, // Puts it in the top-left corner
+    width: 70, // Keeps it small
+    height: 70,
+    borderRadius: 10,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  imagePreviewWrapper: {
+    alignSelf: "flex-start",
+    marginBottom: 5, // Adds spacing between image and input field
+    marginLeft: 10,
+  },
   previewImage: {
-    width: 100,
-    height: 100,
-    alignSelf: "center",
-    marginTop: 10,
-    borderRadius: 8,
+    width: 60,
+    height: 60,
+    borderRadius: 10,
+    marginBottom: 5, // Space between image and TextInput
+  },
+  
+  closeButton: {
+    position: "absolute",
+    top: -5,
+    right: -5,
+    backgroundColor: "red",
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  closeText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "bold",
   },
 });
 

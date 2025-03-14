@@ -23,14 +23,15 @@ const LoginScreen: React.FC = () => {
   const handleLogin = async (e: any) => {
     e.preventDefault();
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const idToken = await userCredential.user.getIdToken();
-      console.log("Firebase Token:", idToken);
-      await authenticate(idToken);
+      router.push("/(tabs)/patients");
+      // const userCredential = await signInWithEmailAndPassword(
+      //   auth,
+      //   email,
+      //   password
+      // );
+      // const idToken = await userCredential.user.getIdToken();
+      // console.log("Firebase Token:", idToken);
+      // await authenticate(idToken);
     } catch (error) {
       console.error("Login Error:", error);
       Alert.alert("Error", "Invalid email or password");
@@ -54,7 +55,7 @@ const LoginScreen: React.FC = () => {
       if (!first_time_login) {
         router.replace("/screens/InfoScreen");
       } else {
-        router.replace("/(tabs)/home");
+        router.replace("/(tabs)/patients");
       }
 
       Alert.alert("Success", "Login Successful");
