@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import { View, Text, Alert, StyleSheet, Linking } from "react-native";
 import { Accelerometer } from "expo-sensors";
+import { getDocumentById, getDocuments, updateDocument , createDocument} from "@/services/api";
 
-const EmergencyCall = () => {
-  const phoneNumber = "911"; // Replace with actual emergency contact
+const EmergencyCall = ({caregiver, token}) => {
+  const phoneNumber = "7789"; // Replace with actual emergency contact
   const isAlertVisibleRef = useRef(false); // Use a ref to track alert visibility
   const lastShakeTimeRef = useRef(0); // Use a ref to track the last shake time
 
@@ -26,6 +27,7 @@ const EmergencyCall = () => {
     return () => subscribe.remove(); // Cleanup on unmount
   }, []);
 
+
   const handleShake = () => {
     if (!isAlertVisibleRef.current) {
       isAlertVisibleRef.current = true; // Set the alert visibility flag
@@ -35,7 +37,10 @@ const EmergencyCall = () => {
         "Are you sure you want to call this number?",
         [
           { text: "Cancel", style: "cancel", onPress: closeAlert },
-          { text: "Call", onPress: makeCall },
+          { text: "Call", onPress: () => {
+            handleCallEmergency();
+            createEmergencyDocument();
+          }, },
         ],
         { onDismiss: closeAlert } // Ensure the alert is dismissed properly
       );
@@ -46,13 +51,27 @@ const EmergencyCall = () => {
     isAlertVisibleRef.current = false; // Reset the alert visibility flag
   };
 
-  const makeCall = () => {
+  const handleCallEmergency = () => {
     Linking.openURL(`tel:${phoneNumber}`).catch((err) =>
       console.error("Failed to make call:", err)
     );
     closeAlert(); // Close the alert after making the call
   };
 
+ const createEmergencyDocument = async () => {
+  const data = {
+    name: "Emergency Call",
+    timestamp:new Date(),
+    caregiverId:caregiver.id,
+  }
+    try {
+      const response = await createDocument('emergency', data, token);
+      console.log(response, 'emergency done');
+      console.log("Emergency document created successfully");
+    } catch (error) {
+      console.error("Error creating emergency document:", error);
+    }
+  };
   return <></>;
 };
 

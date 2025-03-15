@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 
 import Button from '@/components/ui/Button'
 import ProfileScreen from '@/components/ProfileComponent';
+import * as Notifications from 'expo-notifications';
 const settings = () => {
 
     const router = useRouter();
@@ -15,7 +16,10 @@ const settings = () => {
         await deleteSecureData("first_time_login");
         router.replace("/login");
       };
-  return (
+
+
+ 
+      return (
 
     <SafeAreaView>
     <View style= {styles.container}>     
@@ -23,6 +27,10 @@ const settings = () => {
 
       <ProfileScreen/>
       <Button handleButtonClick={logout} buttonText="Logout" />
+
+    </View>
+    <View>
+      <Text>Notification Settings</Text>
 
     </View>
      </SafeAreaView>

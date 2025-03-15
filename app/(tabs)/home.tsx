@@ -15,15 +15,20 @@ import EmergencyHelpScreen from "@/components/EmergencyComponent";
 import EmergencyCall from "@/components/EmergencyCall";
 import { AppContext } from "@/components/AppContext";
 import WebSocketClient from "@/components/WebSocketClient";
+import * as Notifications from 'expo-notifications';
+import Button from '@/components/ui/Button'
 
 export default function Home() {
+ 
+  
+
   const context = useContext(AppContext);
 
   if (!context) {
     return <Text>Error: AppContext n found</Text>;
   }
 
-  const { shifts, fetchData, caregivers, patients, loading } = context;
+  const { shifts, fetchData, caregivers, patients, loading, token } = context;
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -85,9 +90,11 @@ export default function Home() {
 
           <View>
             <EmergencyHelpScreen />
-            <EmergencyCall />
+            <EmergencyCall caregiver={caregivers} token={token}/>
           </View>
+          
         </View>
+
       </ScrollView>
     </>
   );

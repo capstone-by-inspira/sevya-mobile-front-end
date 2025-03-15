@@ -24,7 +24,7 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": [
+ "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
@@ -35,7 +35,15 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png", 
+          "color": "#ffffff", 
+          "sounds": ["./assets/notification-sound.wav"] 
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
