@@ -1,10 +1,12 @@
 import { 
-  Alert, StyleSheet, Text, TouchableOpacity, View, Modal, FlatList, RefreshControl, ScrollView 
+  Alert, StyleSheet, Text, TouchableOpacity, View, Modal, FlatList, RefreshControl, ScrollView, 
+  SafeAreaView,
+  SectionList
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { Calendar } from 'react-native-calendars';
 import ShiftDetailCard from '@/components/ShiftDetailCard';
-import { AppContext } from '@/components/AuthGuard';
+import { AppContext } from '@/components/AppContext';
 
 const ShiftCard: React.FC = () => {
   const context = useContext(AppContext);
@@ -44,8 +46,9 @@ const ShiftCard: React.FC = () => {
   // Pull-to-refresh function
   const onRefresh = async () => {
     setRefreshing(true);
-    await fetchData(); // Re-fetch all data (calendar + shifts)
+    await fetchData(); // Re-fetcall data (calendar + shifts)
     setRefreshing(false);
+    console.log('refreshing')
   };
 
   const handleDayPress = (day: any) => {
@@ -60,56 +63,66 @@ const ShiftCard: React.FC = () => {
     }
   };
 
+  const renderShiftDetailCard = ({ item }: { item: any }) => (
+    <ShiftDetailCard location={item.location} shiftTime={item.startTime} />
+  );
+
+  const sections = [
+    {
+      title: 'Shifts Calendar',
+      data: [{ key: 'calendar' }]
+    },
+    {
+      title: 'Upcoming Shifts',
+      data: upComingShifts
+    }
+  ];
+
   return (
-    <ScrollView 
+
+    <SectionList 
       style={styles.scrollView}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-    >
-      <View style={styles.container}>
-        <Text>Shifts Calendar</Text>
-        <Calendar style={styles.calendar} onDayPress={handleDayPress} markedDates={markedDates} />
-
-        <Modal visible={modalVisible} animationType="slide" transparent={true}>
-          <View style={styles.modalBackground}>
-            <View style={styles.modalContainer}>
-              <Text style={styles.modalTitle}>Shifts on {selectedDate}</Text>
-              <FlatList
-                data={allShifts.filter(shift => shift.startTime.startsWith(selectedDate!))}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                  <ShiftDetailCard location={item.location} shiftTime={item.startTime} />
-                )}
-              />
-              <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
-                <Text style={styles.closeText}>Close</Text>
-              </TouchableOpacity>
+      sections={sections}
+      keyExtractor={(item, index) => item.id || index.toString()}
+      renderItem={({ item }) => {
+        if (item.key === 'calendar') {
+          return (
+            <View style={styles.container}>
+              <Calendar style={styles.calendar} onDayPress={handleDayPress} markedDates={markedDates} />
+              <Modal visible={modalVisible} animationType="slide" transparent={true}>
+                <View style={styles.modalBackground}>
+                  <View style={styles.modalContainer}>
+                    <Text style={styles.modalTitle}>Shifts on {selectedDate}</Text>
+                    <FlatList
+                      data={allShifts.filter(shift => shift.startTime.startsWith(selectedDate!))}
+                      keyExtractor={(item) => item.id}
+                      renderItem={renderShiftDetailCard}
+                      nestedScrollEnabled={true}
+                    />
+                    <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
+                      <Text style={styles.closeText}>Close</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </Modal>
             </View>
-          </View>
-        </Modal>
-      </View>
+           
+          );
+        }
+        return renderShiftDetailCard({ item });
+      }}
+      renderSectionHeader={({ section: { title } }) => (
+        <Text style={styles.sectionHeader}>{title}</Text>
+      )}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+    />
 
-      {/* Upcoming Shifts List */}
-      <View style={styles.upComingShiftsContainer}>
-        <Text>Upcoming Shifts</Text>
-        {upComingShifts.length > 0 ? (
-          <FlatList
-            data={upComingShifts}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <ShiftDetailCard location={item.location} shiftTime={item.startTime} />
-            )}
-          />
-        ) : (
-          <Text style={styles.noShiftsText}>No upcoming shifts</Text>
-        )}
-      </View>
-    </ScrollView>
   );
 };
 
-
 const styles = StyleSheet.create({
   scrollView: { 
+  
     flex: 1
   },
   container: {
@@ -124,9 +137,12 @@ const styles = StyleSheet.create({
     borderColor: 'red',
     elevation: 5,
   },
-  detailsContainer: {
-    padding: 20,
-    width: '100%',
+  sectionHeader: {
+
+    fontSize: 20,
+    fontWeight: 'bold',
+    padding: 10,
+    backgroundColor: '#f0f0f0',
   },
   modalBackground: {
     flex: 1,
@@ -146,13 +162,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
   },
-  shiftCard: {
-    width: "100%",
-    backgroundColor: "#f0f0f0",
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 5,
-  },
   closeButton: {
     backgroundColor: "#25578E",
     padding: 10,
@@ -163,15 +172,6 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
   },
-  noShiftsText: {
-    textAlign: "center",
-    fontSize: 16,
-    color: "gray",
-  },
-  upComingShiftsContainer: {
-    paddingHorizontal: 20,
+});
 
-  },
-})
-
-export default ShiftCard
+export default ShiftCard;

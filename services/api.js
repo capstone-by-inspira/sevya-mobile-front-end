@@ -17,10 +17,7 @@ export const translatePatientNotes = async (patientData) =>{
 }
 
   const apiRequest = async (method, endpoint, data = {}, token = "") => {
-    console.log(method, 'method');
-    console.log(endpoint, 'endpoint');
-    console.log(data, 'data');
-    console.log(token, 'token');
+    
     try {
       const request =  {
         method,
@@ -34,7 +31,7 @@ export const translatePatientNotes = async (patientData) =>{
       const response = await axios(request);
       return { success: true, data: response.data };
     } catch (error) {
-        console.error("API Error:", error.response ? error.response.data : error.message);
+        // console.error("API Error:", error.response ? error.response.data : error.message);
         return {
           success: false,
           error: error.response?.data?.error || error.message || "Something went wrong",

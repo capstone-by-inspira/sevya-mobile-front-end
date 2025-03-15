@@ -1,88 +1,94 @@
-import { View, Text, Image, Alert, StyleSheet } from "react-native";
-import {AuthGuard} from "../../components/AuthGuard";
-import Button from "@/components/ui/Button";
-import TodaysShift from "@/components/TodaysShift";
-import { getDocumentById, getDocumentByKeyValue , getDocuments} from "@/services/api";
+import React, { useState, useEffect, useCallback, useContext } from "react";
+import {
+  View,
+  Text,
+  Image,
+  FlatList,
+  ScrollView,
+  RefreshControl,
+  ActivityIndicator,
+} from "react-native";
 
-import React, { useEffect, useState } from "react";
-import { useRouter } from "expo-router";
-import { deleteSecureData, getSecureData } from "../../services/secureStorage";
-import { DashNameBar } from "@/components/DashNameBar";
+import PatientList from "@/components/PatientList";
+import TodaysShift from "@/components/TodaysShift";
 import EmergencyHelpScreen from "@/components/EmergencyComponent";
+import EmergencyCall from "@/components/EmergencyCall";
+import { AppContext } from "@/components/AppContext";
+import WebSocketClient from "@/components/WebSocketClient";
 
 export default function Home() {
-  const router = useRouter();
-  // const [userData, setUserData] = useState<any>(null); // State to store user data
-  // const [token, setToken] = useState<string | null>(null);
-  
-  // useEffect(() => {
-  //   const fetchUser = async () => {
-  //     const token = await getSecureData("token");
-  //     if(token){
-  //       setToken(token);
-  //     }
-  //     const userString = await getSecureData("user");
-  //     if (userString) {
-  //       const user = JSON.parse(userString); // Parse the JSON string
-  //       console.log('user>>>>>', user);
-  //       setUserData(user);
-  //     }
-  //   };
+  const context = useContext(AppContext);
 
-  //   fetchUser();
-  // }, []);
+  if (!context) {
+    return <Text>Error: AppContext n found</Text>;
+  }
 
+  const { shifts, fetchData, caregivers, patients, loading } = context;
 
-  
+  const [refreshing, setRefreshing] = useState(false);
 
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchData(); // Reload data
+    setRefreshing(false);
+  }, [fetchData]);
 
+ 
+ // console.log(patients, 'ncjnajncskcn');
 
-  const logout = async () => {
-    await deleteSecureData("token");
-    await deleteSecureData("user");
-    router.replace("/login");
-  };
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
-  // const refreshData = () => {
-  //   fetchPatients();
-  //   fetchCaregiver();
-  //   fetchShifts();
-  // };
 
   return (
-    <AuthGuard>
-      <View
-        style={{
-          backgroundColor: "#F0F6FF",
-          display: "flex",
-          flexDirection: "column",
-          width: "100%",
-          flex: 1,
-        }}
-      >
-        <View style={{ height: 150 }}>
-          <Image
-            style={{ width: "auto", height: 150, borderRadius: 0, margin: 0 }}
-            source={{
-              uri: "https://images.unsplash.com/photo-1584515933487-779824d29309",
-            }}
-          />
-        </View>
-       <TodaysShift />
-       <EmergencyHelpScreen/>
-        <Button handleButtonClick={logout} buttonText="Logout" />
+    <>
+      <View style={{ height: 150 }}>
+        <Image
+          style={{ width: "auto", height: 150, borderRadius: 0, margin: 0 }}
+          source={{
+            uri: "https://images.unsplash.com/photo-1584515933487-779824d29309",
+          }}
+        />
       </View>
-    </AuthGuard>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        <View
+          style={{
+            backgroundColor: "#F0F6FF",
+            display: "flex",
+            flexDirection: "column",
+            width: "100%",
+            flex: 1,
+            gap: 50,
+          }}
+        >
+
+          <View>
+            <TodaysShift shifts  = {shifts} caregiver={caregivers}/>
+          </View>
+
+          <View>
+            <PatientList patients={patients}></PatientList>
+          </View>
+
+          <View>
+            <EmergencyHelpScreen />
+            <EmergencyCall />
+          </View>
+        </View>
+      </ScrollView>
+    </>
   );
 }
-const btnStyle = StyleSheet.create({
-  container: {
-    backgroundColor: "black",
-    width: "50%",
-    alignSelf: "center",
-    borderRadius: 14,
-    marginTop: 10,
-  },
-});

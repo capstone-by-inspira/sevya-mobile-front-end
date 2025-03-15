@@ -7,20 +7,23 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
 import axios from "axios";
 
-import { AppContext } from "../../components/AuthGuard";
+import { AppContext } from "@/components/AppContext";
+import SevyaLoader from "@/components/SevyaLoader";
 
 const PatientDetails = () => {
 
   const context = useContext(AppContext);
+  const navigation = useNavigation();
 
   if (!context) {
     return <Text>Error: AppContext not found</Text>;
   }
 
   const { isAuth, caregivers, patients, shifts, fetchData } = context;
+
 
   const router = useRouter();
   const { id } = useLocalSearchParams(); // Get the patient ID from the URL
@@ -37,6 +40,11 @@ const PatientDetails = () => {
     shifts: false,
   });
 
+  useEffect(() => {
+        if (patientData) {
+          navigation.setOptions({ title: patientData.firstName }); // Set the header title
+       }
+      }, [patientData, navigation]);
 
   // Toggle dropdown sections
   const toggleSection = (section: string) => {
@@ -46,14 +54,13 @@ const PatientDetails = () => {
     }));
   };
 
-  if (loading) return <ActivityIndicator size="large" color="#2D5DA3" />;
   if (error) return <Text style={styles.error}>{error}</Text>;
   if (!patientData) return <Text>No patient data available.</Text>;
 
 
 
   const generateCaregiverPlan = async () =>{
-
+    setLoading(true);
     try {
       // Make the API call to your backend
       const response = await axios.post('http://192.168.1.212:8800/api/auth/generate-health-plan', {
@@ -62,11 +69,12 @@ const PatientDetails = () => {
 
       // Assuming the healthcare plan is in the response's text field
       const generatedPlan = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Failed to generate plan';
-      console.log(generatedPlan, 'GEENRATED PLAN');
+    //  console.log(generatedPlan, 'GEENRATED PLAN');
+      setLoading(false);
       
       // Split the plan into bullet points if it's in a text format
       const planArray = generatedPlan.split('\n').filter(line => line.trim() !== '');
-      router.push({ pathname:"/patients/CarePlan", params: { plan: planArray }})
+      router.push({ pathname:"/patients/CarePlan", params: { plan: generatedPlan }})
       setPlan(planArray);
     } catch (error) {
       setError('Error generating healthcare plan');
@@ -79,6 +87,7 @@ const PatientDetails = () => {
 
   return (
     <View style={styles.container}>
+      <SevyaLoader visible={loading} />
       {/* Patient Info */}
       <TouchableOpacity
         style={styles.sectionHeader}
@@ -154,12 +163,13 @@ const PatientDetails = () => {
           onPress= {generateCaregiverPlan}
         >
           <FontAwesome5 name="calendar-alt" size={18} color="#2D5DA3" />
-          <Text style={styles.linkText}>Generate Personalized Care Plan</Text>
+          <Text style={styles.linkText}>Generate AI Personalized Care Plan</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.link}
           onPress={() => router.push({ pathname: "/patients/Notes", params: { id: patientData.id } })}
         >
+          
           <FontAwesome5 name="calendar-alt" size={18} color="#2D5DA3" />
           <Text style={styles.linkText}>View Notes</Text>
         </TouchableOpacity>

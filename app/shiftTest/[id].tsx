@@ -1,8 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
-import { router, useRouter } from "expo-router";
-import { getDocumentById, getDocuments, updateDocument } from "@/services/api";
-import { getSecureData } from "@/services/secureStorage";
+import { router } from "expo-router";
+import { updateDocument } from "@/services/api";
 import { useLocalSearchParams } from "expo-router";
 import { Card, Divider, Icon, ProgressBar } from "react-native-paper";
 import Button from "@/components/ui/Button";
@@ -19,9 +18,10 @@ interface Shift {
   adminId: number;
   status: string;
   checkIn: boolean;
-  checkOut: string;
+  checkOut: boolean;
   checkOutTime: string;
   checkInTime: string;
+  location?: string;
 }
 
 interface Patient {
@@ -32,156 +32,152 @@ interface Patient {
   image?: any;
 }
 
-const ShiftCard: React.FC = () => {
-  const [shift, setShift] = useState<Shift | null>(null);
-  const [progress, setProgress] = useState(0);
-  const [shiftStartButtonDisabled, setshiftStartButtonDisabled] =
-    useState(false);
-  const [shiftEndButtonDisabled, setshiftEndButtonDisabled] = useState(false);
-  const [startTime, setStartTime] = useState();
-  const [endTime, setEndTime] = useState();
-  const [location, setLocation] = useState();
-  const [shiftTime, setShiftTime] = useState();
-
-  const [checkIn, setCheckIn] = useState(false);
-
+const ShiftCheckIn: React.FC = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [patient, setPatient] = useState<Patient | null>(null);
-
-  // console.log("id:::", id);
   const context = useContext(AppContext);
+
   if (!context) {
     return <Text>Error: AppContext not found</Text>;
   }
-  const { isAuth, caregivers, patients, shifts, fetchData, token } = context;
-  // console.log('shifts:::', shifts);
 
-  const current_shift = shifts.find((shift) => shift.id === id); // taking that shift
+  const { shifts, patients, token, fetchData } = context;
+
+  const [shift, setShift] = useState<Shift | null>(null);
+  const [associatedPatient, setAssociatedPatient] = useState<Patient | null>(null);
+  const [shiftStartButtonDisabled, setShiftStartButtonDisabled] = useState(true);
+  const [shiftEndButtonDisabled, setShiftEndButtonDisabled] = useState(true);
+  const [progress, setProgress] = useState(0);
+
+  // Find the shift and associated patient based on the ID
+  useEffect(() => {
+    console.log(shifts);
+    const currentShift = shifts.find((s) => s.id === id);
+    const associatedPatientData = patients.find(
+      (p) => p.id === currentShift?.patientId
+    );
+
+    if (currentShift) {
+      setShift(currentShift);
+      setShiftStartButtonDisabled(currentShift.checkIn);
+      setShiftEndButtonDisabled(currentShift.checkOut);
+    }
+
+    if (associatedPatientData) {
+      setAssociatedPatient(associatedPatientData);
+    }
+  }, [id, shifts, patients]);
 
   useEffect(() => {
-    getShiftDetails();
-  }, []);
-
-  useEffect(() => {
-   
-    if (!current_shift?.startTime || !current_shift?.endTime) return;
-    const interval = setInterval(() => {
-      updateProgress(current_shift.startTime, current_shift.endTime);
-    }, 1000); // Update every 10 seconds
-
-    return () => clearInterval(interval);
-  }, [current_shift]);
-
-  // const getPatientDetails = (patientId) => {
-  //   const patient = patients.find((p) => p.id === patientId);
-  //   setPatient(patient);
-  // }
-
-  const getShiftDetails = () => {
-    if (shifts) {
-      const shift = shifts.find((shift) => shift.id === id); // taking that shift
-      setShift(shift); // storing that shift
-
-      const patient = patients.find((p: any) => p.id === shift.patientId); // taking that particular patient
-      setPatient(patient); // setting the patient
-
-      setLocation(shift.location);
-      setShiftTime(shift.startTime);
-      setCheckIn(shift.checkIn);
-      // getPatientDetails(shift.patientId);
-
-      console.log(shift.checkIn, ">>>>>>>>>>");
-      if (shift?.checkIn) {
-        console.log("?>>>>>>>>>>");
-        setshiftStartButtonDisabled(true);
-        setshiftEndButtonDisabled(false);
-      } else {
-        setshiftStartButtonDisabled(false);
-        setshiftEndButtonDisabled(true);
-      }
+    if (!shift) return; // Ensure shift is not null
+  
+    if (shift.checkIn === false) {  // shift checkin = false from backend 
+      return;
     }
-  };
-
-  const handleStartShift = async () => {
-    if (!shift) return;
-    const currentUtcTime = new Date().toISOString();
-    const updateData = {
-      ...shift,
-      checkInTime: currentUtcTime,
-      checkIn: true,
-    };
-    const updateResult = await updateDocument("shifts", id, updateData, token);
-    // console.log("updated", updateResult);
-    if (updateResult.success) {
-      setCheckIn(true);
-
-      // setShift((prevShift) => prevShift ? { ...prevShift, checkIn: true } : prevShift);
-      setShift(updateData);
-
-      setshiftStartButtonDisabled(true);
-      setshiftEndButtonDisabled(false);
-
-      updateProgress(shift.startTime, shift.endTime);
-      Alert.alert("Confirmation", "Shift started successfully");
-    } else {
-      Alert.alert("Error", "Failed to update check-in time.");
-    }
-  };
-
-  const handleEndShift = async () => {
-    const token = await getSecureData("token");
-    const currentUtcTime = new Date().toISOString();
-    const updateData = {
-      ...shift,
-      checkOutTime: currentUtcTime,
-      checkIn: true,
-    };
-    const updateResult = await updateDocument("shifts", id, updateData, token);
-    // console.log("updated", updateResult);
-    if (updateResult.success) {
-      setshiftEndButtonDisabled(true);
-      setshiftStartButtonDisabled(true);
+  
+    if (shift.checkIn === true && shift.checkOut === true) {
+      setShiftStartButtonDisabled(true);
+      setShiftEndButtonDisabled(true);
       setProgress(1);
-    } else {
-      Alert.alert("Error", "Failed to update check-out time.");
+      return;
     }
-  };
+  
+    setShiftStartButtonDisabled(true);
+    setShiftEndButtonDisabled(false);
+  
+    const interval = setInterval(() => {
+      updateProgress(shift); // Now it's safe to call updateProgress
+    }, 1000); // Update every second
+  
+    return () => clearInterval(interval);
+  }, [shift]);
+  
 
-  const updateProgress = (start: string, end: string) => {
-    console.log('chlya???>>>>>>>>>>>>');
-
+  const updateProgress = (shift: Shift) => {
+    const start = shift.startTime;
+    const end = shift.endTime;
     if (!start || !end) return;
 
     const startTime = new Date(start).getTime();
     const endTime = new Date(end).getTime();
     const now = Date.now();
-    // console.log('timers:::', now, startTime, endTime);
 
-    if (shift?.checkIn) {
-      if (now >= endTime) {
-        setProgress(1);
-        setshiftEndButtonDisabled(true);
-        setshiftStartButtonDisabled(true);
-      } else if (now >= startTime && now < endTime) {
-        const progressValue = (now - startTime) / (endTime - startTime);
-        setProgress(progressValue);
-        setshiftStartButtonDisabled(true);
-        setshiftEndButtonDisabled(false);
-      } else {
-        setProgress(0);
-        setshiftStartButtonDisabled(true);
-        setshiftEndButtonDisabled(false);
-      }
+    if (now >= endTime) {
+      setProgress(1);
+    } else if (now >= startTime && now < endTime) {
+      const progressValue = (now - startTime) / (endTime - startTime);
+      setProgress(progressValue);
     } else {
       setProgress(0);
-      setshiftStartButtonDisabled(false);
-      setshiftEndButtonDisabled(true);
     }
   };
 
-  const handleViewSchedule = async () => {
+  const handleStartShift = async () => {
+    if (!shift) return;
+
+    const currentUtcTime = new Date().toISOString();
+    const updateData = {
+      ...shift,
+      checkInTime: currentUtcTime,
+      checkIn: true,
+      checkOut: false,
+    };
+
+    try {
+      const updateResult = await updateDocument(
+        "shifts",
+        id,
+        updateData,
+        token
+      );
+      if (updateResult.success) {
+        setShift(updateData);
+        fetchData();
+        Alert.alert("Confirmation", "Shift started successfully");
+      } else {
+        Alert.alert("Error", "Failed to update check-in time.");
+      }
+    } catch (error) {
+      Alert.alert("Error", "An unexpected error occurred.");
+    }
+  };
+
+  const handleEndShift = async () => {
+    if (!shift) return;
+
+    const currentUtcTime = new Date().toISOString();
+    const updateData = {
+      ...shift,
+      checkOutTime: currentUtcTime,
+      checkOut: true,
+    };
+
+    try {
+      const updateResult = await updateDocument(
+        "shifts",
+        id,
+        updateData,
+        token
+      );
+      if (updateResult.success) {
+        setShift(updateData);
+        setProgress(1);
+        fetchData();
+        Alert.alert("Confirmation", "Shift ended successfully");
+      } else {
+        Alert.alert("Error", "Failed to update check-out time.");
+      }
+    } catch (error) {
+      Alert.alert("Error", "An unexpected error occurred.");
+    }
+  };
+
+  const handleViewSchedule = () => {
     router.replace("/(tabs)/shifts");
   };
+
+  if (!shift || !associatedPatient) {
+    return <Text>Loading...</Text>;
+  }
 
   return (
     <View>
@@ -218,12 +214,13 @@ const ShiftCard: React.FC = () => {
         <View style={styles.cardContent}>
           <View style={styles.row}>
             <Icon source="map-marker-outline" size={20} color="#2C3E50" />
-            <Text style={styles.cardText}>{location}</Text>
+            <Text style={styles.cardText}>{shift.location}</Text>
           </View>
           <View style={styles.row}>
             <Icon source="information-outline" size={20} color="#2C3E50" />
             <Text style={styles.cardText}>
-              {formatDateOnly(shiftTime)} {formatTimeOnly(shiftTime)}
+              {formatDateOnly(shift.startTime)}{" "}
+              {formatTimeOnly(shift.endTime)}
             </Text>
           </View>
         </View>
@@ -238,13 +235,15 @@ const ShiftCard: React.FC = () => {
         </TouchableOpacity>
       </Card>
       <Divider />
+
       <Text style={styles.shiftInfoHeading}>Your Patients</Text>
       <View style={styles.patientList}>
         <PatientUCard
-          name={patient?.firstName ?? ""}
-          gender={patient?.gender || ""}
-          condition={patient?.medicalConditions?.join(", ") ?? ""}
-          image={patient?.image}
+          name={associatedPatient.firstName}
+          gender={associatedPatient.gender}
+          condition={associatedPatient.medicalConditions?.join(", ") || ""}
+          image={associatedPatient.image}
+          onPress={() => router.push(`/patients/${associatedPatient.id}`)}
         />
       </View>
     </View>
@@ -321,4 +320,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ShiftCard;
+export default ShiftCheckIn;

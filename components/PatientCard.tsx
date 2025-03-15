@@ -1,3 +1,4 @@
+import { Button } from "@react-navigation/elements";
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 
@@ -37,12 +38,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "white",
-    borderRadius: 5,
-    padding: 12,
+    borderRadius: 25,
+    padding: 20,
     borderWidth: 1,
     borderColor: "#ccc",
     marginBottom: 2,
     marginTop: 15,
+    boxShadow:"rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px"
   },
   avatar: {
     width: 40,
