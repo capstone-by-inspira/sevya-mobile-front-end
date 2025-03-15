@@ -6,7 +6,7 @@ interface PatientCardProps {
   name: string;
   gender: string;
   condition: string;
-  image: string;
+  image: any;
   onPress?: () => void;
 }
 
@@ -19,7 +19,11 @@ const PatientUCard: React.FC<PatientCardProps> = ({
 }) => {
   return (
     <View style={styles.card}>
-      <Image source={{ uri: image }} style={styles.image} />
+      <Image
+        source={{uri:image}
+}
+        style={styles.image}
+      />
       <Text style={styles.name}>{name}</Text>
       <Text style={styles.gender}>{gender}</Text>
       <Text style={styles.condition}>{condition}</Text>
@@ -36,7 +40,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 10,
     padding: 16,
-    marginRight: 10,
+    marginLeft: 25,
+    marginRight: 0,
     alignItems: "center",
     width: 180,
     shadowColor: "#000",
@@ -66,7 +71,7 @@ const styles = StyleSheet.create({
   button: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1E3A8A",
+    backgroundColor: "#25578E",
     paddingVertical: 6,
     paddingHorizontal: 14,
     borderRadius: 15,

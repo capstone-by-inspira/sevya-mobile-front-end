@@ -1,8 +1,10 @@
+
 import { useEffect, useState } from "react";
 import { View, ActivityIndicator } from "react-native";
 import { Redirect } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { getSecureData } from "../services/secureStorage"; // Import utility
+import { getSecureData } from "../services/secureStorage";
+import EmergencyCall from "@/components/EmergencyCall";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -13,9 +15,13 @@ export default function Index() {
     const checkAuth = async () => {
       try {
         const token = await getSecureData("token");
-        setIsAuth(!!token);
+        if (token) {
+          setIsAuth(!!token);
+        } else {
+          setIsAuth(false);
+        }
       } catch (error) {
-        setIsAuth(false);
+        setIsAuth(null);
       } finally {
         await SplashScreen.hideAsync();
       }
@@ -32,5 +38,10 @@ export default function Index() {
     );
   }
 
+<<<<<<< HEAD
   return isAuth ? <Redirect href="/(tabs)/patients" /> : <Redirect href="/login" />;
 }
+=======
+  return isAuth ? <Redirect href="/(tabs)/home" /> : <Redirect href="/login" />;
+}
+>>>>>>> main

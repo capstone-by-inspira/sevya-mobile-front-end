@@ -14,8 +14,13 @@ import {
   Image,
 } from "react-native";
 import { getSecureData } from "../../services/secureStorage";
+<<<<<<< HEAD
 import { useLocalSearchParams } from "expo-router";
 import { db } from "@/FirebaseConfig";
+=======
+import { useLocalSearchParams, useNavigation } from "expo-router";
+import { db } from "@/FirebaseConfig"; // Ensure correct Firebase path
+>>>>>>> main
 import {
   doc,
   getDoc,
@@ -32,6 +37,11 @@ const Notes = () => {
   const [loading, setLoading] = useState(true);
   const [imageUri, setImageUri] = useState<string | null>(null);
 
+<<<<<<< HEAD
+=======
+  const navigation = useNavigation();
+  // Fetch notes from Firebase
+>>>>>>> main
   useEffect(() => {
     const fetchNotes = async () => {
       if (!id) return;
@@ -55,6 +65,15 @@ const Notes = () => {
     fetchNotes();
   }, [id]);
 
+<<<<<<< HEAD
+=======
+  useEffect(() => {
+    if (id) {
+      navigation.setOptions({ title: `Notes` }); // Set the header title
+   }
+  }, [id, navigation]);
+  // Add a new note to Firebase
+>>>>>>> main
   const addNote = async () => {
     if (!id || (!note.trim() && !imageUri)) return;
 
@@ -133,7 +152,15 @@ const Notes = () => {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.innerContainer}>
           <Text style={styles.title}>Patient Notes</Text>
+<<<<<<< HEAD
           <ScrollView contentContainerStyle={styles.notesContainer}>
+=======
+
+          <ScrollView
+            contentContainerStyle={styles.notesContainer}
+            keyboardShouldPersistTaps="handled" // Ensure taps outside input dismiss keyboard
+          >
+>>>>>>> main
             {loading ? (
               <Text>Loading...</Text>
             ) : notes.length > 0 ? (
@@ -244,21 +271,33 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
+<<<<<<< HEAD
     padding: 10,
     marginBottom: 10,
     backgroundColor: "#fff",
+=======
+    paddingTop: 20,
+    paddingBottom: 50,
+    marginBottom:80,
+    paddingHorizontal: 10,
+    backgroundColor: "transparent",
+>>>>>>> main
     borderTopWidth: 1,
     borderTopColor: "#ccc",
   },
   textInput: {
+    backgroundColor:'white',
+    display:"flex",
+    justifyContent:'center',
+    alignItems:'center',
+  
     flex: 1,
-    height: 40,
+    padding:10,
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 20,
     paddingLeft: 10,
     fontSize: 16,
-    backgroundColor: "#f0f0f0",
   },
   imageButton: {
     marginLeft: 10,

@@ -1,54 +1,101 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, Button, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
-import AuthGuard from "../../components/AuthGuard";
-import { deleteSecureData, getSecureData } from "../../services/secureStorage";
-import { DashNameBar } from "@/components/DashNameBar";
-import { Alert } from "react-native/Libraries/Alert/Alert";
+import React, { useState, useEffect, useCallback, useContext } from "react";
+import {
+  View,
+  Text,
+  Image,
+  FlatList,
+  ScrollView,
+  RefreshControl,
+  ActivityIndicator,
+} from "react-native";
+
+import PatientList from "@/components/PatientList";
+import TodaysShift from "@/components/TodaysShift";
+import EmergencyHelpScreen from "@/components/EmergencyComponent";
+import EmergencyCall from "@/components/EmergencyCall";
+import { AppContext } from "@/components/AppContext";
+import WebSocketClient from "@/components/WebSocketClient";
+import * as Notifications from 'expo-notifications';
+import Button from '@/components/ui/Button'
 
 export default function Home() {
-  const router = useRouter();
-  const [userData, setUserData] = useState<any>(null); // State to store user data
+ 
+  
+
+  const context = useContext(AppContext);
+
+  if (!context) {
+    return <Text>Error: AppContext n found</Text>;
+  }
+
+  const { shifts, fetchData, caregivers, patients, loading, token } = context;
+
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const userString = await getSecureData("user");
-      if (userString) {
-        const user = JSON.parse(userString); // Parse the JSON string
-        setUserData(user);
-      }
-    };
-
-    fetchUser();
+    fetchData();
   }, []);
 
-  const logout = async () => {
-    await deleteSecureData("token");
-    await deleteSecureData("user");
-    router.replace("/login");
-  };
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchData(); // Reload data
+    setRefreshing(false);
+  }, [fetchData]);
+
+ 
+ // console.log(patients, 'ncjnajncskcn');
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
 
   return (
-    <AuthGuard>
-      <DashNameBar userName={userData ? userData.name : "Guest"} />
-      <View>
-        <View style={btnStyle.container}>
-          <Button
-            title="Ready for your shift?"
-            color={"white"}
-            onPress={() => console.log("Button Pressed!")}
-          />
-        </View>
+    <>
+      <View style={{ height: 150 }}>
+        <Image
+          style={{ width: "auto", height: 150, borderRadius: 0, margin: 0 }}
+          source={{
+            uri: "https://images.unsplash.com/photo-1584515933487-779824d29309",
+          }}
+        />
       </View>
-    </AuthGuard>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        <View
+          style={{
+            backgroundColor: "#F0F6FF",
+            display: "flex",
+            flexDirection: "column",
+            width: "100%",
+            flex: 1,
+            gap: 50,
+          }}
+        >
+
+          <View>
+            <TodaysShift shifts  = {shifts} caregiver={caregivers}/>
+          </View>
+
+          <View>
+            <PatientList patients={patients}></PatientList>
+          </View>
+
+          <View>
+            <EmergencyHelpScreen />
+            <EmergencyCall caregiver={caregivers} token={token}/>
+          </View>
+          
+        </View>
+
+      </ScrollView>
+    </>
   );
 }
-const btnStyle = StyleSheet.create({
-  container: {
-    backgroundColor: "black",
-    width: "50%",
-    alignSelf: "center",
-    borderRadius: 14,
-    marginTop: 10,
-  },
-});

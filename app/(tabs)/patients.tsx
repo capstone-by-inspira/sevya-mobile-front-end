@@ -1,26 +1,46 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
-import SearchBar from "../../components/SearchBar"; 
+import React, { useState, useEffect, useCallback, useContext } from "react";
+import { View, Text, StyleSheet, FlatList, RefreshControl , SafeAreaView } from "react-native";
+import SearchBar from "../../components/SearchBar"; // Import SearchBar component
 import PatientCard from "@/components/PatientCard";
 import { useRouter } from "expo-router";
-import { getSecureData } from "../../services/secureStorage"; 
-import { collection, getDocs, query, where } from "firebase/firestore";
-import { db } from "../../FirebaseConfig"; 
+import { getSecureData } from "../../services/secureStorage"; // Import secure storage function
+import { AppContext } from "../../components/AppContext";
 
 const Patients = () => {
+  const context = useContext(AppContext);
+
+  if (!context) {
+    return <Text>Error: AppContext not found</Text>;
+  }
+
+  const { isAuth, caregivers, patients, shifts, fetchData } = context;
+
+  // State for search and refresh
   const [searchText, setSearchText] = useState("");
-  const [patients, setPatients] = useState<any[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
   const [filteredPatients, setFilteredPatients] = useState<any[]>([]);
-  const [userData, setUserData] = useState<any>(null);
+
   const router = useRouter();
 
+  // Fetch new data on pull-to-refresh
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchData(); // Reload data
+    setRefreshing(false);
+  }, [fetchData]);
+
+  // Update filteredPatients when patients list changes
+  useEffect(() => {
+    setFilteredPatients(patients);
+  }, [patients]);
+
+  // Function to fetch stored user data
   useEffect(() => {
     const fetchStoredUserData = async () => {
       try {
         const storedUser = await getSecureData("user");
         if (storedUser) {
-          const parsedUser = JSON.parse(storedUser);
-          setUserData(parsedUser);
+          JSON.parse(storedUser);
         }
       } catch (error) {
         console.error("Error fetching stored user data:", error);
@@ -29,6 +49,7 @@ const Patients = () => {
     fetchStoredUserData();
   }, []);
 
+<<<<<<< HEAD
   useEffect(() => {
     // if (userData?.uid) {
       const userID = "oP0l5aPKimWP2im6fPQFa68wmb83"
@@ -83,24 +104,32 @@ const Patients = () => {
     }
   };
 
+=======
+  // Search handler
+>>>>>>> main
   const handleSearch = (text: string) => {
     setSearchText(text);
     if (!text.trim()) {
       setFilteredPatients(patients);
     } else {
       setFilteredPatients(
-        patients.filter((patient) =>
-          patient.name.toLowerCase().includes(text.toLowerCase())
+        patients.filter(
+          (patient) =>
+            patient.firstName &&
+            patient.firstName.toLowerCase().includes(text.toLowerCase())
         )
       );
     }
   };
 
+  // Navigate to patient details
   const handlePatientPress = (id: string) => {
+  //  console.log(id);
     router.push(`/patients/${id}`);
   };
 
   return (
+    <SafeAreaView style={styles.container}>
     <View style={styles.container}>
       <Text style={styles.title}>My Patients</Text>
       <SearchBar
@@ -110,7 +139,7 @@ const Patients = () => {
       />
       {filteredPatients.length > 0 ? (
         <FlatList
-          data={filteredPatients}
+          data={filteredPatients} // ✅ Pass filteredPatients instead of patients
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <PatientCard
@@ -120,11 +149,15 @@ const Patients = () => {
               onPress={() => handlePatientPress(item.id)}
             />
           )}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         />
       ) : (
         <Text style={styles.noDataText}>No patients found</Text>
       )}
     </View>
+    </SafeAreaView>
   );
 };
 
