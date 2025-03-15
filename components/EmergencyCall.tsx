@@ -1,30 +1,34 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { View, Text, Alert, StyleSheet, Linking } from "react-native";
 import { Accelerometer } from "expo-sensors";
 
 const EmergencyCall = () => {
   const phoneNumber = "911"; // Replace with actual emergency contact
-  const [subscription, setSubscription] = useState<any>(null);
-  const [isAlertVisible, setIsAlertVisible] = useState(false); // Flag to track alert visibility
+  const isAlertVisibleRef = useRef(false); // Use a ref to track alert visibility
+  const lastShakeTimeRef = useRef(0); // Use a ref to track the last shake time
 
   useEffect(() => {
     const subscribe = Accelerometer.addListener(({ x, y, z }) => {
       const acceleration = Math.sqrt(x * x + y * y + z * z);
 
       // Adjust the threshold for sensitivity
-      if (acceleration > 3.8 && !isAlertVisible) {
-        handleShake();
+      if (acceleration > 3.8 && !isAlertVisibleRef.current) {
+        const currentTime = new Date().getTime();
+
+        // Debounce: Only trigger if 2 seconds have passed since the last shake
+        if (currentTime - lastShakeTimeRef.current > 2000) {
+          lastShakeTimeRef.current = currentTime;
+          handleShake();
+        }
       }
     });
 
-    setSubscription(subscribe);
-    return () => subscription && subscription.remove();
-  }, [isAlertVisible]); // Dependency on isAlertVisible
+    return () => subscribe.remove(); // Cleanup on unmount
+  }, []);
 
   const handleShake = () => {
-    if (!isAlertVisible) {
-    //   console.log("Shake detected!");
-      setIsAlertVisible(true); // Set the alert visibility flag
+    if (!isAlertVisibleRef.current) {
+      isAlertVisibleRef.current = true; // Set the alert visibility flag
 
       Alert.alert(
         "Emergency Call",
@@ -32,13 +36,14 @@ const EmergencyCall = () => {
         [
           { text: "Cancel", style: "cancel", onPress: closeAlert },
           { text: "Call", onPress: makeCall },
-        ]
+        ],
+        { onDismiss: closeAlert } // Ensure the alert is dismissed properly
       );
     }
   };
 
   const closeAlert = () => {
-    setIsAlertVisible(false); // Reset the alert visibility flag
+    isAlertVisibleRef.current = false; // Reset the alert visibility flag
   };
 
   const makeCall = () => {
@@ -48,13 +53,7 @@ const EmergencyCall = () => {
     closeAlert(); // Close the alert after making the call
   };
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.info}>
-        Shake your phone to trigger an emergency call confirmation.
-      </Text>
-    </View>
-  );
+  return <></>;
 };
 
 const styles = StyleSheet.create({

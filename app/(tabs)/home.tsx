@@ -14,12 +14,13 @@ import TodaysShift from "@/components/TodaysShift";
 import EmergencyHelpScreen from "@/components/EmergencyComponent";
 import EmergencyCall from "@/components/EmergencyCall";
 import { AppContext } from "@/components/AppContext";
+import WebSocketClient from "@/components/WebSocketClient";
 
 export default function Home() {
   const context = useContext(AppContext);
 
   if (!context) {
-    return <Text>Error: AppContext not found</Text>;
+    return <Text>Error: AppContext n found</Text>;
   }
 
   const { shifts, fetchData, caregivers, patients, loading } = context;
@@ -30,6 +31,15 @@ export default function Home() {
     fetchData();
   }, []);
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchData(); // Reload data
+    setRefreshing(false);
+  }, [fetchData]);
+
+ 
+ // console.log(patients, 'ncjnajncskcn');
+
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -37,6 +47,7 @@ export default function Home() {
       </View>
     );
   }
+
 
   return (
     <>
@@ -50,7 +61,7 @@ export default function Home() {
       </View>
       <ScrollView
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={fetchData} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
         <View
@@ -63,8 +74,9 @@ export default function Home() {
             gap: 50,
           }}
         >
+
           <View>
-            <TodaysShift/>
+            <TodaysShift shifts  = {shifts} caregiver={caregivers}/>
           </View>
 
           <View>

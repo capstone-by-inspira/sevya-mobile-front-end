@@ -15,7 +15,7 @@ import { auth } from "../config/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { saveSecureData, getSecureData } from "../services/secureStorage"; // Import Seure Storage utility
 
-const API_URL = "http://10.128.229.103:8800/api";
+const API_URL = "http://192.168.1.212:8800/api";
 
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState<string>("nammy@caregiver.com");

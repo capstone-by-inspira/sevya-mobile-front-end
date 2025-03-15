@@ -13,7 +13,9 @@ interface AppContextType {
   fetchData: () => void;
   setIsAuth: React.Dispatch<React.SetStateAction<boolean>>;
   loading: boolean;
-  token:any;
+  token: any;
+  messages: any[]; // Add WebSocket messages to the context
+  ws: WebSocket | null; // Add WebSocket connection to the context
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined); // CREATING CONTEXT
@@ -30,36 +32,89 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [patients, setPatients] = useState<any>([]);
   const [shifts, setShifts] = useState<any>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [messages, setMessages] = useState<any[]>([]); // State for WebSocket messages
+  const [ws, setWs] = useState<WebSocket | null>(null); // State for WebSocket connection
+
+  // Initialize WebSocket connection
+  useEffect(() => {
+    if (isAuth) {
+      const websocket = new WebSocket("ws://192.168.1.212:8800");
+
+      websocket.onopen = () => {
+        console.log("WebSocket connected");
+      };
+
+      websocket.onmessage = async (event) => {
+        const message = JSON.parse(event.data);
+        console.log("WebSocket message received:", message);
+  
+        if (message.event === "data_updated") {
+          // Refetch data based on the updated collection
+          switch (message.collection) {
+            case "shifts":
+              await fetchShifts();
+              break;
+            case "patients":
+              await fetchPatients();
+              break;
+            case "caregivers":
+              await fetchCaregiver();
+              break;
+            default:
+              break;
+          }
+        }
+  
+        // Update messages state (optional, for debugging)
+        setMessages((prevMessages) => [...prevMessages, message]);
+      };
+  
+      websocket.onclose = () => {
+        console.log("WebSocket disconnected");
+      };
+
+      websocket.onerror = (error) => {
+        console.error("WebSocket error:", error);
+      };
+
+      setWs(websocket); // Store the WebSocket connection
+
+      // Cleanup on unmount
+      return () => {
+        websocket.close();
+      };
+    }
+  }, [isAuth]); // Reconnect WebSocket when authentication status changes
 
   useEffect(() => {
     const fetchUserAndData = async () => {
       setLoading(true); // Start loading
-  
+
       try {
         // Step 1: Fetch token and user data
         const token = await getSecureData("token");
         const userString = await getSecureData("user");
-  
+
         if (token) {
           setToken(token);
           setIsAuth(true);
-  
+
           if (userString) {
             const user = JSON.parse(userString);
             setUserData(user);
-  
+
             // Step 2: Fetch additional data (patients, caregivers, shifts)
             const [patientsResponse, caregiversResponse, shiftsResponse] = await Promise.all([
               getDocuments("patients", token),
               getDocumentById("caregivers", user.uid, token),
               getDocumentByKeyValue("shifts", "caregiverId", user.uid, token),
             ]);
-  
+
             // Filter patients for the current caregiver
             const patientsWithCaregiver = patientsResponse.data.filter((patient: any) =>
               Object.values(patient.shifts).some((shift: any) => shift.id === user.uid)
             );
-  
+
             // Update state with fetched data
             setPatients(patientsWithCaregiver);
             setCaregivers(caregiversResponse.data);
@@ -75,14 +130,14 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         setLoading(false); // Stop loading
       }
     };
-  
+
     fetchUserAndData(); // Call the combined function
   }, []);
 
-  const fetchData = () => {
-    fetchCaregiver();
-    fetchPatients();
-    fetchShifts();
+  const fetchData = async () => {
+    await fetchCaregiver();
+    await fetchPatients();
+    await fetchShifts();
   };
 
   const fetchCaregiver = async () => {
@@ -119,6 +174,8 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       const result = await getDocumentByKeyValue("shifts", "caregiverId", userData.uid, token);
       if (result.success) {
         setShifts(result.data);
+      }else{
+        setShifts([]);
       }
     } catch (error) {
       console.error("Error fetching shifts:", error);
@@ -126,19 +183,29 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   };
 
   return (
-    <AppContext.Provider value={{ isAuth, caregivers, patients, shifts, fetchData, setIsAuth, loading, token }}>
-    {loading ? (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
-      </View>
-    ) : (
-      children
-    )}
-  </AppContext.Provider>
-);
+    <AppContext.Provider
+      value={{
+        isAuth,
+        caregivers,
+        patients,
+        shifts,
+        fetchData,
+        setIsAuth,
+        loading,
+        token,
+        messages, // Provide WebSocket messages to consumers
+        ws, // Provide WebSocket connection to consumers
+      }}
+    >
+      {loading ? (
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <ActivityIndicator size="large" />
+        </View>
+      ) : (
+        children
+      )}
+    </AppContext.Provider>
+  );
 };
 
-
 export { AppContext, AppProvider };
-
-// AuthGuard.tsx

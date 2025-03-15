@@ -103,7 +103,7 @@ const ProfileScreen = () => {
         </Text>
         <Text style={styles.detailText}>Email: {caregivers.email}</Text>
         <Text style={styles.detailText}>Phone: {caregivers.phoneNumber}</Text>
-        <Text style={styles.detailText}>Total Shifts: {shifts.length}</Text>
+        <Text style={styles.detailText}>Total Shifts: {shifts?.length}</Text>
         <Text style={styles.detailText}>Total Patients Assigned: {patients.length}</Text>
 
 

@@ -16,94 +16,66 @@ interface Shift {
     endTime: string;
     adminId: number;
     status: string;
+    location: string;
 }
 
-// interface Caregiver {
-//   id: number;
-//   name: string;
-//   email: string;
-// }
+interface TodayShiftProps {
+    shifts: any;
+    caregiver: any;
+}
 
-// interface Shifts {
-//   id: number;
-//   name: string;
-//   email: string;
-// }
-// interface ShiftCardProps {
-//   shift: Shift;
-//   caregiver: Caregiver[] | null;
-//   shifts: Shifts[] | null;
-// }
-const TodaysShift = () => {
+const TodaysShift: React.FC<TodayShiftProps> = ({ shifts, caregiver }) => {
+    const [shift, setShift] = useState<Shift | null>(null);
+    const [noShift, setNoShift] = useState(true); // Tracks no shift today
 
-    const context = useContext(AppContext);
 
-    if (!context) {
-        return <Text>Error: AppContext not found</Text>;
-    }
-
-    const { isAuth, caregivers, patients, shifts, fetchData } = context;
-
-    const caregiver = caregivers;
-    // console.log("agyecaregivers", caregiver);
-    // console.log("agyeshifts", shifts);
-    const [location, setLocation] = useState("");
-    const [shiftTime, setShiftTime] = useState("");
-    const [shift, setShift] = useState<Shift | null>(shifts);
-    const [noShift, setNoShift] = useState(false); // Tracks no shift today
+    // Log the updated shift and noShift state
+    useEffect(() => {
+        // console.log("Updated shift:", shift);
+    }, [shift]);
 
     useEffect(() => {
-        getCaregiverShiftData();
-        getCaregiverData();
-    }, [shifts]);
+        // console.log("Updated noShift:", noShift);
+    }, [noShift]);
 
+    // Get today's date in DD/MM/YYYY format
     const getCurrentDateDDMMYYYY = (): string => {
         return new Date().toLocaleDateString("en-GB");
     };
 
-    const getTodaysShiftData = async (shifts: any[]) => {
-        const today = new Date();
-        const localDate =
-            today.getFullYear() +
-            "-" +
-            String(today.getMonth() + 1).padStart(2, "0") +
-            "-" +
-            String(today.getDate()).padStart(2, "0");
-
-        // console.log("result.data::", localDate);
-        const todaysShifts = shifts.filter((shift) =>
-            shift.startTime.startsWith(localDate)
-        );
-        // console.log("result.data::", todaysShifts);
-        if (todaysShifts.length === 0) {
-            setNoShift(true);
-            return null;
-        }
-
-        setNoShift(false);
-        return todaysShifts.sort(
-            (a, b) =>
-                new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
-        )[0];
-    };
-
-    const getCaregiverShiftData = async () => {
-
-        if (shifts.length != 0) {
-            const earliestShift = await getTodaysShiftData(shifts);
-            if (earliestShift) {
-                // console.log("result.data::", earliestShift);
-                setShift(earliestShift);
-                setLocation(earliestShift.location || "No location provided");
-                setShiftTime(earliestShift.startTime || "No time provided");
+    // Find today's shift when the shifts prop changes
+    useEffect(() => {
+        if (shifts && shifts.length > 0) {
+            const todaysShift = getTodaysShift(shifts);
+            if (todaysShift) {
+                setShift(todaysShift);
+                setNoShift(false);
+            } else {
+                setNoShift(true);
+                setShift(null);
             }
         } else {
             setNoShift(true);
-
+            setShift(null);
         }
-    };
+    }, [shifts]);
 
-    const getCaregiverData = async () => { };
+    // Filter and return today's shift
+    const getTodaysShift = (shifts: any[]) => {
+        const today = new Date().toLocaleDateString("en-GB"); // Get today's date in DD/MM/YYYY format
+        const todaysShifts = shifts.filter(shift => {
+            const shiftDate = new Date(shift.startTime).toLocaleDateString("en-GB");
+            return shiftDate === today;
+        });
+
+        if (todaysShifts.length === 0) {
+            return null; // No shift for today
+        }
+
+        // Sort by startTime to get the latest shift
+        const latestShift = todaysShifts.sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime())[0];
+        return latestShift;
+    };
 
     return (
         <View style={styles.container}>
@@ -117,7 +89,7 @@ const TodaysShift = () => {
                 <>
                     {shift && shift.id ? (
                         <Button
-                            handleButtonClick={() => router.push(`/shift/${shift.id}`)}
+                            handleButtonClick={() => router.push(`/shiftTest/${shift.id}`)}
                             buttonText="Ready for your shift?"
                         />
                     ) : (
@@ -132,12 +104,12 @@ const TodaysShift = () => {
                         <View style={styles.cardContent}>
                             <View style={styles.row}>
                                 <Icon source="map-marker-outline" size={20} color="#2C3E50" />
-                                <Text style={styles.cardText}>{location}</Text>
+                                <Text style={styles.cardText}>{shift?.location}</Text>
                             </View>
                             <View style={styles.row}>
                                 <Icon source="information-outline" size={20} color="#2C3E50" />
                                 <Text style={styles.cardText}>
-                                    {formatDateOnly(shiftTime)} {formatTimeOnly(shiftTime)}
+                                    {formatDateOnly(shift?.startTime)} {formatTimeOnly(shift?.startTime)}
                                 </Text>
                             </View>
                         </View>
