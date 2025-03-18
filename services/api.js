@@ -2,19 +2,21 @@ import axios from "axios";
 
 const API_URL = "http://localhost:8800/api";
 
-export const translatePatientNotes = async (patientData) =>{
+export const translatePatientNotes = async (patientData) => {
   try {
-    // Make the API call to your backend
-    const response = await axios.post('http://localhost:8800/api/auth/translate-notes', {
-      patientData: patientData,
-    });
+    const response = await axios.post(
+      "http://localhost:8800/api/auth/translate-notes",
+       {patientData} 
+    );
 
-    console.log(response, 'TRANSLATED');
-    return response;
+    console.log(response.data, "TRANSLATED");
+    return response.data; // Assuming response.data contains translated text
   } catch (error) {
-    setError('Error translating');
+    console.error("Error translating:", error);
+    throw new Error("Failed to translate patient notes");
   }
-}
+};
+
 
   const apiRequest = async (method, endpoint, data = {}, token = "") => {
     

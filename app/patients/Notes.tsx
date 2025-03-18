@@ -23,6 +23,7 @@ import {
 } from "firebase/firestore";
 import { SelectList } from 'react-native-dropdown-select-list';
 import { translatePatientNotes } from "@/services/api";
+import NoteCard from "@/components/NotesCard";
 
 const Notes = () => {
   const { id } = useLocalSearchParams(); // Get patient ID
@@ -67,25 +68,33 @@ const Notes = () => {
 
   const translateNote = async (text: string, index: number) => {
     try {
-      const targetLang = languages.find(lang => lang.value === selectedLanguage)?.key || "en";
+      const targetLang =
+        languages.find((lang) => lang.value === selectedLanguage)?.key || "en";
 
       const patientData = {
         notes: text,
         language: targetLang,
-      }
-      const response = translatePatientNotes(patientData)
-      console.log('translated', response);
-      
-      // setTranslatedNotes(prev => ({ ...prev, [index]: translatedText }));
-    } catch (error) {
-      console.error("Translation failed:", error);
+      };
+
+      console.log("patientData", patientData);
+
+      const response = await translatePatientNotes(patientData);
+      console.log("translated", response);
+      const translatedText = response.translatedText.data.translations[0].translatedText;
+      console.log("result", translatedText);
+      setTranslatedNotes((prev) => ({
+        ...prev,
+        [index]: translatedText,
+      }));
+    } catch (error: any) {
+      console.error("Translation failed:", error.message);
     }
   };
 
   useEffect(() => {
     if (id) {
       navigation.setOptions({ title: `Notes` }); // Set the header title
-   }
+    }
   }, [id, navigation]);
   // Add a new note to Firebase
   const addNote = async () => {
@@ -146,7 +155,7 @@ const Notes = () => {
               dropdownStyles={styles.dropdownList}
             />
           </View>
-          
+
           <ScrollView
             contentContainerStyle={styles.notesContainer}
             keyboardShouldPersistTaps="handled" // Ensure taps outside input dismiss keyboard
@@ -158,17 +167,27 @@ const Notes = () => {
                 <View key={index} style={styles.noteBubble}>
                   <Text style={styles.noteAuthor}>{item.caregiverName}</Text>
                   <Text style={styles.noteText}>{item.myNote}</Text>
+
+                  {/* Show translated text if available */}
+                  {translatedNotes[index] && (
+                    <Text style={[styles.noteText, { fontStyle: "italic", color: "gray" }]}>
+                      {translatedNotes[index]}
+                    </Text>
+                  )}
+
                   <TouchableOpacity
                     onPress={() => translateNote(item.myNote, index)}
                     style={styles.translateButton}
                   >
                     <Text style={styles.translateText}>Translate</Text>
                   </TouchableOpacity>
+
                   <Text style={styles.noteDate}>
                     {new Date(item.date.seconds * 1000).toLocaleString()}
                   </Text>
                 </View>
               ))
+
             ) : (
               <Text>No notes available.</Text>
             )}
@@ -240,20 +259,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 20,
     paddingBottom: 50,
-    marginBottom:80,
+    marginBottom: 80,
     paddingHorizontal: 10,
     backgroundColor: "transparent",
     borderTopWidth: 1,
     borderTopColor: "#ccc",
   },
   textInput: {
-    backgroundColor:'white',
-    display:"flex",
-    justifyContent:'center',
-    alignItems:'center',
-  
+    backgroundColor: 'white',
+    display: "flex",
+    justifyContent: 'center',
+    alignItems: 'center',
+
     flex: 1,
-    padding:10,
+    padding: 10,
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 20,
@@ -272,16 +291,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
-  dropdown: { 
-    borderWidth: 1, 
-    borderColor: "#ccc", 
-    borderRadius: 5, 
-    paddingHorizontal: 10 
+  dropdown: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    paddingHorizontal: 10
   },
-  dropdownList: { 
-    borderWidth: 1, 
-    borderColor: "#ccc", 
-    borderRadius: 5 
+  dropdownList: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5
   },
   headerContainer: {
     flexDirection: "row",
