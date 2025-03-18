@@ -38,7 +38,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   // Initialize WebSocket connection
   useEffect(() => {
     if (isAuth) {
-      const websocket = new WebSocket("ws://192.168.1.212:8800");
+      const websocket = new WebSocket("ws://localhost:8800");
 
       websocket.onopen = () => {
         console.log("WebSocket connected");
