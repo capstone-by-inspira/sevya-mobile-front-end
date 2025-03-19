@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback, useContext } from "react";
 import { View, Text, StyleSheet, FlatList, RefreshControl , SafeAreaView } from "react-native";
 import SearchBar from "../../components/SearchBar"; // Import SearchBar component
-import PatientCard from "@/components/PatientCard";
+import PatientCard from "../../components/PatientCard";
 import { useRouter } from "expo-router";
 import { getSecureData } from "../../services/secureStorage"; // Import secure storage function
 import { AppContext } from "../../components/AppContext";
+import { Title } from "react-native-paper";
 
 const Patients = () => {
   const context = useContext(AppContext);
@@ -49,64 +50,7 @@ const Patients = () => {
     fetchStoredUserData();
   }, []);
 
-<<<<<<< HEAD
-  useEffect(() => {
-    // if (userData?.uid) {
-      const userID = "oP0l5aPKimWP2im6fPQFa68wmb83"
-      fetchPatients(userID);
-      // fetchPatients(userData.uid);
-    // }
-    // console.log('====================================');
-    // console.log(userData?.uid);
-    // console.log('====================================');
-  }, [userData]);
-
-  const fetchPatients = async (uid: string) => {
-    try {
-      // console.log("111==");
-      // console.log("1=="+uid);
-      
-      const q = query(collection(db, "patients"), where("caregiverAssigned", "==", uid));
-      // console.log("122==");
-      const querySnapshot = await getDocs(q);
-      // console.log("133==");
-      const patientsList = querySnapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          name: data.name || "Unknown",
-          firstName: data.firstName || "N/A",
-          lastName: data.lastName || "N/A",
-          email: data.email || "N/A",
-          phone: data.phone || "N/A",
-          admissionDate: data.admissionDate || "",
-          dischargeDate: data.dischargeDate || "",
-          caregiverAssigned: data.caregiverAssigned || "",
-          createdAt: data.createdAt || 0,
-          emergencyContact: data.emergencyContact || { name: "", phone: "" },
-          insuranceDetails: data.insuranceDetails || { provider: "", policyNumber: "" },
-          medicalConditions: data.medicalConditions || [],
-          medications: data.medications || [],
-          shifts: data.shifts || [],
-        };
-      });
-
-      // console.log("11111111");
-      // console.log('====================================');
-      // console.log(patientsList);
-      // console.log('====================================');
-      // console.log("22222222");
-      
-      setPatients(patientsList);
-      setFilteredPatients(patientsList);
-    } catch (error) {
-      console.error("Error fetching patients:", error);
-    }
-  };
-
-=======
   // Search handler
->>>>>>> main
   const handleSearch = (text: string) => {
     setSearchText(text);
     if (!text.trim()) {

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
+import * as Speech from "expo-speech";
 import {
   View,
   Text,
@@ -12,15 +13,12 @@ import {
   Keyboard,
   ScrollView,
   Image,
+  Modal,
+  Alert,
 } from "react-native";
 import { getSecureData } from "../../services/secureStorage";
-<<<<<<< HEAD
 import { useLocalSearchParams } from "expo-router";
-import { db } from "@/FirebaseConfig";
-=======
-import { useLocalSearchParams, useNavigation } from "expo-router";
-import { db } from "@/FirebaseConfig"; // Ensure correct Firebase path
->>>>>>> main
+import { db } from "../../FirebaseConfig";
 import {
   doc,
   getDoc,
@@ -28,28 +26,42 @@ import {
   arrayUnion,
   Timestamp,
 } from "firebase/firestore";
-import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import { useNavigation } from "expo-router";
+import axios from "axios";
 
 const Notes = () => {
+  const navigation = useNavigation();
   const { id } = useLocalSearchParams();
   const [notes, setNotes] = useState<any[]>([]);
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(true);
   const [imageUri, setImageUri] = useState<string | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [voiceMessage, setVoiceMessage] = useState("");
 
-<<<<<<< HEAD
-=======
-  const navigation = useNavigation();
-  // Fetch notes from Firebase
->>>>>>> main
+  // Request permission for accessing image library and camera
+  useEffect(() => {
+    navigation.setOptions({ title: "My Notes" });
+    const requestPermissions = async () => {
+      const { status: libraryStatus } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status: cameraStatus } =
+        await ImagePicker.requestCameraPermissionsAsync();
+
+      if (libraryStatus !== "granted" || cameraStatus !== "granted") {
+        alert("Permissions to access media library and camera are required!");
+      }
+    };
+
+    requestPermissions();
+  }, [navigation]);
+
   useEffect(() => {
     const fetchNotes = async () => {
       if (!id) return;
 
       try {
-        const myid = "P0YUuUGAY4LQzOiSs4OS";
-        const docRef = doc(db, "patients", myid as string);
-        // const docRef = doc(db, "patients", id as string);
+        const docRef = doc(db, "patients", id as string);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
@@ -65,17 +77,8 @@ const Notes = () => {
     fetchNotes();
   }, [id]);
 
-<<<<<<< HEAD
-=======
-  useEffect(() => {
-    if (id) {
-      navigation.setOptions({ title: `Notes` }); // Set the header title
-   }
-  }, [id, navigation]);
-  // Add a new note to Firebase
->>>>>>> main
   const addNote = async () => {
-    if (!id || (!note.trim() && !imageUri)) return;
+    if (!id || (!note.trim() && !imageUri && !voiceMessage)) return;
 
     try {
       const userData = await getSecureData("user");
@@ -90,10 +93,15 @@ const Notes = () => {
         return;
       }
 
+      let uploadedImageUrl = null;
+      if (imageUri) {
+        uploadedImageUrl = await uploadImage(imageUri);
+      }
+
       const newNote = {
         caregiverName: user.name,
-        myNote: note || "",
-        imageUrl: imageUri || null,
+        myNote: note || voiceMessage || "",
+        imageUrl: uploadedImageUrl || null,
         date: Timestamp.now(),
       };
 
@@ -105,6 +113,7 @@ const Notes = () => {
       setNotes((prevNotes) => [...prevNotes, newNote]);
       setNote("");
       setImageUri(null);
+      setVoiceMessage("");
       console.log("Note added successfully!");
     } catch (error) {
       console.error("Error adding note:", error);
@@ -112,55 +121,80 @@ const Notes = () => {
   };
 
   const handleImagePick = async () => {
-    console.log("Gallery button clicked!");
-
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"], // ✅ Use an array instead of MediaTypeOptions.Photo
-      allowsEditing: true,
-      quality: 1,
+      mediaTypes: ["images"], // Use this instead
     });
 
-    console.log("Gallery Response:", result);
+    if (!result.canceled) {
+      console.log(result.assets[0].uri);
+    }
+  };
+  const handleCameraOpen = async () => {
+    try {
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ["images"],
+        allowsEditing: true,
+        quality: 1,
+      });
 
-    if (!result.canceled && result.assets.length > 0) {
-      setImageUri(result.assets[0].uri);
+      if (!result.canceled) {
+        setImageUri(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error("Error opening camera:", error);
     }
   };
 
-  const handleCameraOpen = async () => {
-    console.log("Camera button clicked!");
+  const uploadImage = async (uri: string) => {
+    const mainLink = "http://localhost:8800/api/auth/upload";
+    console.log("Uploading image...");
 
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ["images"], // ✅ Updated usage
-      allowsEditing: true,
-      quality: 1,
-    });
+    try {
+      console.log("Uploading image...1");
+      const formData = new FormData();
+      formData.append("image", {
+        uri,
+        name: `image_${Date.now()}.jpg`,
+        type: "image/jpeg",
+      } as any);
 
-    console.log("Camera Response:", result);
+      console.log("Uploading image...2");
+      const uploadResponse = await axios.post(mainLink, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      console.log("Uploading image...3");
 
-    if (!result.canceled && result.assets.length > 0) {
-      setImageUri(result.assets[0].uri);
+      if (uploadResponse.status !== 200) {
+        throw new Error("Image upload failed.");
+      }
+
+      return uploadResponse.data.imageUrl || null;
+    } catch (error) {
+      console.error("Image upload error:", error);
+      return null;
     }
+  };
+
+  const startVoiceRecording = async () => {
+    Speech.speak("Please say your message");
   };
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "position"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.innerContainer}>
-          <Text style={styles.title}>Patient Notes</Text>
-<<<<<<< HEAD
-          <ScrollView contentContainerStyle={styles.notesContainer}>
-=======
-
+          {/* <Text style={styles.title}>Patient Notes</Text> */}
           <ScrollView
+            style={{ flex: 1 }}
             contentContainerStyle={styles.notesContainer}
-            keyboardShouldPersistTaps="handled" // Ensure taps outside input dismiss keyboard
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={true}
           >
->>>>>>> main
             {loading ? (
               <Text>Loading...</Text>
             ) : notes.length > 0 ? (
@@ -207,105 +241,119 @@ const Notes = () => {
           multiline
         />
 
-        <TouchableOpacity style={styles.imageButton} onPress={handleImagePick}>
+        <TouchableOpacity
+          style={styles.imageButton}
+          onPress={() => setModalVisible(true)}
+        >
           <Text style={styles.iconText}>📷</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.imageButton} onPress={handleCameraOpen}>
-          <Text style={styles.iconText}>📸</Text>
+
+        {/* Voice message */}
+        <TouchableOpacity
+          style={styles.voiceButton}
+          onPress={startVoiceRecording}
+        >
+          <Text style={styles.iconText}>🎤</Text>
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.sendButton} onPress={addNote}>
           <Text style={styles.sendText}>Send</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Modal for image options */}
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Choose an Option</Text>
+            <TouchableOpacity
+              onPress={() => {
+                handleCameraOpen();
+                setModalVisible(false);
+              }}
+            >
+              <Text style={styles.modalOption}>Take Photo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                handleImagePick();
+                setModalVisible(false);
+              }}
+            >
+              <Text style={styles.modalOption}>Choose Photo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setModalVisible(false)}>
+              <Text style={styles.modalOption}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 };
 
 // Styles
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8f9fa",
-  },
-  innerContainer: {
-    flex: 1,
-    padding: 20,
-  },
+  innerContainer: { flex: 1, padding: 20 },
   title: {
     fontSize: 22,
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 10,
   },
-  notesContainer: {
-    flexGrow: 1,
-    paddingBottom: 100,
-  },
+  notesContainer: { flexGrow: 1, paddingBottom: 100 },
+
   noteBubble: {
     backgroundColor: "#DCF8C6",
     padding: 10,
     borderRadius: 8,
     marginVertical: 5,
-    alignSelf: "flex-start",
     maxWidth: "80%",
   },
-  noteAuthor: {
-    fontWeight: "bold",
-    color: "#075E54",
-  },
-  noteText: {
-    fontSize: 16,
-    marginVertical: 5,
-  },
+
+  noteAuthor: { fontWeight: "bold", color: "#075E54" },
+  noteText: { fontSize: 16, marginVertical: 5 },
+
   noteImage: {
     width: 150,
     height: 150,
     borderRadius: 8,
     marginTop: 5,
+    resizeMode: "cover",
   },
-  noteDate: {
-    fontSize: 12,
-    color: "gray",
-    alignSelf: "flex-end",
-  },
+
+  noteDate: { fontSize: 12, color: "gray", alignSelf: "flex-end" },
+
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-<<<<<<< HEAD
     padding: 10,
-    marginBottom: 10,
     backgroundColor: "#fff",
-=======
-    paddingTop: 20,
-    paddingBottom: 50,
-    marginBottom:80,
-    paddingHorizontal: 10,
-    backgroundColor: "transparent",
->>>>>>> main
     borderTopWidth: 1,
     borderTopColor: "#ccc",
   },
+
   textInput: {
-    backgroundColor:'white',
-    display:"flex",
-    justifyContent:'center',
-    alignItems:'center',
-  
     flex: 1,
-    padding:10,
+    height: 40,
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 20,
     paddingLeft: 10,
     fontSize: 16,
+    backgroundColor: "#f0f0f0",
   },
-  imageButton: {
-    marginLeft: 10,
-    padding: 8,
-  },
-  iconText: {
-    fontSize: 22,
-  },
+
+  imageButton: { marginLeft: 10, padding: 8 },
+  voiceButton: { marginLeft: 10, padding: 8 },
+
+  iconText: { fontSize: 22 },
+
   sendButton: {
     marginLeft: 10,
     paddingHorizontal: 20,
@@ -313,55 +361,52 @@ const styles = StyleSheet.create({
     backgroundColor: "#0078D4",
     borderRadius: 20,
   },
-  sendText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  imagePreviewContainer: {
-    position: "absolute",
-    top: 10, // Adjust the positioning
-    left: 10, // Puts it in the top-left corner
-    width: 70, // Keeps it small
-    height: 70,
-    borderRadius: 10,
-    backgroundColor: "#fff",
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
-  },
+
+  sendText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+
+  // Image Preview for Selected Image
   imagePreviewWrapper: {
-    alignSelf: "flex-start",
-    marginBottom: 5, // Adds spacing between image and input field
-    marginLeft: 10,
+    position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
   },
+
   previewImage: {
-    width: 60,
-    height: 60,
+    width: 100,
+    height: 100,
     borderRadius: 10,
-    marginBottom: 5, // Space between image and TextInput
+    resizeMode: "cover",
   },
-  
+
   closeButton: {
     position: "absolute",
-    top: -5,
-    right: -5,
-    backgroundColor: "red",
-    width: 18,
-    height: 18,
-    borderRadius: 9,
+    top: 5,
+    right: 5,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    borderRadius: 10,
+    padding: 5,
+  },
+
+  closeText: { color: "#fff", fontSize: 14, fontWeight: "bold" },
+
+  // Modal Styles
+  modalContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
-  closeText: {
-    color: "white",
-    fontSize: 12,
-    fontWeight: "bold",
+
+  modalContent: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    width: 300,
   },
+
+  modalTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 20 },
+  modalOption: { fontSize: 16, marginVertical: 10, textAlign: "center" },
 });
 
 export default Notes;

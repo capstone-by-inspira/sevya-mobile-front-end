@@ -59,24 +59,21 @@ const parsePlanText = (text: string): Section[] => {
   return sections;
 };
 
-
-
 const CarePlan = () => {
   const { plan } = useLocalSearchParams(); // Get AI-generated care plan from params
   const navigation = useNavigation();
   const [parsedPlan, setParsedPlan] = useState<CarePlanSection[]>([]);
 
- useEffect(() => {
-   navigation.setOptions({ title: "AI Care Plan" });
-   
-   if (plan) {
-     const planText = Array.isArray(plan) ? plan.join("\n") : plan;
-     const decodedPlanText = decodeURIComponent(planText);
-     const sections = parsePlanText(decodedPlanText);
-     setParsedPlan(sections);
-   }
- }, [plan, navigation]);
+  useEffect(() => {
+    navigation.setOptions({ title: "AI Care Plan" });
 
+    if (plan) {
+      const planText = Array.isArray(plan) ? plan.join("\n") : plan;
+      const decodedPlanText = decodeURIComponent(planText);
+      const sections = parsePlanText(decodedPlanText);
+      setParsedPlan(sections);
+    }
+  }, [plan, navigation]);
 
   if (!parsedPlan.length) {
     return (
@@ -106,6 +103,7 @@ const CarePlan = () => {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 15,
+    paddingVertical: 20,
     backgroundColor: "#f8f8f8",
   },
   loadingContainer: {
@@ -122,7 +120,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     padding: 15,
     borderRadius: 10,
-    marginBottom: 10,
+    marginBottom: 18,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 4,

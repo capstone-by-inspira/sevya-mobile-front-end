@@ -4,7 +4,8 @@ import { View, ActivityIndicator } from "react-native";
 import { Redirect } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { getSecureData } from "../services/secureStorage";
-import EmergencyCall from "@/components/EmergencyCall";
+import EmergencyCall from "../components/EmergencyCall";
+import React from "react";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -38,10 +39,5 @@ export default function Index() {
     );
   }
 
-<<<<<<< HEAD
-  return isAuth ? <Redirect href="/(tabs)/patients" /> : <Redirect href="/login" />;
-}
-=======
   return isAuth ? <Redirect href="/(tabs)/home" /> : <Redirect href="/login" />;
 }
->>>>>>> main

@@ -10,13 +10,17 @@ import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
 import axios from "axios";
 
-import { AppContext } from "@/components/AppContext";
-import SevyaLoader from "@/components/SevyaLoader";
+import { AppContext } from "../../components/AppContext";
+import SevyaLoader from "../../components/SevyaLoader";
 
 const PatientDetails = () => {
-
-  const context = useContext(AppContext);
   const navigation = useNavigation();
+  const context = useContext(AppContext);
+
+
+useEffect(() => {
+  navigation.setOptions({ title: "Details" }); // ✅ Set Title
+}, [navigation]);
 
   if (!context) {
     return <Text>Error: AppContext not found</Text>;
@@ -40,41 +44,6 @@ const PatientDetails = () => {
     shifts: false,
   });
 
-  useEffect(() => {
-<<<<<<< HEAD
-    const fetchPatientData = async () => {
-      if (!id) return;
-
-      try {
-        setLoading(true);
-        const myid = "P0YUuUGAY4LQzOiSs4OS"
-        const docRef = doc(db, "patients", myid as string);
-        // const docRef = doc(db, "patients", id as string);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          setPatientData(docSnap.data());
-        } else {
-          setError("Patient not found");
-        }
-      } catch (err) {
-        setError("Error fetching patient data");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPatientData();
-  }, [id]);
-=======
-        if (patientData) {
-          navigation.setOptions({ title: patientData.firstName }); // Set the header title
-       }
-      }, [patientData, navigation]);
->>>>>>> main
-
-  // Toggle dropdown sections
   const toggleSection = (section: string) => {
     setExpandedSections((prevState) => ({
       ...prevState,
@@ -91,7 +60,7 @@ const PatientDetails = () => {
     setLoading(true);
     try {
       // Make the API call to your backend
-      const response = await axios.post('http://192.168.1.212:8800/api/auth/generate-health-plan', {
+      const response = await axios.post('http://localhost:8800/api/auth/generate-health-plan', {
         patientData: patientData,
       });
 
@@ -102,7 +71,9 @@ const PatientDetails = () => {
       
       // Split the plan into bullet points if it's in a text format
       const planArray = generatedPlan.split('\n').filter(line => line.trim() !== '');
-      router.push({ pathname:"/patients/CarePlan", params: { plan: generatedPlan }})
+      router.push(
+        `/patients/CarePlan?plan=${encodeURIComponent(generatedPlan)}`
+      );
       setPlan(planArray);
     } catch (error) {
       setError('Error generating healthcare plan');

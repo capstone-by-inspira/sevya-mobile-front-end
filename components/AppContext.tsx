@@ -2,8 +2,8 @@ import React, { createContext, useState, useEffect, ReactNode, useContext } from
 import { getSecureData } from '../services/secureStorage';
 import { View, ActivityIndicator, Text } from 'react-native';
 import { Redirect } from 'expo-router';
-import { getDocuments, getDocumentById, getDocumentByKeyValue } from '@/services/api';
 import { useRouter } from 'expo-router';
+import { getDocuments, getDocumentById, getDocumentByKeyValue } from '@/services/api';
 
 interface AppContextType {
   isAuth: boolean;
@@ -38,7 +38,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   // Initialize WebSocket connection
   useEffect(() => {
     if (isAuth) {
-      const websocket = new WebSocket("ws://192.168.1.212:8800");
+      const websocket = new WebSocket("ws://localhost:8800");
 
       websocket.onopen = () => {
         console.log("WebSocket connected");
