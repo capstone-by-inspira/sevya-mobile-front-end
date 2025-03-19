@@ -1,11 +1,12 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8800/api";
+export const API_URL = "http://3.227.60.242:8808/api";
+
 
 export const translatePatientNotes = async (patientData) => {
   try {
     const response = await axios.post(
-      "http://localhost:8800/api/auth/translate-notes",
+      `${API_URL}/auth/translate-notes`,
        {patientData} 
     );
 

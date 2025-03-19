@@ -14,8 +14,9 @@ import axios from "axios";
 import { auth } from "../config/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { saveSecureData, getSecureData } from "../services/secureStorage"; // Import Seure Storage utility
+import {API_URL} from '../services/api';
+console.log(API_URL, 'fjhfhjffjfvj');
 
-const API_URL = "http://localhost:8800/api";
 
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState<string>("nammy@caregiver.com");

@@ -12,6 +12,8 @@ import axios from "axios";
 
 import { AppContext } from "@/components/AppContext";
 import SevyaLoader from "@/components/SevyaLoader";
+import {API_URL} from '@/services/api'
+console.log(API_URL, 'ID');
 
 const PatientDetails = () => {
 
@@ -63,7 +65,7 @@ const PatientDetails = () => {
     setLoading(true);
     try {
       // Make the API call to your backend
-      const response = await axios.post('http://localhost:8800/api/auth/generate-health-plan', {
+      const response = await axios.post(`${API_URL}/auth/generate-health-plan`, {
         patientData: patientData,
       });
 

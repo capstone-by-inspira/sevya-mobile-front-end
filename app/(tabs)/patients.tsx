@@ -86,6 +86,7 @@ const Patients = () => {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <PatientCard
+            image={item.image}
               name={item.firstName}
               gender={item.lastName}
               conditions={item.medicalConditions}

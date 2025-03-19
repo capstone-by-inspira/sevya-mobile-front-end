@@ -35,13 +35,14 @@ interface Patient {
 const ShiftCheckIn: React.FC = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const context = useContext(AppContext);
+ 
 
   if (!context) {
     return <Text>Error: AppContext not found</Text>;
   }
 
   const { shifts, patients, token, fetchData } = context;
-
+  console.log(shifts, 'shogt');
   const [shift, setShift] = useState<Shift | null>(null);
   const [associatedPatient, setAssociatedPatient] = useState<Patient | null>(null);
   const [shiftStartButtonDisabled, setShiftStartButtonDisabled] = useState(true);
@@ -50,7 +51,7 @@ const ShiftCheckIn: React.FC = () => {
 
   // Find the shift and associated patient based on the ID
   useEffect(() => {
-    console.log(shifts);
+ 
     const currentShift = shifts.find((s) => s.id === id);
     const associatedPatientData = patients.find(
       (p) => p.id === currentShift?.patientId
