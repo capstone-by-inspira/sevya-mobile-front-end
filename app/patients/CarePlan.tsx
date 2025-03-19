@@ -20,41 +20,44 @@ type Section = {
 };
 
 const parsePlanText = (text: string): Section[] => {
-  console.log("Raw Text in parsePlanText:", text);
+  // console.log("Raw Text in parsePlanText:", text);
   if (!text.trim()) return [];
 
   const lines = text.split(/\r?\n/);
-  // console.log("Split Lines:", lines);
-
   const sections: Section[] = [];
   let currentSection: Section | null = null;
 
   lines.forEach((line) => {
-    // console.log("Processing Line:", line);
-
-    const match = line.match(/^\*\s+\*\*(.+?)\*\*\s*:?/); // Updated regex
+    const match = line.match(/^\*\s+\*\*(.+?)\*\*\s*:?(.+)?/); // Detect section titles and optional inline description
 
     if (match) {
-      // console.log(`Matched Section Title: ${match[1]}`);
-
-      if (currentSection) sections.push(currentSection); // Save previous section
-
+      // Save previous section before starting a new one
+      if (currentSection) {
+        sections.push(currentSection);
+      }
+      // Start a new section with the title
       currentSection = { title: match[1].trim(), items: [] };
+      // If there's inline content after the title, add it to the items
+      if (match[2]?.trim()) {
+        currentSection.items.push(match[2].trim());
+      }
     } else if (currentSection && line.trim()) {
-      // console.log(
-      //   `Adding to Section: ${currentSection.title} → ${line.trim()}`
-      // );
-      currentSection.items.push(line.trim());
+      // Handle both bulleted & non-bulleted text inside a section
+      if (/^[-•*] /.test(line)) {
+        currentSection.items.push("• " + line.replace(/^[-•*] /, "").trim());
+      } else {
+        currentSection.items.push(line.trim());
+      }
     }
   });
 
-  if (currentSection) sections.push(currentSection);
-  // console.log("Final Parsed Sections:", sections);
+  // Push the last section if there's any content left
+  if (currentSection) {
+    sections.push(currentSection);
+  }
 
   return sections;
 };
-
-
 
 
 
@@ -69,25 +72,10 @@ const CarePlan = () => {
    if (plan) {
      const planText = Array.isArray(plan) ? plan.join("\n") : plan;
      const decodedPlanText = decodeURIComponent(planText);
-
-    //  console.log("Decoded Plan Text:", decodedPlanText); // 🔍 Check if data is correct
-
      const sections = parsePlanText(decodedPlanText);
-
-    //  console.log("Parsed Plan from Function:", sections); // 🔥 Debug parsed data
-
      setParsedPlan(sections);
    }
  }, [plan, navigation]);
-
-
-  // ✅ Log inside another useEffect to capture the updated state
-  // useEffect(() => {
-  //   console.log("=====================================");
-  //   console.log("Updated Parsed Plan:", parsedPlan);
-  //   console.log("Updated Parsed Plan Length:", parsedPlan.length);
-  //   console.log("=====================================");
-  // }, [parsedPlan]);
 
 
   if (!parsedPlan.length) {
