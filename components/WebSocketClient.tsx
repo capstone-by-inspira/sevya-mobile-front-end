@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { WS_URL } from "@/services/api";
 
 // Define the type for WebSocket messages
 interface WebSocketMessage {
@@ -12,7 +13,7 @@ const WebSocketClient: React.FC = () => {
 
   useEffect(() => {
     // Connect to the WebSocket server
-    const ws = new WebSocket("ws://localhost:8800");
+    const ws = new WebSocket(WS_URL);
 
     // Handle WebSocket connection open
     ws.onopen = () => {
