@@ -28,6 +28,7 @@ import {
 } from "firebase/firestore";
 import { useNavigation } from "expo-router";
 import axios from "axios";
+import Icon from "react-native-vector-icons/FontAwesome"; // Or MaterialIcons
 
 const Notes = () => {
   const navigation = useNavigation();
@@ -102,7 +103,7 @@ const Notes = () => {
         caregiverName: user.name,
         myNote: note || voiceMessage || "",
         imageUrl: uploadedImageUrl || null,
-        date: Timestamp.now(),
+        date: Date.now(),
       };
 
       const docRef = doc(db, "patients", id as string);
@@ -190,7 +191,7 @@ const Notes = () => {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={{ flex: 1, backgroundColor: "#F8FBFF" }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -207,7 +208,23 @@ const Notes = () => {
             ) : notes.length > 0 ? (
               notes.map((item, index) => (
                 <View key={index} style={styles.noteBubble}>
-                  <Text style={styles.noteAuthor}>{item.caregiverName}</Text>
+                  <View style={styles.noteHeader}>
+                    <Text style={styles.noteAuthor}>
+                      by
+                      {" " +
+                        item.caregiverName.charAt(0).toUpperCase() +
+                        item.caregiverName.slice(1)}
+                    </Text>
+                    <Text style={styles.noteDate}>
+                      {new Date(item.date.seconds * 1000).toLocaleTimeString(
+                        [],
+                        {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }
+                      )}
+                    </Text>
+                  </View>
                   <Text style={styles.noteText}>{item.myNote}</Text>
                   {item.imageUrl && (
                     <Image
@@ -215,9 +232,6 @@ const Notes = () => {
                       style={styles.noteImage}
                     />
                   )}
-                  <Text style={styles.noteDate}>
-                    {new Date(item.date.seconds * 1000).toLocaleString()}
-                  </Text>
                 </View>
               ))
             ) : (
@@ -252,7 +266,7 @@ const Notes = () => {
           style={styles.imageButton}
           onPress={() => setModalVisible(true)}
         >
-          <Text style={styles.iconText}>📷</Text>
+          <Icon name="camera" style={styles.vIcon} />
         </TouchableOpacity>
 
         {/* Voice message */}
@@ -260,7 +274,7 @@ const Notes = () => {
           style={styles.voiceButton}
           onPress={startVoiceRecording}
         >
-          <Text style={styles.iconText}>🎤</Text>
+          <Icon name="microphone" style={styles.vIcon} />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.sendButton} onPress={addNote}>
@@ -302,6 +316,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 10,
+    backgroundColor: "#F8FBFF",
   },
   notesContainer: { flexGrow: 1, paddingBottom: 100 },
 
@@ -313,22 +328,37 @@ const styles = StyleSheet.create({
   },
 
   noteBubble: {
-    backgroundColor: "#DCF8C6",
+    backgroundColor: "#FFFFFF",
     padding: 10,
     borderRadius: 8,
     marginVertical: 5,
     maxWidth: "80%",
+    borderColor: "lightgray", // Outline color (blue in this case)
+    borderWidth: 0.5, // Outline thickness
+    shadowColor: "#000", // Shadow color (black)
+    shadowOffset: { width: 0, height: 2 }, // Shadow position (slightly below the element)
+    shadowOpacity: 0.1, // Shadow opacity (light shadow)
+    shadowRadius: 3, // Shadow radius (light blur)
+    elevation: 5, // For Android shadow effect
   },
 
-  noteAuthor: { fontWeight: "bold", color: "#075E54" },
-  noteText: { fontSize: 16, marginVertical: 5 },
+  // New container for the author and date in a row
+  noteHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  noteAuthor: { color: "grey" },
+  noteText: { fontSize: 14, marginVertical: 1 },
 
   noteImage: {
-    width: 150,
-    height: 150,
+    width: "auto",
+    height: 140,
     borderRadius: 8,
-    marginTop: 5,
+    marginTop: 0,
     resizeMode: "cover",
+    marginBottom: 7,
   },
 
   noteDate: { fontSize: 12, color: "gray", alignSelf: "flex-end" },
@@ -340,6 +370,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderTopWidth: 1,
     borderTopColor: "#ccc",
+    paddingBottom: 24,
   },
 
   textInput: {
@@ -356,17 +387,23 @@ const styles = StyleSheet.create({
   imageButton: { marginLeft: 10, padding: 8 },
   voiceButton: { marginLeft: 10, padding: 8 },
 
-  iconText: { fontSize: 22 },
+  vIcon: {
+    fontSize: 22,
+    color: "#0078D4",
+    margin: 0,
+    padding: 0,
+  },
 
   sendButton: {
-    marginLeft: 10,
-    paddingHorizontal: 20,
+    marginLeft: 5,
+    marginRight: 5,
+    paddingHorizontal: 18,
     paddingVertical: 8,
     backgroundColor: "#0078D4",
     borderRadius: 20,
   },
 
-  sendText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  sendText: { color: "#fff", fontSize: 14, fontWeight: "bold" },
 
   // Image Preview for Selected Image
   imagePreviewWrapper: {
@@ -377,9 +414,9 @@ const styles = StyleSheet.create({
   },
 
   previewImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 10,
+    width: 70,
+    height: 70,
+    borderRadius: 5,
     resizeMode: "cover",
   },
 
