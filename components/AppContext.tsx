@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect, ReactNode } from "react";
 import { getSecureData } from "../services/secureStorage";
 import { View, ActivityIndicator } from "react-native";
 import { getDocuments, getDocumentById, getDocumentByKeyValue } from "@/services/api";
-
+import { WS_URL } from "@/services/api";
 interface AppContextType {
   isAuth: boolean;
   caregivers: any;
@@ -15,13 +15,10 @@ interface AppContextType {
   messages: any[];
   ws: WebSocket | null;
 }
-
 const AppContext = createContext<AppContextType | undefined>(undefined);
-
 interface AppProviderProps {
   children: ReactNode;
 }
-
 const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [token, setToken] = useState<any>(null);
   const [userData, setUserData] = useState<any>(null);
@@ -32,20 +29,16 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [messages, setMessages] = useState<any[]>([]);
   const [ws, setWs] = useState<WebSocket | null>(null);
-
   // Initialize WebSocket connection
   useEffect(() => {
     if (isAuth) {
-      const websocket = new WebSocket("ws://3.227.60.242:8808");
-
+      const websocket = new WebSocket(WS_URL);
       websocket.onopen = () => {
         console.log("WebSocket connected");
       };
-
       websocket.onmessage = async (event) => {
         const message = JSON.parse(event.data);
         console.log("WebSocket message received:", message);
-
         if (message.event === "data_updated") {
           switch (message.collection) {
             case "shifts":
@@ -61,37 +54,29 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
               break;
           }
         }
-
         setMessages((prevMessages) => [...prevMessages, message]);
       };
-
       websocket.onclose = () => {
         console.log("WebSocket disconnected");
       };
-
       websocket.onerror = (error) => {
         console.error("WebSocket error:", error);
       };
-
       setWs(websocket);
-
       return () => {
         websocket.close();
       };
     }
   }, [isAuth]);
-
   useEffect(() => {
     const fetchUserAndData = async () => {
       setLoading(true);
       try {
         const token = await getSecureData("token");
         const userString = await getSecureData("user");
-
         if (token) {
           setToken(token);
           setIsAuth(true);
-
           if (userString) {
             const user = JSON.parse(userString);
             setUserData(user);
@@ -107,22 +92,18 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         setLoading(false);
       }
     };
-
     fetchUserAndData();
   }, []);
-
   useEffect(() => {
     if (isAuth && userData) {
       fetchData();
     }
   }, [isAuth, userData]);
-
   const fetchData = async () => {
     await fetchCaregiver();
     await fetchPatients();
     await fetchShifts();
   };
-
   const fetchCaregiver = async () => {
     if (!userData || !userData.uid) return; // Ensure userData is available
     try {
@@ -134,7 +115,6 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       console.error("Error fetching caregivers:", error);
     }
   };
-
   const fetchPatients = async () => {
     if (!token) return; // Ensure token is available
     try {
@@ -147,13 +127,11 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       console.error("Error fetching patients:", error);
     }
   };
-
   const getPatientsForCaregiver = (patients: any[], caregiverID: string): any[] => {
     return patients.filter((patient) =>
       Object.values(patient.shifts).some((shift: any) => shift.id === caregiverID)
     );
   };
-
   const fetchShifts = async () => {
     if (!userData || !userData.uid) return; // Ensure userData is available
     try {
@@ -168,7 +146,6 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       setShifts([]);
     }
   };
-
   return (
     <AppContext.Provider
       value={{
@@ -194,5 +171,4 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     </AppContext.Provider>
   );
 };
-
 export { AppContext, AppProvider };

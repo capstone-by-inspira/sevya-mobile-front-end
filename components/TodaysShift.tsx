@@ -78,53 +78,61 @@ const TodaysShift: React.FC<TodayShiftProps> = ({ shifts, caregiver }) => {
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.greeting}>
-                Hi, <Text style={styles.boldText}>{caregiver.firstName}</Text>
+      <View style={styles.container}>
+        <Text style={styles.greeting}>
+          Hi, <Text style={styles.boldText}>{caregiver.firstName}</Text>
+        </Text>
+
+        {noShift ? (
+          <Text style={styles.noShiftText}>No shift for today</Text>
+        ) : (
+          <>
+            {shift && shift.id ? (
+              <Button
+                handleButtonClick={() => router.push(`/shiftTest/${shift.id}`)}
+                buttonText="Ready for your shift?"
+                style={{
+                    marginVertical: 15,
+                }}
+              />
+            ) : (
+              <Text>No shift details available</Text>
+            )}
+            <Text style={styles.shiftTitle}>
+              <Text style={styles.boldText}>Today's Shift:</Text>{" "}
+              {getCurrentDateDDMMYYYY()}
             </Text>
 
-            {noShift ? (
-                <Text style={styles.noShiftText}>No shift for today</Text>
-            ) : (
-                <>
-                    {shift && shift.id ? (
-                        <Button
-                            handleButtonClick={() => router.push(`/shiftTest/${shift.id}`)}
-                            buttonText="Ready for your shift?"
-                        />
-                    ) : (
-                        <Text>No shift details available</Text>
-                    )}
-                    <Text style={styles.shiftTitle}>
-                        <Text style={styles.boldText}>Today's Shift:</Text>{" "}
-                        {getCurrentDateDDMMYYYY()}
-                    </Text>
-
-                    <Card style={styles.card}>
-                        <View style={styles.cardContent}>
-                            <View style={styles.row}>
-                                <Icon source="map-marker-outline" size={20} color="#2C3E50" />
-                                <Text style={styles.cardText}>{shift?.location}</Text>
-                            </View>
-                            <View style={styles.row}>
-                                <Icon source="information-outline" size={20} color="#2C3E50" />
-                                <Text style={styles.cardText}>
-                                    {formatDateOnly(shift?.startTime)} {formatTimeOnly(shift?.startTime)}
-                                </Text>
-                            </View>
-                        </View>
-                        <Divider />
-                        <TouchableOpacity
-                            style={styles.scheduleButton}
-                            onPress={() => router.replace("/(tabs)/shifts")}
-                        >
-                            <Icon source="calendar" size={18} color="#1E3A8A" />
-                            <Text style={styles.scheduleText}>View Your Schedule</Text>
-                        </TouchableOpacity>
-                    </Card>
-                </>
-            )}
-        </View>
+            <Card style={styles.card}>
+              <View style={styles.cardContent}>
+                <View style={styles.row}>
+                  <Icon source="map-marker-outline" size={20} color="#2C3E50" />
+                  <Text style={styles.cardText}>{shift?.location}</Text>
+                </View>
+                <View style={styles.row}>
+                  <Icon
+                    source="information-outline"
+                    size={20}
+                    color="#2C3E50"
+                  />
+                  <Text style={styles.cardText}>
+                    {formatDateOnly(shift?.startTime)}{" "}
+                    {formatTimeOnly(shift?.startTime)}
+                  </Text>
+                </View>
+              </View>
+              <Divider />
+              <TouchableOpacity
+                style={styles.scheduleButton}
+                onPress={() => router.replace("/(tabs)/shifts")}
+              >
+                <Icon source="calendar" size={18} color="#1E3A8A" />
+                <Text style={styles.scheduleText}>View Your Schedule</Text>
+              </TouchableOpacity>
+            </Card>
+          </>
+        )}
+      </View>
     );
 };
 

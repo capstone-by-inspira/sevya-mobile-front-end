@@ -52,14 +52,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "white",
-    borderRadius: 25,
-    padding: 20,
+    borderRadius: 12,
+    padding: 15,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "lightgray",
     marginBottom: 2,
     marginTop: 15,
     boxShadow:
-      "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
+      // "rgba(60, 64, 67, 0.3) 0px 1px 1px 0px, rgba(32, 84, 123, 0.2) 0px 1px 7px 1px",
+      "rgba(211, 211, 211, 0.3) 0px 1px 1px 0px, rgba(211, 211, 211, 0.2) 0px 1px 7px 1px",
+
   },
   avatar: {
    
@@ -85,8 +87,12 @@ const styles = StyleSheet.create({
   },
   details: {
     fontSize: 11,
-    fontWeight: "bold",
-    textDecorationLine: "underline",
+    fontWeight: "light",
+    color: "white",
+    borderRadius: 10,
+    // textDecorationLine: "underline",
+    backgroundColor: "#25578E",
+    padding: 10,
   },
 });
 

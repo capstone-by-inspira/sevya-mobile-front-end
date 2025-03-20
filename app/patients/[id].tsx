@@ -16,9 +16,12 @@ import {API_URL} from '@/services/api'
 console.log(API_URL, 'ID');
 
 const PatientDetails = () => {
-
-  const context = useContext(AppContext);
   const navigation = useNavigation();
+  const context = useContext(AppContext);
+
+  useEffect(() => {
+    navigation.setOptions({ title: "Details" }); // ✅ Set Title
+  }, [navigation]);
 
   if (!context) {
     return <Text>Error: AppContext not found</Text>;
@@ -26,16 +29,16 @@ const PatientDetails = () => {
 
   const { isAuth, caregivers, patients, shifts, fetchData } = context;
 
-
   const router = useRouter();
   const { id } = useLocalSearchParams(); // Get the patient ID from the URL
 
-  const patient = patients.find((p:any) => p.id === id);
+  // Make sure `patients` is not empty before trying to find the patient
+  const patient = patients.find((p: any) => p.id === id);
 
-  const [patientData, setPatientData] = useState<any>(patient);
-  const [loading, setLoading] = useState(false);
+  const [patientData, setPatientData] = useState<any>(null); // Initially set to null
+  const [loading, setLoading] = useState(true); // Loading state for fetching patient data
   const [error, setError] = useState<string | null>(null);
-  const [plan, setPlan] = useState('');
+  const [plan, setPlan] = useState("");
   const [expandedSections, setExpandedSections] = useState({
     patientInfo: false,
     medicalInfo: false,
@@ -43,12 +46,15 @@ const PatientDetails = () => {
   });
 
   useEffect(() => {
-        if (patientData) {
-          navigation.setOptions({ title: patientData.firstName }); // Set the header title
-       }
-      }, [patientData, navigation]);
+    // If patient data is available, set it to state
+    if (patient) {
+      setPatientData(patient);
+      setLoading(false); // Stop loading once the data is set
+    } else {
+      setLoading(true); // Keep loading if there's no patient yet
+    }
+  }, [patient]); // Update when `patient` changes (on first render or data update)
 
-  // Toggle dropdown sections
   const toggleSection = (section: string) => {
     setExpandedSections((prevState) => ({
       ...prevState,
@@ -56,12 +62,14 @@ const PatientDetails = () => {
     }));
   };
 
+  if (loading)
+    return (
+      <ActivityIndicator size="large" color="#0000ff" style={styles.loader} />
+    ); // Show loading indicator while fetching data
   if (error) return <Text style={styles.error}>{error}</Text>;
   if (!patientData) return <Text>No patient data available.</Text>;
 
-
-
-  const generateCaregiverPlan = async () =>{
+  const generateCaregiverPlan = async () => {
     setLoading(true);
     try {
       // Make the API call to your backend
@@ -70,25 +78,29 @@ const PatientDetails = () => {
       });
 
       // Assuming the healthcare plan is in the response's text field
-      const generatedPlan = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Failed to generate plan';
-    //  console.log(generatedPlan, 'GEENRATED PLAN');
+      const generatedPlan =
+        response.data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+        "Failed to generate plan";
+      //  console.log(generatedPlan, 'GEENRATED PLAN');
       setLoading(false);
-      
+
       // Split the plan into bullet points if it's in a text format
-      const planArray = generatedPlan.split('\n').filter(line => line.trim() !== '');
-      router.push({ pathname:"/patients/CarePlan", params: { plan: generatedPlan }})
+      const planArray = generatedPlan
+        .split("\n")
+        .filter((line) => line.trim() !== "");
+      router.push(
+        `/patients/CarePlan?plan=${encodeURIComponent(generatedPlan)}`
+      );
       setPlan(planArray);
     } catch (error) {
-      setError('Error generating healthcare plan');
+      setError("Error generating healthcare plan");
     } finally {
       setLoading(false);
     }
-
-  
-  }
+  };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container]}>
       <SevyaLoader visible={loading} />
       {/* Patient Info */}
       <TouchableOpacity
@@ -160,18 +172,21 @@ const PatientDetails = () => {
 
       {/* Bottom Navigation Links */}
       <View style={styles.bottomLinks}>
-        <TouchableOpacity
-          style={styles.link}
-          onPress= {generateCaregiverPlan}
-        >
+        <TouchableOpacity style={styles.link} onPress={generateCaregiverPlan}>
           <FontAwesome5 name="calendar-alt" size={18} color="#2D5DA3" />
-          <Text style={styles.linkText}>Generate AI Personalized Care Plan</Text>
+          <Text style={styles.linkText}>
+            Generate AI Personalized Care Plan
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.link}
-          onPress={() => router.push({ pathname: "/patients/Notes", params: { id: patientData.id } })}
+          onPress={() =>
+            router.push({
+              pathname: "/patients/Notes",
+              params: { id: patientData.id },
+            })
+          }
         >
-          
           <FontAwesome5 name="calendar-alt" size={18} color="#2D5DA3" />
           <Text style={styles.linkText}>View Notes</Text>
         </TouchableOpacity>
@@ -185,7 +200,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#f8f9fa",
+    backgroundColor: "#F8FBFF",
+  },
+  loader: {
+    flex: 1, // Take up full screen height
+    justifyContent: "center", // Center vertically
+    alignItems: "center", // Center horizontally
   },
   sectionHeader: {
     flexDirection: "row",

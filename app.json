@@ -24,7 +24,7 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
- "plugins": [
+    "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
@@ -35,13 +35,20 @@
           "backgroundColor": "#ffffff"
         }
       ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow the app to access your photos.",
+          "cameraPermission": "Allow the app to use the camera."
+        }
+      ],
       "expo-secure-store",
       [
         "expo-notifications",
         {
-          "icon": "./assets/notification-icon.png", 
-          "color": "#ffffff", 
-          "sounds": ["./assets/notification-sound.wav"] 
+          "icon": "./assets/notification-icon.png",
+          "color": "#ffffff",
+          "sounds": ["./assets/notification-sound.wav"]
         }
       ]
     ],

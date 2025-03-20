@@ -1,10 +1,18 @@
 import React, { useState, useEffect, useCallback, useContext } from "react";
-import { View, Text, StyleSheet, FlatList, RefreshControl , SafeAreaView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  RefreshControl,
+  SafeAreaView,
+} from "react-native";
 import SearchBar from "../../components/SearchBar"; // Import SearchBar component
-import PatientCard from "@/components/PatientCard";
+import PatientCard from "../../components/PatientCard";
 import { useRouter } from "expo-router";
 import { getSecureData } from "../../services/secureStorage"; // Import secure storage function
 import { AppContext } from "../../components/AppContext";
+import { Title } from "react-native-paper";
 
 const Patients = () => {
   const context = useContext(AppContext);
@@ -67,7 +75,7 @@ const Patients = () => {
 
   // Navigate to patient details
   const handlePatientPress = (id: string) => {
-  //  console.log(id);
+    //  console.log(id);
     router.push(`/patients/${id}`);
   };
 
@@ -96,11 +104,12 @@ const Patients = () => {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
-        />
-      ) : (
-        <Text style={styles.noDataText}>No patients found</Text>
-      )}
-    </View>
+      
+          />
+        ) : (
+          <Text style={styles.noDataText}>No patients found</Text>
+        )}
+      </View>
     </SafeAreaView>
   );
 };
@@ -108,7 +117,7 @@ const Patients = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: "#F0F6FF",
     padding: 20,
   },
   title: {

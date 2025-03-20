@@ -70,7 +70,7 @@ const ShiftCard: React.FC = () => {
     setRefreshing(true);
     fetchData();
     setRefreshing(false);
-    console.log('refreshing')
+    console.log("refreshing");
   };
 
   const handleDayPress = (day: any) => {
@@ -93,8 +93,8 @@ const ShiftCard: React.FC = () => {
 
   const sections = [
     {
-      title: 'Shifts Calendar',
-      data: [{ key: 'calendar' }]
+      title: "Shifts Calendar",
+      data: [{ key: "calendar" }],
     },
     {
       title: `Today's Shift`,
@@ -170,7 +170,6 @@ const ShiftCard: React.FC = () => {
               </Modal>
 
             </View>
-
           );
         } else if (todayShift && item.id === todayShift.id && itemDate === today) {
           return <TodayShiftDetailCard location={item.location} shiftTime={item.startTime} shiftEndTime={item.endTime} shiftId={todayShift.id} />
@@ -182,9 +181,10 @@ const ShiftCard: React.FC = () => {
       renderSectionHeader={({ section: { title } }) => (
         <Text style={styles.sectionHeader}>{title}</Text>
       )}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
     />
-
   );
 };
 
