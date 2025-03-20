@@ -15,23 +15,31 @@ import EmergencyHelpScreen from "@/components/EmergencyComponent";
 import EmergencyCall from "@/components/EmergencyCall";
 import { AppContext } from "@/components/AppContext";
 import WebSocketClient from "@/components/WebSocketClient";
-import * as Notifications from "expo-notifications";
-import Button from "@/components/ui/Button";
-
+import * as Notifications from 'expo-notifications';
+import Button from '@/components/ui/Button'
+// import SevyaToast from '@/components/SevyaToast'
+ 
 export default function Home() {
+ 
+
+
   const context = useContext(AppContext);
 
   if (!context) {
     return <Text>Error: AppContext n found</Text>;
   }
 
-  const { shifts, fetchData, caregivers, patients, loading, token } = context;
+  const { shifts, fetchData, caregivers, patients, loading, token, messages } = context;
+
+  console.log(context, 'web scoket >>>>>>>')
 
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -51,7 +59,9 @@ export default function Home() {
 
   return (
     <>
-      <View style={{ height: 200 }}>
+              {/* <SevyaToast message={messages}/> */}
+
+      <View style={{ height: 150 }}>
         <Image
           style={{ width: "auto", height: "100%", borderRadius: 0, margin: 0 }}
           source={{
@@ -76,7 +86,7 @@ export default function Home() {
           }}
         >
           <View>
-            <TodaysShift shifts={shifts} caregiver={caregivers} />
+            <TodaysShift shifts  = {shifts} caregiver={caregivers} patients = {patients}/>
           </View>
 
           <View>
@@ -87,6 +97,8 @@ export default function Home() {
             <EmergencyHelpScreen />
             <EmergencyCall caregiver={caregivers} token={token} />
           </View>
+
+          
         </View>
       </ScrollView>
     </>

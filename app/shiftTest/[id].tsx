@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { router } from "expo-router";
 import { updateDocument } from "@/services/api";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import { Card, Divider, Icon, ProgressBar } from "react-native-paper";
 import Button from "@/components/ui/Button";
 import { formatDateOnly, formatTimeOnly } from "@/services/utils";
@@ -33,25 +33,44 @@ interface Patient {
 }
 
 const ShiftCheckIn: React.FC = () => {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, shiftData, patientData } = useLocalSearchParams();
+  const navigation = useNavigation();
+
+  
+
   const context = useContext(AppContext);
- 
 
   if (!context) {
     return <Text>Error: AppContext not found</Text>;
   }
 
-  const { shifts, patients, token, fetchData } = context;
-  console.log(shifts, 'shogt');
-  const [shift, setShift] = useState<Shift | null>(null);
-  const [associatedPatient, setAssociatedPatient] = useState<Patient | null>(null);
-  const [shiftStartButtonDisabled, setShiftStartButtonDisabled] = useState(true);
+  const { token, fetchData } = context;
+
+  const shiftDataString = Array.isArray(shiftData) ? shiftData[0] : shiftData;
+  const patientDataString = Array.isArray(patientData)
+    ? patientData[0]
+    : patientData;
+
+  const [shifts, setShifts] = useState(JSON.parse(shiftDataString));
+  const [patients, setPatients] = useState(JSON.parse(patientDataString));
+
+
+  const curr_shift = shifts.find((s:any) => s.id === id);
+
+
+  const [shift, setShift] = useState<Shift | null>(curr_shift);
+  const [associatedPatient, setAssociatedPatient] = useState<Patient | null>(
+    null
+  );
+  const [shiftStartButtonDisabled, setShiftStartButtonDisabled] =
+    useState(true);
   const [shiftEndButtonDisabled, setShiftEndButtonDisabled] = useState(true);
   const [progress, setProgress] = useState(0);
 
+
+
   // Find the shift and associated patient based on the ID
   useEffect(() => {
- 
     const currentShift = shifts.find((s) => s.id === id);
     const associatedPatientData = patients.find(
       (p) => p.id === currentShift?.patientId
@@ -69,29 +88,37 @@ const ShiftCheckIn: React.FC = () => {
   }, [id, shifts, patients]);
 
   useEffect(() => {
+    if (shift) {
+        console.log('workig', formatDateOnly(shift.startTime));
+
+      navigation.setOptions({ title: formatDateOnly(shift.startTime).toString() }); // Set the header title
+   }
+  }, [shift, navigation]);
+
+  useEffect(() => {
     if (!shift) return; // Ensure shift is not null
-  
-    if (shift.checkIn === false) {  // shift checkin = false from backend 
+
+    if (shift.checkIn === false) {
+      // shift checkin = false from backend
       return;
     }
-  
+
     if (shift.checkIn === true && shift.checkOut === true) {
       setShiftStartButtonDisabled(true);
       setShiftEndButtonDisabled(true);
       setProgress(1);
       return;
     }
-  
+
     setShiftStartButtonDisabled(true);
     setShiftEndButtonDisabled(false);
-  
+
     const interval = setInterval(() => {
       updateProgress(shift); // Now it's safe to call updateProgress
     }, 1000); // Update every second
-  
+
     return () => clearInterval(interval);
   }, [shift]);
-  
 
   const updateProgress = (shift: Shift) => {
     const start = shift.startTime;
@@ -220,8 +247,7 @@ const ShiftCheckIn: React.FC = () => {
           <View style={styles.row}>
             <Icon source="information-outline" size={20} color="#2C3E50" />
             <Text style={styles.cardText}>
-              {formatDateOnly(shift.startTime)}{" "}
-              {formatTimeOnly(shift.endTime)}
+              {formatDateOnly(shift.startTime)} {formatTimeOnly(shift.endTime)}
             </Text>
           </View>
         </View>

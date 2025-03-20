@@ -34,7 +34,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     if (isAuth) {
       const websocket = new WebSocket(WS_URL);
       websocket.onopen = () => {
-        console.log("WebSocket connected");
+        console.log("WebSocket connected mobile");
       };
       websocket.onmessage = async (event) => {
         const message = JSON.parse(event.data);

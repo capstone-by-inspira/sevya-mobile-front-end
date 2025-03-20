@@ -75,8 +75,17 @@ const Patients = () => {
 
   // Navigate to patient details
   const handlePatientPress = (id: string) => {
-    //  console.log(id);
-    router.push(`/patients/${id}`);
+  //  console.log(id);
+    // router.push(`/patients/${id}`);
+    router.push({
+      pathname: `/patients/[id]`,
+      params: { 
+        id: id,  // Pass the id as a query parameter
+        AllShifts: JSON.stringify(shifts),
+        AllPatients:JSON.stringify(patients),  // Pass shift data as a query parameter
+        AllCaregivers:JSON.stringify(caregivers)
+    }
+    })
   };
 
   return (
