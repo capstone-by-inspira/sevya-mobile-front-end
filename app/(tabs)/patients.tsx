@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useCallback, useContext } from "react";
-import { View, Text, StyleSheet, FlatList, RefreshControl , SafeAreaView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  RefreshControl,
+  SafeAreaView,
+} from "react-native";
 import SearchBar from "../../components/SearchBar"; // Import SearchBar component
 import PatientCard from "../../components/PatientCard";
 import { useRouter } from "expo-router";
@@ -68,39 +75,39 @@ const Patients = () => {
 
   // Navigate to patient details
   const handlePatientPress = (id: string) => {
-  //  console.log(id);
+    //  console.log(id);
     router.push(`/patients/${id}`);
   };
 
   return (
     <SafeAreaView style={styles.container}>
-    <View style={styles.container}>
-      <Text style={styles.title}>My Patients</Text>
-      <SearchBar
-        placeholder="Search patients..."
-        value={searchText}
-        onChangeText={handleSearch}
-      />
-      {filteredPatients.length > 0 ? (
-        <FlatList
-          data={filteredPatients} // ✅ Pass filteredPatients instead of patients
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <PatientCard
-              name={item.firstName}
-              gender={item.lastName}
-              conditions={item.medicalConditions}
-              onPress={() => handlePatientPress(item.id)}
-            />
-          )}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
+      <View style={styles.container}>
+        <Text style={styles.title}>My Patients</Text>
+        <SearchBar
+          placeholder="Search Patients!"
+          value={searchText}
+          onChangeText={handleSearch}
         />
-      ) : (
-        <Text style={styles.noDataText}>No patients found</Text>
-      )}
-    </View>
+        {filteredPatients.length > 0 ? (
+          <FlatList
+            data={filteredPatients} // ✅ Pass filteredPatients instead of patients
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <PatientCard
+                name={item.firstName}
+                gender={item.lastName}
+                conditions={item.medicalConditions}
+                onPress={() => handlePatientPress(item.id)}
+              />
+            )}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+          />
+        ) : (
+          <Text style={styles.noDataText}>No patients found</Text>
+        )}
+      </View>
     </SafeAreaView>
   );
 };
@@ -108,7 +115,7 @@ const Patients = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: "#F0F6FF",
     padding: 20,
   },
   title: {

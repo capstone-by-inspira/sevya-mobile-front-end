@@ -30,10 +30,11 @@ const PatientDetails = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams(); // Get the patient ID from the URL
 
+  // Make sure `patients` is not empty before trying to find the patient
   const patient = patients.find((p: any) => p.id === id);
 
-  const [patientData, setPatientData] = useState<any>(patient);
-  const [loading, setLoading] = useState(false);
+  const [patientData, setPatientData] = useState<any>(null); // Initially set to null
+  const [loading, setLoading] = useState(true); // Loading state for fetching patient data
   const [error, setError] = useState<string | null>(null);
   const [plan, setPlan] = useState("");
   const [expandedSections, setExpandedSections] = useState({
@@ -42,6 +43,16 @@ const PatientDetails = () => {
     shifts: false,
   });
 
+  useEffect(() => {
+    // If patient data is available, set it to state
+    if (patient) {
+      setPatientData(patient);
+      setLoading(false); // Stop loading once the data is set
+    } else {
+      setLoading(true); // Keep loading if there's no patient yet
+    }
+  }, [patient]); // Update when `patient` changes (on first render or data update)
+
   const toggleSection = (section: string) => {
     setExpandedSections((prevState) => ({
       ...prevState,
@@ -49,6 +60,10 @@ const PatientDetails = () => {
     }));
   };
 
+  if (loading)
+    return (
+      <ActivityIndicator size="large" color="#0000ff" style={styles.loader} />
+    ); // Show loading indicator while fetching data
   if (error) return <Text style={styles.error}>{error}</Text>;
   if (!patientData) return <Text>No patient data available.</Text>;
 
@@ -86,7 +101,7 @@ const PatientDetails = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container]}>
       <SevyaLoader visible={loading} />
       {/* Patient Info */}
       <TouchableOpacity
@@ -186,7 +201,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#f8f9fa",
+    backgroundColor: "#F8FBFF",
+  },
+  loader: {
+    flex: 1, // Take up full screen height
+    justifyContent: "center", // Center vertically
+    alignItems: "center", // Center horizontally
   },
   sectionHeader: {
     flexDirection: "row",

@@ -1,12 +1,20 @@
-import { 
-  Alert, StyleSheet, Text, TouchableOpacity, View, Modal, FlatList, RefreshControl, ScrollView, 
+import {
+  Alert,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Modal,
+  FlatList,
+  RefreshControl,
+  ScrollView,
   SafeAreaView,
-  SectionList
-} from 'react-native';
-import React, { useContext, useEffect, useState } from 'react';
-import { Calendar } from 'react-native-calendars';
-import ShiftDetailCard from '@/components/ShiftDetailCard';
-import { AppContext } from '@/components/AppContext';
+  SectionList,
+} from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { Calendar } from "react-native-calendars";
+import ShiftDetailCard from "@/components/ShiftDetailCard";
+import { AppContext } from "@/components/AppContext";
 
 const ShiftCard: React.FC = () => {
   const context = useContext(AppContext);
@@ -33,13 +41,15 @@ const ShiftCard: React.FC = () => {
       acc[date] = { selected: true, selectedColor: "#25578E" };
       return acc;
     }, {});
-    
+
     setMarkedDates(marks);
     setAllShifts(shifts);
 
     // Filter upcoming shifts
     const today = new Date().toISOString().split("T")[0];
-    const upcomingShiftData = shifts.filter((shift: any) => shift.startTime >= today);
+    const upcomingShiftData = shifts.filter(
+      (shift: any) => shift.startTime >= today
+    );
     setUpComingShifts(upcomingShiftData);
   };
 
@@ -48,14 +58,16 @@ const ShiftCard: React.FC = () => {
     setRefreshing(true);
     await fetchData(); // Re-fetcall data (calendar + shifts)
     setRefreshing(false);
-    console.log('refreshing')
+    console.log("refreshing");
   };
 
   const handleDayPress = (day: any) => {
     const date = day.dateString;
     setSelectedDate(date);
-    const filteredShifts = allShifts.filter(shift => shift.startTime.startsWith(date));
-    
+    const filteredShifts = allShifts.filter((shift) =>
+      shift.startTime.startsWith(date)
+    );
+
     if (filteredShifts.length > 0) {
       setModalVisible(true);
     } else {
@@ -69,44 +81,57 @@ const ShiftCard: React.FC = () => {
 
   const sections = [
     {
-      title: 'Shifts Calendar',
-      data: [{ key: 'calendar' }]
+      title: "Shifts Calendar",
+      data: [{ key: "calendar" }],
     },
     {
-      title: 'Upcoming Shifts',
-      data: upComingShifts
-    }
+      title: "Upcoming Shifts",
+      data: upComingShifts,
+    },
   ];
 
   return (
-
-    <SectionList 
+    <SectionList
       style={styles.scrollView}
       sections={sections}
       keyExtractor={(item, index) => item.id || index.toString()}
       renderItem={({ item }) => {
-        if (item.key === 'calendar') {
+        if (item.key === "calendar") {
           return (
             <View style={styles.container}>
-              <Calendar style={styles.calendar} onDayPress={handleDayPress} markedDates={markedDates} />
-              <Modal visible={modalVisible} animationType="slide" transparent={true}>
+              <Calendar
+                style={styles.calendar}
+                onDayPress={handleDayPress}
+                markedDates={markedDates}
+              />
+              <Modal
+                visible={modalVisible}
+                animationType="slide"
+                transparent={true}
+              >
                 <View style={styles.modalBackground}>
                   <View style={styles.modalContainer}>
-                    <Text style={styles.modalTitle}>Shifts on {selectedDate}</Text>
+                    <Text style={styles.modalTitle}>
+                      Shifts on {selectedDate}
+                    </Text>
                     <FlatList
-                      data={allShifts.filter(shift => shift.startTime.startsWith(selectedDate!))}
+                      data={allShifts.filter((shift) =>
+                        shift.startTime.startsWith(selectedDate!)
+                      )}
                       keyExtractor={(item) => item.id}
                       renderItem={renderShiftDetailCard}
                       nestedScrollEnabled={true}
                     />
-                    <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
+                    <TouchableOpacity
+                      style={styles.closeButton}
+                      onPress={() => setModalVisible(false)}
+                    >
                       <Text style={styles.closeText}>Close</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
               </Modal>
             </View>
-           
           );
         }
         return renderShiftDetailCard({ item });
@@ -114,35 +139,36 @@ const ShiftCard: React.FC = () => {
       renderSectionHeader={({ section: { title } }) => (
         <Text style={styles.sectionHeader}>{title}</Text>
       )}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
     />
-
   );
 };
 
 const styles = StyleSheet.create({
-  scrollView: { 
-  
-    flex: 1
+  scrollView: {
+    flex: 1,
+    backgroundColor: "#F0F6FF",
   },
   container: {
     padding: 20,
-    width: '100%',
+    width: "100%",
+    backgroundColor: "#F0F6FF",
   },
   calendar: {
     marginVertical: 20,
-    width: '100%',
+    width: "100%",
     height: 370,
     borderRadius: 10,
-    borderColor: 'red',
+    borderColor: "red",
     elevation: 5,
   },
   sectionHeader: {
-
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     padding: 10,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: "#F0F6FF",
   },
   modalBackground: {
     flex: 1,

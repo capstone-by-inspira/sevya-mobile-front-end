@@ -8,7 +8,11 @@ interface SearchBarProps {
   onChangeText: (text: string) => void;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ placeholder, value, onChangeText }) => {
+const SearchBar: React.FC<SearchBarProps> = ({
+  placeholder,
+  value,
+  onChangeText,
+}) => {
   return (
     <View style={styles.container}>
       <TextInput
@@ -16,6 +20,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder, value, onChangeText 
         placeholder={placeholder}
         value={value}
         onChangeText={onChangeText}
+        placeholderTextColor="gray"
       />
       <Feather name="search" size={20} color="gray" style={styles.icon} />
     </View>
@@ -31,6 +36,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     marginBottom: 10,
+    backgroundColor: "#fff",
   },
   input: {
     flex: 1,

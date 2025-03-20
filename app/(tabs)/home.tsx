@@ -15,13 +15,10 @@ import EmergencyHelpScreen from "@/components/EmergencyComponent";
 import EmergencyCall from "@/components/EmergencyCall";
 import { AppContext } from "@/components/AppContext";
 import WebSocketClient from "@/components/WebSocketClient";
-import * as Notifications from 'expo-notifications';
-import Button from '@/components/ui/Button'
+import * as Notifications from "expo-notifications";
+import Button from "@/components/ui/Button";
 
 export default function Home() {
- 
-  
-
   const context = useContext(AppContext);
 
   if (!context) {
@@ -42,8 +39,7 @@ export default function Home() {
     setRefreshing(false);
   }, [fetchData]);
 
- 
- // console.log(patients, 'ncjnajncskcn');
+  // console.log(patients, 'ncjnajncskcn');
 
   if (loading) {
     return (
@@ -53,25 +49,25 @@ export default function Home() {
     );
   }
 
-
   return (
     <>
-      <View style={{ height: 150 }}>
+      <View style={{ height: 200 }}>
         <Image
-          style={{ width: "auto", height: 150, borderRadius: 0, margin: 0 }}
+          style={{ width: "auto", height: "100%", borderRadius: 0, margin: 0 }}
           source={{
             uri: "https://images.unsplash.com/photo-1584515933487-779824d29309",
           }}
         />
       </View>
       <ScrollView
+        style={{ backgroundColor: "#F0F6FF" }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
         <View
           style={{
-            backgroundColor: "#F0F6FF",
+            // backgroundColor: "#F0F6FF",
             display: "flex",
             flexDirection: "column",
             width: "100%",
@@ -79,9 +75,8 @@ export default function Home() {
             gap: 50,
           }}
         >
-
           <View>
-            <TodaysShift shifts  = {shifts} caregiver={caregivers}/>
+            <TodaysShift shifts={shifts} caregiver={caregivers} />
           </View>
 
           <View>
@@ -90,11 +85,9 @@ export default function Home() {
 
           <View>
             <EmergencyHelpScreen />
-            <EmergencyCall caregiver={caregivers} token={token}/>
+            <EmergencyCall caregiver={caregivers} token={token} />
           </View>
-          
         </View>
-
       </ScrollView>
     </>
   );
