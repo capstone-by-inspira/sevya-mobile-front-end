@@ -39,7 +39,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       const websocket = new WebSocket("ws://3.227.60.242:8808");
 
       websocket.onopen = () => {
-        console.log("WebSocket connected");
+        console.log("WebSocket connected mobile");
       };
 
       websocket.onmessage = async (event) => {

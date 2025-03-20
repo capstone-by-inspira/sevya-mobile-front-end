@@ -24,11 +24,24 @@ const PatientDetails = () => {
     return <Text>Error: AppContext not found</Text>;
   }
 
-  const { isAuth, caregivers, patients, shifts, fetchData } = context;
+  const {fetchData } = context;
 
 
   const router = useRouter();
-  const { id } = useLocalSearchParams(); // Get the patient ID from the URL
+  const { id , AllShifts, AllPatients, AllCaregivers} = useLocalSearchParams(); // Get the patient ID from the URL
+
+  const shiftDataString = Array.isArray(AllShifts) ? AllShifts[0] : AllShifts;
+  const patientDataString = Array.isArray(AllPatients)
+    ? AllPatients[0]
+    : AllPatients;
+
+    const caregiverDataString = Array.isArray(AllCaregivers)
+    ? AllCaregivers[0]
+    : AllCaregivers;
+
+  const [shifts, setShifts] = useState(JSON.parse(shiftDataString));
+  const [patients, setPatients] = useState(JSON.parse(patientDataString));
+  const [caregivers, setCaregivers] = useState(JSON.parse(caregiverDataString));
 
   const patient = patients.find((p:any) => p.id === id);
 
