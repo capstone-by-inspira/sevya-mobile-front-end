@@ -17,10 +17,9 @@ const PatientDetails = () => {
   const navigation = useNavigation();
   const context = useContext(AppContext);
 
-
-useEffect(() => {
-  navigation.setOptions({ title: "Details" }); // ✅ Set Title
-}, [navigation]);
+  useEffect(() => {
+    navigation.setOptions({ title: "Details" }); // ✅ Set Title
+  }, [navigation]);
 
   if (!context) {
     return <Text>Error: AppContext not found</Text>;
@@ -28,16 +27,15 @@ useEffect(() => {
 
   const { isAuth, caregivers, patients, shifts, fetchData } = context;
 
-
   const router = useRouter();
   const { id } = useLocalSearchParams(); // Get the patient ID from the URL
 
-  const patient = patients.find((p:any) => p.id === id);
+  const patient = patients.find((p: any) => p.id === id);
 
   const [patientData, setPatientData] = useState<any>(patient);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [plan, setPlan] = useState('');
+  const [plan, setPlan] = useState("");
   const [expandedSections, setExpandedSections] = useState({
     patientInfo: false,
     medicalInfo: false,
@@ -54,35 +52,38 @@ useEffect(() => {
   if (error) return <Text style={styles.error}>{error}</Text>;
   if (!patientData) return <Text>No patient data available.</Text>;
 
-
-
-  const generateCaregiverPlan = async () =>{
+  const generateCaregiverPlan = async () => {
     setLoading(true);
     try {
       // Make the API call to your backend
-      const response = await axios.post('http://localhost:8800/api/auth/generate-health-plan', {
-        patientData: patientData,
-      });
+      const response = await axios.post(
+        "http://10.0.0.240:8800/api/auth/generate-health-plan",
+        {
+          patientData: patientData,
+        }
+      );
 
       // Assuming the healthcare plan is in the response's text field
-      const generatedPlan = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Failed to generate plan';
-    //  console.log(generatedPlan, 'GEENRATED PLAN');
+      const generatedPlan =
+        response.data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+        "Failed to generate plan";
+      //  console.log(generatedPlan, 'GEENRATED PLAN');
       setLoading(false);
-      
+
       // Split the plan into bullet points if it's in a text format
-      const planArray = generatedPlan.split('\n').filter(line => line.trim() !== '');
+      const planArray = generatedPlan
+        .split("\n")
+        .filter((line) => line.trim() !== "");
       router.push(
         `/patients/CarePlan?plan=${encodeURIComponent(generatedPlan)}`
       );
       setPlan(planArray);
     } catch (error) {
-      setError('Error generating healthcare plan');
+      setError("Error generating healthcare plan");
     } finally {
       setLoading(false);
     }
-
-  
-  }
+  };
 
   return (
     <View style={styles.container}>
@@ -157,18 +158,21 @@ useEffect(() => {
 
       {/* Bottom Navigation Links */}
       <View style={styles.bottomLinks}>
-        <TouchableOpacity
-          style={styles.link}
-          onPress= {generateCaregiverPlan}
-        >
+        <TouchableOpacity style={styles.link} onPress={generateCaregiverPlan}>
           <FontAwesome5 name="calendar-alt" size={18} color="#2D5DA3" />
-          <Text style={styles.linkText}>Generate AI Personalized Care Plan</Text>
+          <Text style={styles.linkText}>
+            Generate AI Personalized Care Plan
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.link}
-          onPress={() => router.push({ pathname: "/patients/Notes", params: { id: patientData.id } })}
+          onPress={() =>
+            router.push({
+              pathname: "/patients/Notes",
+              params: { id: patientData.id },
+            })
+          }
         >
-          
           <FontAwesome5 name="calendar-alt" size={18} color="#2D5DA3" />
           <Text style={styles.linkText}>View Notes</Text>
         </TouchableOpacity>

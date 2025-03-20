@@ -121,24 +121,31 @@ const Notes = () => {
   };
 
   const handleImagePick = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"], // Use this instead
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
     });
 
-    if (!result.canceled) {
-      console.log(result.assets[0].uri);
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setImageUri(result.assets[0].uri);
+      setModalVisible(false); // Close the modal after selecting the image
     }
   };
+
   const handleCameraOpen = async () => {
     try {
       const result = await ImagePicker.launchCameraAsync({
         mediaTypes: ["images"],
         allowsEditing: true,
+        aspect: [4, 3],
         quality: 1,
       });
 
-      if (!result.canceled) {
+      if (!result.canceled && result.assets && result.assets.length > 0) {
         setImageUri(result.assets[0].uri);
+        setModalVisible(false); // Close the modal after taking a picture
       }
     } catch (error) {
       console.error("Error opening camera:", error);
@@ -146,7 +153,7 @@ const Notes = () => {
   };
 
   const uploadImage = async (uri: string) => {
-    const mainLink = "http://localhost:8800/api/auth/upload";
+    const mainLink = "http://10.0.0.240:8800/api/auth/upload";
     console.log("Uploading image...");
 
     try {
@@ -214,7 +221,7 @@ const Notes = () => {
                 </View>
               ))
             ) : (
-              <Text>No notes available.</Text>
+              <Text style={styles.NoNotes}>No notes available!</Text>
             )}
           </ScrollView>
         </View>
@@ -271,20 +278,10 @@ const Notes = () => {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Choose an Option</Text>
-            <TouchableOpacity
-              onPress={() => {
-                handleCameraOpen();
-                setModalVisible(false);
-              }}
-            >
+            <TouchableOpacity onPress={handleCameraOpen}>
               <Text style={styles.modalOption}>Take Photo</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                handleImagePick();
-                setModalVisible(false);
-              }}
-            >
+            <TouchableOpacity onPress={handleImagePick}>
               <Text style={styles.modalOption}>Choose Photo</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => setModalVisible(false)}>
@@ -307,6 +304,13 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   notesContainer: { flexGrow: 1, paddingBottom: 100 },
+
+  NoNotes: {
+    fontSize: 24,
+    textAlign: "center",
+    justifyContent: "center",
+    marginTop: "70%",
+  },
 
   noteBubble: {
     backgroundColor: "#DCF8C6",

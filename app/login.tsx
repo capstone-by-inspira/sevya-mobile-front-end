@@ -15,7 +15,7 @@ import { auth } from "../config/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { saveSecureData, getSecureData } from "../services/secureStorage";
 
-const API_URL = "http://localhost:8800/api";
+const API_URL = "http://10.0.0.240:8800/api";
 
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState<string>("nammy@caregiver.com");

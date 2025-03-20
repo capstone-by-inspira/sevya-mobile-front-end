@@ -1,14 +1,13 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, ActivityIndicator } from 'react-native';
-import { AppContext } from './AppContext'; // Adjust path as needed
-import { getSecureData } from '../services/secureStorage'; // Import secure storage
-import * as ImagePicker from 'expo-image-picker';
-import { updateDocument } from '../services/api'; // Import your uploadImage and updateDocument functions
-import { auth } from '@/config/firebase';
+import React, { useContext, useState, useEffect } from "react";
+import { View, Text, StyleSheet, Image, ActivityIndicator } from "react-native";
+import { AppContext } from "./AppContext"; // Adjust path as needed
+import { getSecureData } from "../services/secureStorage"; // Import secure storage
+import * as ImagePicker from "expo-image-picker";
+import { updateDocument } from "../services/api"; // Import your uploadImage and updateDocument functions
+import { auth } from "@/config/firebase";
 
 const ProfileScreen = () => {
-
-    const context = useContext(AppContext);
+  const context = useContext(AppContext);
 
   if (!context) {
     return <Text>Error: AppContext not found</Text>;
@@ -31,7 +30,7 @@ const ProfileScreen = () => {
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      mediaTypes: ["images"],
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
@@ -39,29 +38,34 @@ const ProfileScreen = () => {
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
       setLoading(false);
-    //   try {
-    //     const uploadResult = await uploadImage(result.assets[0].uri, `profileImages/${userData.uid}`, token);
+      //   try {
+      //     const uploadResult = await uploadImage(result.assets[0].uri, `profileImages/${userData.uid}`, token);
 
-    //     if (uploadResult.success && uploadResult.url) {
-    //       setProfileImage(uploadResult.url);
-    //       await updateUserData(uploadResult.url);
-    //     } else {
-    //       console.error("Image upload failed:", uploadResult.error);
-    //     }
-    //   } catch (error) {
-    //     console.error("Error picking and uploading image:", error);
-    //   } finally {
-    //     setLoading(false);
-    //   }
+      //     if (uploadResult.success && uploadResult.url) {
+      //       setProfileImage(uploadResult.url);
+      //       await updateUserData(uploadResult.url);
+      //     } else {
+      //       console.error("Image upload failed:", uploadResult.error);
+      //     }
+      //   } catch (error) {
+      //     console.error("Error picking and uploading image:", error);
+      //   } finally {
+      //     setLoading(false);
+      //   }
     }
   };
 
   const updateUserData = async (imageUrl: string) => {
     if (caregivers && token) {
       try {
-        await updateDocument('caregivers', caregivers.uid, { profileImage: imageUrl }, token);
+        await updateDocument(
+          "caregivers",
+          caregivers.uid,
+          { profileImage: imageUrl },
+          token
+        );
         const updatedUser = { ...caregivers, profileImage: imageUrl };
-        fetchData()
+        fetchData();
         // await getSecureData("user", JSON.stringify(updatedUser));
         // fetchData();
       } catch (error) {
@@ -80,7 +84,7 @@ const ProfileScreen = () => {
 
   return (
     <View style={styles.container}>
-    {/* <View> */}
+      {/* <View> */}
       {loading && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color="#0000ff" />
@@ -89,7 +93,11 @@ const ProfileScreen = () => {
 
       <View style={styles.imageContainer}>
         <Image
-          source={profileImage ? { uri: profileImage } : require('../assets/images/placeholder-image.jpg')} // Replace with your placeholder
+          source={
+            profileImage
+              ? { uri: profileImage }
+              : require("../assets/images/placeholder-image.jpg")
+          } // Replace with your placeholder
           style={styles.profileImage}
         />
         <Text style={styles.changeImageText} onPress={pickImage}>
@@ -104,8 +112,9 @@ const ProfileScreen = () => {
         <Text style={styles.detailText}>Email: {caregivers.email}</Text>
         <Text style={styles.detailText}>Phone: {caregivers.phoneNumber}</Text>
         <Text style={styles.detailText}>Total Shifts: {shifts?.length}</Text>
-        <Text style={styles.detailText}>Total Patients Assigned: {patients.length}</Text>
-
+        <Text style={styles.detailText}>
+          Total Patients Assigned: {patients.length}
+        </Text>
 
         {/* Add other user details here */}
       </View>
@@ -115,24 +124,23 @@ const ProfileScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    display:"flex",
+    display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
 
-
     padding: 20,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
   },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'transparent',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "transparent",
+    justifyContent: "center",
+    alignItems: "center",
     zIndex: 10,
   },
   imageContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 20,
   },
   profileImage: {
@@ -142,7 +150,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   changeImageText: {
-    color: 'blue',
+    color: "blue",
     marginTop: 5,
   },
   detailsContainer: {
