@@ -1,18 +1,24 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import { Card, Icon, MD3Colors } from 'react-native-paper'
 import { formatDateAndMonthOnly, formatDateOnly, formatTimeOnly, formatShiftTimeOnly } from '@/services/utils';
+import Button from './ui/Button';
+import { router } from 'expo-router';
 
-interface ShiftDetailCardProps {
+interface TodayShiftDetailCardProps {
     location: string;
     shiftTime: string;
     shiftEndTime: string;
+    shiftId: string;
 }
 
-const ShiftDetailCard: React.FC<ShiftDetailCardProps> = ({ location, shiftTime, shiftEndTime }) => {
+const TodayShiftDetailCard: React.FC<TodayShiftDetailCardProps> = ({ location, shiftTime, shiftEndTime, shiftId }) => {
+    const handleViewMore = () => {
+        router.push(`/shiftTest/${shiftId}`);
+    }
     return (
         <Card style={styles.card}>
-            <View style={styles.cardContent}>
+            <View>
                 <View style={styles.row}>
                     {/* <Icon source="map-marker-outline" size={20} color={MD3Colors.primary40} /> */}
                     <Icon source="map-marker-outline" size={20} color="#2C3E50" />
@@ -22,12 +28,19 @@ const ShiftDetailCard: React.FC<ShiftDetailCardProps> = ({ location, shiftTime, 
                     <Icon source="clock-outline" size={20} color="#2C3E50" />
                     <Text style={styles.cardText}>{formatDateAndMonthOnly(shiftTime)},  {formatShiftTimeOnly(shiftTime)} - {formatShiftTimeOnly(shiftEndTime)}</Text>
                 </View>
+                <View style={styles.buttonContainer}>
+                    <Button
+                        handleButtonClick={handleViewMore}
+                        buttonText="View More"
+                        disabled={false} />
+                </View>
+                
             </View>
         </Card>
     )
 }
 
-export default ShiftDetailCard
+export default TodayShiftDetailCard
 
 const styles = StyleSheet.create({
     card: {
@@ -37,8 +50,6 @@ const styles = StyleSheet.create({
         marginVertical: 16,
         marginHorizontal: 16,
         elevation: 2,
-    },
-    cardContent: {
     },
     row: {
         flexDirection: 'row',
@@ -50,4 +61,9 @@ const styles = StyleSheet.create({
         color: '#374151',
         marginLeft: 8,
     },
+    buttonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    }
 })
