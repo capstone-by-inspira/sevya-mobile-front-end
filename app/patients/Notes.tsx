@@ -193,6 +193,7 @@ const Notes = () => {
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: "#F8FBFF" }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.innerContainer}>
