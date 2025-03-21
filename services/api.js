@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const API_URL = "http://3.227.60.242:8808/api";
+export const API_URL = "http://localhost:8800/api";
 
 
 export const translatePatientNotes = async (patientData) => {
