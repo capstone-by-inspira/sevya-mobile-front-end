@@ -14,7 +14,7 @@ import TodaysShift from "@/components/TodaysShift";
 import EmergencyHelpScreen from "@/components/EmergencyComponent";
 import EmergencyCall from "@/components/EmergencyCall";
 import { AppContext } from "@/components/AppContext";
-import WebSocketClient from "@/components/WebSocketClient";
+// import WebSocketClient from "@/components/WebSocketClient";
 import * as Notifications from "expo-notifications";
 import Button from "@/components/ui/Button";
 

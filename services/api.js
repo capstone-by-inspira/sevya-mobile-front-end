@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://10.0.0.240:8800/api";
+const API_URL = "http://3.227.60.242:8808/api";
 
 const apiRequest = async (method, endpoint, data = {}, token = "") => {
   try {
