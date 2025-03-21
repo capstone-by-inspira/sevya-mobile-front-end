@@ -1,50 +1,142 @@
 import React, { useEffect, useState } from "react";
-
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 
-const CarePlan = () => {
-  const { plan } = useLocalSearchParams(); // Get patient ID
-  const navigation = useNavigation();
+// Define the structure of the plan's sections
+type CarePlanSection = {
+  title: string;
+  items: string[];
+};
 
-//  console.log(plan, 'plan >>>>>>>>>>>>');
-  const planArr = [plan];
+type Section = {
+  title: string;
+  items: string[];
+};
+
+const parsePlanText = (text: string): Section[] => {
+  // console.log("Raw Text in parsePlanText:", text);
+  if (!text.trim()) return [];
+
+  const lines = text.split(/\r?\n/);
+  const sections: Section[] = [];
+  let currentSection: Section | null = null;
+
+  lines.forEach((line) => {
+    const match = line.match(/^\*\s+\*\*(.+?)\*\*\s*:?(.+)?/); // Detect section titles and optional inline description
+
+    if (match) {
+      // Save previous section before starting a new one
+      if (currentSection) {
+        sections.push(currentSection);
+      }
+      // Start a new section with the title
+      currentSection = { title: match[1].trim(), items: [] };
+      // If there's inline content after the title, add it to the items
+      if (match[2]?.trim()) {
+        currentSection.items.push(match[2].trim());
+      }
+    } else if (currentSection && line.trim()) {
+      // Handle both bulleted & non-bulleted text inside a section
+      if (/^[-•*] /.test(line)) {
+        currentSection.items.push("• " + line.replace(/^[-•*] /, "").trim());
+      } else {
+        currentSection.items.push(line.trim());
+      }
+    }
+  });
+
+  // Push the last section if there's any content left
+  if (currentSection) {
+    sections.push(currentSection);
+  }
+
+  return sections;
+};
+
+const CarePlan = () => {
+  const { plan } = useLocalSearchParams();
+  const navigation = useNavigation();
+  const [parsedPlan, setParsedPlan] = useState<CarePlanSection[]>([]);
 
   useEffect(() => {
+    navigation.setOptions({ title: "AI Care Plan" });
+
     if (plan) {
-      navigation.setOptions({ title: `AI Care Plan` }); // Set the header title
-   }
+      const planText = Array.isArray(plan) ? plan.join("\n") : plan;
+      const decodedPlanText = decodeURIComponent(planText);
+      const sections = parsePlanText(decodedPlanText);
+      setParsedPlan(sections);
+    }
   }, [plan, navigation]);
 
+  if (!parsedPlan.length) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007AFF" />
+        <Text style={styles.loadingText}>Loading care plan...</Text>
+      </View>
+    );
+  }
+
   return (
-    plan && (
-      <ScrollView style={styles.container}>
-        {planArr.map((item, index) => (
-          <React.Fragment key={index}>
-            <Text style={styles.text}>{item}</Text>
-            {index < planArr.length - 1 && <View style={styles.separator} />}
-          </React.Fragment>
-        ))}
-      </ScrollView>
-    )
+    <ScrollView style={styles.container}>
+      {parsedPlan.map((section, index) => (
+        <View key={index} style={styles.card}>
+          <Text style={styles.sectionTitle}>{section.title}</Text>
+          {section.items.map((item, i) => (
+            <Text key={i} style={styles.bulletPoint}>
+              {item}
+            </Text>
+          ))}
+        </View>
+      ))}
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 20,
-    padding: 10,
-    backgroundColor: "#f0f0f0",
+    paddingHorizontal: 15,
+    paddingVertical: 20,
+    backgroundColor: "#F8FBFF",
   },
-  text: {
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    marginTop: 10,
     fontSize: 16,
-    marginBottom: 10,
-    lineHeight: 22,
+    color: "#555",
   },
-  separator: {
-    height: 1,
-    backgroundColor: "#ccc",
-    marginVertical: 5,
+  card: {
+    backgroundColor: "#ffffff",
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 18,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#25578E",
+    marginBottom: 5,
+  },
+  bulletPoint: {
+    fontSize: 16,
+    color: "#4a4a4a",
+    marginLeft: 10,
+    lineHeight: 22,
   },
 });
 
