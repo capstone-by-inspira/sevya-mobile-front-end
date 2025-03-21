@@ -6,6 +6,8 @@ import {
     indexedDBLocalPersistence
 } from "firebase/auth";
 import Constants from "expo-constants";
+import { getStorage, ref, uploadBytes, getDownloadURL} from "firebase/storage";
+3
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -23,10 +25,11 @@ const firebaseConfig = {
   console.log(Constants.expoConfig?.extra?.firebaseApiKey, 'agyaaa');
 
 const app = initializeApp(firebaseConfig);
-
+const storage = getStorage(app);
+16
 const auth = initializeAuth(app, {
     persistence: indexedDBLocalPersistence
 });
 
 
-export { auth, signInWithEmailAndPassword };
+export { auth, signInWithEmailAndPassword, storage, ref, uploadBytes, getDownloadURL };

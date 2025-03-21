@@ -66,3 +66,30 @@ export const translatePatientNotes = async (patientData) => {
   // Delete a document by ID
   export const deleteDocument = (collection, id, token) =>
     apiRequest("DELETE", `${collection}/${id}`, {}, token);
+
+
+  export const uploadImage = async (file) => {
+    const formData = new FormData();
+    formData.append("image", file, file.name); // Append the file with a name
+  
+    try {
+      const response = await fetch(`${API_URL}/auth/upload`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          // Do not set 'Content-Type' manually; let the browser handle it
+        },
+      });
+  
+      const upload_image = await response.json();
+      if (!response.ok) {
+        throw new Error(upload_image.error || "Upload failed!");
+      }
+  
+      const imageUrl = upload_image.imageUrl;
+      return { success: true, imageUrl };
+    } catch (error) {
+      console.error("Upload error:", error);
+      throw error;
+    }
+  };

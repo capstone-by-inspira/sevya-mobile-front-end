@@ -182,7 +182,7 @@ const PatientDetails = () => {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.link}
-          onPress={() => router.push({ pathname: "/patients/Notes", params: { id: patientData.id } })}
+          onPress={() => router.push({ pathname: "/patients/Notes", params: {singlePatientData:JSON.stringify(patient)} })}
         >
           
           <FontAwesome5 name="calendar-alt" size={18} color="#2D5DA3" />

@@ -1,3 +1,6 @@
+import * as FileSystem from 'expo-file-system';
+
+
 export const formatTimestamp = (timestamp, timeZone = "UTC") => {
     const date = new Date(timestamp);
     return date.toLocaleString("en-US", {
@@ -28,3 +31,17 @@ export const formatTimeOnly = (timestamp) => {
         hour12: true,
     });
 };
+
+export const uriToFile = async (uri, fileName) => {
+    // Fetch the file from the URI
+    const response = await fetch(uri);
+    const blob = await response.blob();
+  
+    // Create a File object
+    const file = new File([blob], fileName, {
+      type: blob.type,
+      lastModified: Date.now(),
+    });
+  
+    return file;
+  };
