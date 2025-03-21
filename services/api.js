@@ -1,7 +1,7 @@
 import axios from "axios";
 
-export const API_URL = "http://localhost:8800/api";
-
+export const API_URL = "http://3.227.60.242:8808/api";
+export const WS_URL = "ws://3.227.60.242:8808"
 
 export const translatePatientNotes = async (patientData) => {
   try {
@@ -69,27 +69,33 @@ export const translatePatientNotes = async (patientData) => {
 
 
   export const uploadImage = async (file) => {
+    const fileData = {
+      uri: file.uri,
+      type: file.type || "image/jpeg", // Ensure you specify the MIME type
+      name: file.name || `image_${Date.now()}.jpg`, // Ensure the file has a name
+  };
     const formData = new FormData();
-    formData.append("image", file, file.name); // Append the file with a name
-  
+    // formData.append("image", fileData); // Append the file with a name
+    formData.append("image", file, file.name);  // Append the file with a name
+
+    console.log("File type:", file); // This will log the MIME type of the file (e.g., image/jpeg, image/png)
+
     try {
-      const response = await fetch(`${API_URL}/auth/upload`, {
-        method: "POST",
-        body: formData,
+      const response = await axios.post(`${API_URL}/auth/upload`, formData, {
         headers: {
-          // Do not set 'Content-Type' manually; let the browser handle it
+          "Content-Type": "multipart/form-data", // This tells axios to set the correct Content-Type for file uploads
         },
       });
   
-      const upload_image = await response.json();
-      if (!response.ok) {
-        throw new Error(upload_image.error || "Upload failed!");
+      if (response.status === 200) {
+        const imageUrl = response.data.imageUrl; // Assuming the response returns { imageUrl }
+        return { success: true, imageUrl };
+      } else {
+        throw new Error(response.data.error || "Upload failed!");
       }
-  
-      const imageUrl = upload_image.imageUrl;
-      return { success: true, imageUrl };
     } catch (error) {
       console.error("Upload error:", error);
       throw error;
     }
   };
+  

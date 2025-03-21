@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect, ReactNode } from "react";
 import { getSecureData } from "../services/secureStorage";
 import { View, ActivityIndicator } from "react-native";
 import { getDocuments, getDocumentById, getDocumentByKeyValue } from "@/services/api";
-
+import { WS_URL } from "@/services/api";
 interface AppContextType {
   isAuth: boolean;
   caregivers: any;
@@ -36,7 +36,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   // Initialize WebSocket connection
   useEffect(() => {
     if (isAuth) {
-      const websocket = new WebSocket("ws://3.227.60.242:8808");
+      const websocket = new WebSocket(WS_URL);
 
       websocket.onopen = () => {
         console.log("WebSocket connected mobile");

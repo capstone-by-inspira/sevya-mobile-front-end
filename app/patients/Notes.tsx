@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system";
+
 import {
   View,
   Text,
@@ -18,11 +20,17 @@ import {
 import { getSecureData } from "../../services/secureStorage";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 
-
-import { storage ,ref, uploadBytes, getDownloadURL} from '@/config/firebase'; // Adjust the path as necessary
-
+import {
+  storage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  app,
+  uploadImageToDatabase,
+} from "@/config/firebase"; // Adjust the path as necessary
 
 import { SelectList } from "react-native-dropdown-select-list";
+
 import {
   translatePatientNotes,
   updateDocument,
@@ -30,7 +38,7 @@ import {
 } from "@/services/api";
 import NoteCard from "@/components/NotesCard";
 import Icon from "react-native-vector-icons/FontAwesome"; // Or MaterialIcons
-import { formatDateOnly, uriToFile } from "@/services/utils";
+import { formatDateOnly, uriToFile, getBlobFromUri } from "@/services/utils";
 
 const Notes = () => {
   const { singlePatientData } = useLocalSearchParams(); // Get patient ID
@@ -46,7 +54,9 @@ const Notes = () => {
   const [fullImageUri, setFullImageUri] = useState<string | null>(null); // New state for full image
 
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
-    const languages = [
+
+  
+  const languages = [
     { key: "en", value: "English" },
     { key: "pa", value: "Punjabi" },
     { key: "hi", value: "Hindi" },
@@ -77,6 +87,16 @@ const Notes = () => {
     if (patient) {
       navigation.setOptions({ title: `Notes` }); // Set the header title
     }
+    const requestPermissions = async () => {
+      const { status: libraryStatus } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status: cameraStatus } =
+        await ImagePicker.requestCameraPermissionsAsync();
+      if (libraryStatus !== "granted" || cameraStatus !== "granted") {
+        alert("Permissions to access media library and camera are required!");
+      }
+    };
+    requestPermissions();
   }, [patient, navigation]);
 
   const translateNote = async (text: string, index: number) => {
@@ -162,6 +182,7 @@ const Notes = () => {
         setNote(""); // Clear input
         setImageUri(null); // Clear image URI
         console.log("Note added successfully!");
+
       } else {
         console.error("Failed to update patient document.");
       }
@@ -186,19 +207,6 @@ const Notes = () => {
         setImageUri(result.assets[0].uri);
         console.log(result.assets[0].uri, "image-resu;t");
         try {
-          // Convert the URI to a File object
-          const file = await uriToFile(imageUri, `photo_${Date.now()}.jpg`);
-
-          console.log(file, "file object"); // This will log the File object with the desired structure
-
-          // Now upload the file to Firebase
-          const uploadedImageUrl = await uploadImage(file);
-          if (uploadedImageUrl.success) {
-            console.log(uploadedImageUrl.imageUrl, "uploaded image");
-            setUploadedImageUrl(uploadedImageUrl.imageUrl);
-
-            setModalVisible(false); // Close modal
-          }
         } catch (error) {
           console.error("Image upload failed", error);
         }
@@ -208,47 +216,62 @@ const Notes = () => {
       console.error("Error opening camera:", error);
     }
   };
-  
+
   const handleImagePick = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      alert("Permission to access gallery is required!");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [4, 3],
       quality: 1,
     });
-  
+
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const imageUri = result.assets[0].uri;
-      setImageUri(imageUri); // Set local preview
-      console.log(imageUri, "image-result");
-  
-      try {
-        // Convert the URI to a File object
-        const file = await uriToFile(imageUri, `photo_${Date.now()}.jpg`);
-  
-        console.log(file, "file object"); // This will log the File object with the desired structure
-        if (file) {
-          // Create a storage reference
-          const storageRef = ref(storage, `images/${file.name}`);
-  
-          // Upload the file
-          await uploadBytes(storageRef, file);
-          console.log("File uploaded successfully");
-  
-          // Get the download URL
-          const uploadedImageUrl = await getDownloadURL(storageRef);
-          console.log(uploadedImageUrl, "uploaded image");
-          setUploadedImageUrl(uploadedImageUrl);
-  
-          setModalVisible(false); // Close modal
-        }
-      } catch (error) {
-        console.error("Image upload failed", error);
+
+      setImageUri(imageUri);
+
+      const imageUploaded = await uploadImageToDatabase(imageUri);
+
+      console.log(imageUploaded, 'frontend call');
+     
+      if(imageUploaded){
+         setUploadedImageUrl(imageUploaded.toString());
+        setModalVisible(false);
+
       }
     }
   };
-  
-  
+
+  const convertFirebaseUrl = (originalUrl) => {
+    // Split the URL into parts
+    if(originalUrl){
+
+ 
+    const urlParts = originalUrl.split('?');
+    const baseUrl = urlParts[0]; // The base URL without the query parameters
+    const queryParams = urlParts[1]; // The query parameters
+
+    // Encode the path part of the URL
+    const encodedPath = baseUrl.split('/').map((part, index) => {
+        // Skip the first two parts (protocol and domain)
+        if (index < 3) return part;
+        return encodeURIComponent(part);
+    }).join('/');
+
+    // Combine the encoded path with the query parameters
+    const convertedUrl = `${encodedPath}?${queryParams}`;
+    console.log(convertedUrl);
+    return convertedUrl;
+  }
+};
+
+// Inside your render method or functional component
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: "#F8FBFF" }}
@@ -275,6 +298,7 @@ const Notes = () => {
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={true}
           >
+
             {loading ? (
               <Text>Loading...</Text>
             ) : notes?.length > 0 ? (
@@ -311,16 +335,21 @@ const Notes = () => {
                   >
                     Translate
                   </Text>
-                  {item.imageUrl && (
+
+                  {item.imageUrl &&
                     <TouchableOpacity
                       onLongPress={() => handleImageLongPress(item.imageUrl)}
                     >
-                      <Image
+                 
+                    
+                    <Image
                         source={{ uri: item.imageUrl }}
+                         resizeMode="cover"
                         style={styles.noteImage}
                       />
+                    
                     </TouchableOpacity>
-                  )}
+                  }
                 </View>
               ))
             ) : (
@@ -456,11 +485,11 @@ const styles = StyleSheet.create({
   noteText: { fontSize: 14, marginVertical: 1 },
 
   noteImage: {
-    width: "auto",
+    width: "100%",
     height: 140,
     borderRadius: 8,
     marginTop: 0,
-    resizeMode: "cover",
+    resizeMode: "contain",
     marginBottom: 7,
   },
 
