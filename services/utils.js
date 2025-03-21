@@ -45,3 +45,19 @@ export const uriToFile = async (uri, fileName) => {
   
     return file;
   };
+export const formatDateAndMonthOnly = (timestamp) => {
+    const date = new Date(timestamp);
+    return date.toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+    });
+};
+
+export const formatShiftTimeOnly = (timestamp) => {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
+    });
+};
