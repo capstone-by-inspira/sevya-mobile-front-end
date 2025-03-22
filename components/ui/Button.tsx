@@ -20,8 +20,8 @@ export default Button;
 const styles = StyleSheet.create({
   button: {
     backgroundColor: '#25578E',
-    paddingHorizontal: 20,
-    paddingVertical: 13,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
     margin: 20,
     width: 'auto',
     alignItems: 'center',
