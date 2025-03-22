@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { useRouter } from 'expo-router'
 import { saveSecureData } from "../../services/secureStorage"; // Import Secure Storage utility
 
-
+// import Welcome from '@/app/screens/Welcome';
 const InfoScreen = () => {
     const router = useRouter();
 
@@ -18,7 +18,7 @@ const InfoScreen = () => {
 
   return (
     <View>
-      <Text>Welcome to Sevya</Text>
+{/* <Welcome/> */}
       <Button title="Let's Go" onPress={() => router.replace("/(tabs)/home")} />
 
     </View>

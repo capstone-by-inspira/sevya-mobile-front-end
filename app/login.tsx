@@ -66,15 +66,10 @@ const LoginScreen: React.FC = () => {
 
       console.log(first_time_login, '>>>>>> fsttttttt');
 
+     
+
       if (first_time_login == null || first_time_login == undefined) {
-        console.log('go to info screen');
-        
-
-          router.replace("/screens/InfoScreen");
-
-      
-        console.log('go to info screen done');
-
+        router.replace("/screens/WelcomeFirst");
       } else {
         console.log('go to home screen');
         router.replace("/(tabs)/home");
