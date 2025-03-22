@@ -9,20 +9,20 @@ const Welcome = () => {
   const [activeSlide, setActiveSlide] = useState(0);
 
   const handleSkip = () => {
-    router.replace('/Welcome/Welcome4');
+    router.replace('/screens/WelcomeFourth');
   };
 
   const carouselItems = [
     {
-      image: require("../../assets/images/Welcome1.png"),
+      image: require("@/assets/images/Welcome1.png"),
       text: "On Sevya, you have easy Shift Management, Easy Check-In and Shift Schedule Overview, to check daily your shifts and manage it efficiently.",
     },
     {
-      image: require("../../assets/images/Welcome2.png"),
+      image: require("@/assets/images/Welcome2.png"),
       text: "You can count on our Multilingual Support to translate notes instantly and Voice-to-Text Documentation Recording, to convert updates into text seamlessly.",
     },
     {
-      image: require("../../assets/images/Welcome3.png"),
+      image: require("@/assets/images/Welcome3.png"),
       text: "Get targeted recommendations for each patient using AI Care Plan: create a simple and effective routine with just one click.",
     },
   ];
@@ -102,6 +102,7 @@ const stylesH1 = StyleSheet.create({
     textAlign: 'center',
   },
 });
+export default Welcome;
 
 const stylesContainer = StyleSheet.create({
   container: {
@@ -163,4 +164,3 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Welcome;

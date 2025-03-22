@@ -3,23 +3,23 @@ import { useRouter , useNavigation} from 'expo-router';
 import { useLayoutEffect } from 'react';
 
 
-const Welcome1 = () => {
+const WelcomeFirst = () => {
   const router = useRouter();
 
   const navigation = useNavigation();
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: '',
+      headerShown: false,
     });
   }, [navigation]);
 
   const handleSkip = () => {
-    router.replace('/Welcome/Welcome2'); 
+    router.replace('/screens/WelcomeSecond'); 
   };
 
   return (
-    <View>
+    <View style={stylesMain.mainContainer}>
       <Image
         source={require("../../assets/images/Image1.png")}
         style={stylesImage.image}
@@ -56,7 +56,7 @@ const Welcome1 = () => {
 const stylesImage = StyleSheet.create({
     image: {
       width: "100%", 
-      maxHeight: 200,
+      // maxHeight: 200,
       resizeMode: "cover", 
       padding: 0,
       margin: 0,
@@ -64,11 +64,16 @@ const stylesImage = StyleSheet.create({
   });
   
   const stylesMain = StyleSheet.create({
+    mainContainer:{
+
+    },
     Background: {
       backgroundColor: '#18385B',  
       fontFamily: 'Lato-Regular',
       fontSize: 16,
-      fontWeight: '400', 
+      fontWeight: '400',    
+      height:'100%',
+
     },
   });
   
@@ -143,4 +148,4 @@ const stylesImage = StyleSheet.create({
     },
   });  
 
-export default Welcome1
+export default WelcomeFirst;

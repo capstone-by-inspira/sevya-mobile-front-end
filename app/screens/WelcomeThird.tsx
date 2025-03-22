@@ -2,19 +2,19 @@ import { View, Text , Image, StyleSheet, TouchableOpacity, ImageBackground} from
 import { useRouter, useNavigation } from 'expo-router';
 import { useLayoutEffect } from 'react';
 
-const Welcome2 = () => {
+const WelcomeThird = () => {
   const router = useRouter();
 
   const navigation = useNavigation();
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: '',
+      headerShown: false,
     });
   }, [navigation]);
 
   const handleSkip = () => {
-    router.replace('/Welcome/Welcome3'); 
+    router.replace('/screens/WelcomeFourth'); 
   };
 
   return (
@@ -33,10 +33,10 @@ const Welcome2 = () => {
             style={stylesBack.backgroundImage}
             >
               <View style={stylesContainer.Container}>
-                <Text style={stylesContainerText.ContainerText}>You can count on our Multilingual Support to translate notes instantly and Voice-to-Text Documentation Recording, to convert updates into text seamlessly.</Text>
+                <Text style={stylesContainerText.ContainerText}>Get targeted recommendations for each patient using AI Care Plan: create a simple and effective routine with just one click.</Text>
                 <Image
                 style={stylesContainerText.ContainerImage}
-                source={require("../../assets/images/Welcome2.png")}
+                source={require("../../assets/images/Welcome3.png")}
                 />
               </View>
       
@@ -55,7 +55,7 @@ const Welcome2 = () => {
 const stylesImage = StyleSheet.create({
     image: {
       width: "100%", 
-      maxHeight: 200,
+      // maxHeight: 200,
       resizeMode: "cover", 
       padding: 0,
       margin: 0,
@@ -68,6 +68,7 @@ const stylesImage = StyleSheet.create({
       fontFamily: 'Lato-Regular',
       fontSize: 16,
       fontWeight: '400', 
+      height:'100%',
     },
   });
   
@@ -87,7 +88,7 @@ const stylesImage = StyleSheet.create({
     Container: {
       display: 'flex',
       flexDirection: 'column',
-      gap: 0,
+      gap: 10,
       backgroundColor: 'rgba(255, 255, 255, 0.2)',
       borderWidth: 3,
       borderColor: 'rgba(255, 255, 255, 0.79)', 
@@ -112,7 +113,7 @@ const stylesImage = StyleSheet.create({
       lineHeight: 28,
     },
     ContainerImage: {
-        marginBottom: -80,
+        marginBottom: -70,
         padding: 0,
     },
   });
@@ -142,4 +143,4 @@ const stylesImage = StyleSheet.create({
     },
   });  
 
-export default Welcome2
+export default WelcomeThird

@@ -55,7 +55,7 @@ const LoginScreen: React.FC = () => {
 
       const first_time_login = await getSecureData("first_time_login");
       if (!first_time_login) {
-        router.replace("/screens/InfoScreen");
+        router.replace("/screens/WelcomeFirst");
       } else {
         router.replace("/(tabs)/home");
       }

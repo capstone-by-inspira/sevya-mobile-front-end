@@ -3,13 +3,13 @@ import { useRouter, useNavigation } from 'expo-router';
 import Button from "@/components/ui/Button";
 import { useLayoutEffect } from 'react';
 
-const Welcome4 = () => {
+const WelcomeFourth = () => {
   const router = useRouter();
   const navigation = useNavigation();
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: '',
+      headerShown: false,
     });
   }, [navigation]);
 
@@ -60,6 +60,7 @@ const stylesImage = StyleSheet.create({
       gap: 20,
       alignItems: 'center',
       paddingBottom: 250,
+      height:'100%',
     },
   });
   
@@ -89,4 +90,4 @@ const stylesImage = StyleSheet.create({
     },
   });
 
-export default Welcome4
+export default WelcomeFourth;
