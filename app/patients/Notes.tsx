@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
+import axios from "axios";
 
 import {
   View,
@@ -26,8 +27,14 @@ import {
   uploadBytes,
   getDownloadURL,
   app,
-  uploadImageToDatabase,
+  db,
+  doc,
+  getDoc,
+  updateDoc,
+  arrayUnion,
+  Timestamp,
 } from "@/config/firebase"; // Adjust the path as necessary
+import { AppContext } from "@/components/AppContext";
 
 import { SelectList } from "react-native-dropdown-select-list";
 
@@ -38,24 +45,29 @@ import {
 } from "@/services/api";
 import NoteCard from "@/components/NotesCard";
 import Icon from "react-native-vector-icons/FontAwesome"; // Or MaterialIcons
-import { formatDateOnly, uriToFile, getBlobFromUri } from "@/services/utils";
+
+import {
+  formatDateOnly,
+  formatLocalDateTime,
+  formatTimeOnly,
+} from "@/services/utils";
 
 const Notes = () => {
-  const { singlePatientData } = useLocalSearchParams(); // Get patient ID
+  const { id, singlePatientData, singleCaregiverData } = useLocalSearchParams(); // Get patient ID
+
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-  // const [notes, setNotes] = useState<any[]>([]);
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(true);
   const [selectedLanguage, setSelectedLanguage] = useState("English");
   const [translatedNotes, setTranslatedNotes] = useState<{
     [key: number]: string;
   }>({});
+
+  const [voiceMessage, setVoiceMessage] = useState("");
+
   const [fullImageUri, setFullImageUri] = useState<string | null>(null); // New state for full image
 
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
-
-  
   const languages = [
     { key: "en", value: "English" },
     { key: "pa", value: "Punjabi" },
@@ -71,16 +83,38 @@ const Notes = () => {
     ? singlePatientData[0]
     : singlePatientData;
 
+  const caregiverDataString = Array.isArray(singleCaregiverData)
+    ? singleCaregiverData[0]
+    : singleCaregiverData;
   const patient = JSON.parse(patientDataString);
+  // const caregiver = JSON.parse(caregiverDataString);
 
   const [notes, setNotes] = useState(patient?.notes);
   const [patientData, setPatientData] = useState(patient);
+  const [caregiverData, setCaregiverData] = useState(
+    JSON.parse(caregiverDataString)
+  );
+  console.log(caregiverData.image, "dddd.>>>>>>>");
 
   useEffect(() => {
-    if (patient) {
-      setLoading(false); // Set the header title
-    }
-  }, [patient]);
+    const fetchNotes = async () => {
+      if (!id) return;
+
+      try {
+        const docRef = doc(db, "patients", id as string);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          setNotes(docSnap.data().notes || []);
+        }
+      } catch (error) {
+        console.error("Error fetching notes:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchNotes();
+  }, [id]);
 
   const navigation = useNavigation();
   useEffect(() => {
@@ -125,74 +159,66 @@ const Notes = () => {
 
   // Add a new note to Firebase
   const addNote = async () => {
-    if (!patient || !note.trim()) return;
+    if (!id || (!note.trim() && !imageUri && !voiceMessage)) return;
 
     try {
-      // Retrieve caregiver's name from user data
       const userData = await getSecureData("user");
-      const token = await getSecureData("token");
-
       if (!userData) {
         console.error("User data not found.");
         return;
       }
 
-      const user = JSON.parse(userData); // Parse JSON only if userData exists
+      const user = JSON.parse(userData);
+      console.log(user, "asss");
 
       if (!user?.name) {
         console.error("User name is missing.");
         return;
       }
 
-      // Create a new note object
-      const newNote = {
-        caregiverName: user.name, // Use the actual caregiver name from user data
-        myNote: note,
-        date: new Date(),
-        imageUrl: uploadedImageUrl || null, // Add image URL if available
-      };
-
-      // Update the patient's notes array in Firestore
-      const updatedNotes = patient?.notes
-        ? [...patient.notes, newNote]
-        : [newNote];
-
-      // Add the new note to the existing notes array
-
-      // Update the patient document in Firestore
-      const updateData = {
-        notes: updatedNotes, // Replace the entire notes array with the updated one
-      };
-
-      const updateResult = await updateDocument(
-        "patients",
-        patient.id, // Use the patient ID
-        updateData,
-        token
-      );
-
-      if (updateResult.success) {
-        // Update local state and clear input field
-        setPatientData((prev) => ({
-          ...prev,
-          notes: updatedNotes,
-        }));
-
-        setNotes(updatedNotes); // Update local notes state
-        setNote(""); // Clear input
-        setImageUri(null); // Clear image URI
-        console.log("Note added successfully!");
-
-      } else {
-        console.error("Failed to update patient document.");
+      let uploadedImageUrl = null;
+      if (imageUri) {
+        uploadedImageUrl = await uploadImage(imageUri);
       }
+
+      const newNote = {
+        caregiverFirstName: caregiverData.firstName,
+        caregiverLastName: caregiverData.lastName,
+        caregiverImage: caregiverData.image,
+        myNote: note || voiceMessage || "",
+        imageUrl: uploadedImageUrl || null,
+        date: new Date().toISOString(),
+      };
+      console.log(new Date(), "timeee/??????>>>>>>>>.");
+
+      const docRef = doc(db, "patients", id as string);
+      await updateDoc(docRef, {
+        notes: arrayUnion(newNote),
+      });
+
+      setNotes((prevNotes) => [...prevNotes, newNote]);
+      setNote("");
+      setImageUri(null);
+      setVoiceMessage("");
+
+      console.log("Note added successfully!");
     } catch (error) {
       console.error("Error adding note:", error);
     }
   };
 
-  const handleImageLongPress = (imageUrl: string) => {
-    setFullImageUri(imageUrl);
+  const handleImagePick = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setImageUri(result.assets[0].uri);
+      setModalVisible(false); // Close the modal after selecting the image
+    }
   };
 
   const handleCameraOpen = async () => {
@@ -203,13 +229,9 @@ const Notes = () => {
         aspect: [4, 3],
         quality: 1,
       });
+
       if (!result.canceled && result.assets && result.assets.length > 0) {
         setImageUri(result.assets[0].uri);
-        console.log(result.assets[0].uri, "image-resu;t");
-        try {
-        } catch (error) {
-          console.error("Image upload failed", error);
-        }
         setModalVisible(false); // Close the modal after taking a picture
       }
     } catch (error) {
@@ -217,60 +239,42 @@ const Notes = () => {
     }
   };
 
-  const handleImagePick = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      alert("Permission to access gallery is required!");
-      return;
-    }
+  const uploadImage = async (uri: string) => {
+    const mainLink = "http://3.227.60.242:8808/api/auth/upload";
+    console.log("Uploading image...");
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 1,
-    });
+    try {
+      console.log("Uploading image...1");
+      const formData = new FormData();
+      formData.append("image", {
+        uri,
+        name: `image_${Date.now()}.jpg`,
+        type: "image/jpeg",
+      } as any);
 
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      const imageUri = result.assets[0].uri;
+      console.log("Uploading image...2");
+      const uploadResponse = await axios.post(mainLink, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      console.log("Uploading image...3");
 
-      setImageUri(imageUri);
-
-      const imageUploaded = await uploadImageToDatabase(imageUri);
-
-      console.log(imageUploaded, 'frontend call');
-     
-      if(imageUploaded){
-         setUploadedImageUrl(imageUploaded.toString());
-        setModalVisible(false);
-
+      if (uploadResponse.status !== 200) {
+        throw new Error("Image upload failed.");
       }
+
+      return uploadResponse.data.imageUrl || null;
+    } catch (error) {
+      console.error("Image upload error:", error);
+      return null;
     }
   };
+  const handleImageLongPress = (imageUrl: string) => {
+    setFullImageUri(imageUrl);
+  };
 
-  const convertFirebaseUrl = (originalUrl) => {
-    // Split the URL into parts
-    if(originalUrl){
-
- 
-    const urlParts = originalUrl.split('?');
-    const baseUrl = urlParts[0]; // The base URL without the query parameters
-    const queryParams = urlParts[1]; // The query parameters
-
-    // Encode the path part of the URL
-    const encodedPath = baseUrl.split('/').map((part, index) => {
-        // Skip the first two parts (protocol and domain)
-        if (index < 3) return part;
-        return encodeURIComponent(part);
-    }).join('/');
-
-    // Combine the encoded path with the query parameters
-    const convertedUrl = `${encodedPath}?${queryParams}`;
-    console.log(convertedUrl);
-    return convertedUrl;
-  }
-};
-
-// Inside your render method or functional component
+  // Inside your render method or functional component
 
   return (
     <KeyboardAvoidingView
@@ -281,7 +285,7 @@ const Notes = () => {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.innerContainer}>
           <View style={styles.headerContainer}>
-            <Text style={styles.title}>Patient Notes</Text>
+            <Text style={styles.title}>Today</Text>
             <SelectList
               setSelected={(val) => setSelectedLanguage(val)}
               data={languages}
@@ -298,21 +302,28 @@ const Notes = () => {
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={true}
           >
-
             {loading ? (
               <Text>Loading...</Text>
             ) : notes?.length > 0 ? (
               notes.map((item, index) => (
                 <View key={index} style={styles.noteBubble}>
                   <View style={styles.noteHeader}>
-                    <Text style={styles.noteAuthor}>
-                      by
-                      {" " +
-                        item.caregiverName.charAt(0).toUpperCase() +
-                        item.caregiverName.slice(1)}
-                    </Text>
+                    <View style={styles.noteHeader}>
+                      <Image
+                        source={{ uri: item.caregiverImage }}
+                        style={styles.noteAuthorImage}
+                      />
+                      <Text style={styles.noteAuthor}>
+                        By
+                        {" " +
+                          item.caregiverFirstName +
+                          " " +
+                          item.caregiverLastName}
+                      </Text>
+                    </View>
+
                     <Text style={styles.noteDate}>
-                      {formatDateOnly(item.date)}
+                      {formatTimeOnly(item.date)}
                     </Text>
                   </View>
                   <Text style={styles.noteText}>{item.myNote}</Text>
@@ -329,27 +340,23 @@ const Notes = () => {
                     </Text>
                   )}
 
-                  <Text
-                    style={styles.noteDate}
-                    onPress={() => translateNote(item.myNote, index)}
-                  >
-                    Translate
-                  </Text>
-
-                  {item.imageUrl &&
+                  {item.imageUrl && (
                     <TouchableOpacity
                       onLongPress={() => handleImageLongPress(item.imageUrl)}
                     >
-                 
-                    
-                    <Image
+                      <Image
                         source={{ uri: item.imageUrl }}
-                         resizeMode="cover"
+                        resizeMode="cover"
                         style={styles.noteImage}
                       />
-                    
                     </TouchableOpacity>
-                  }
+                  )}
+                  <Text
+                    style={styles.noteTranslate}
+                    onPress={() => translateNote(item.myNote, index)}
+                  >
+                    See Translate
+                  </Text>
                 </View>
               ))
             ) : (
@@ -370,7 +377,7 @@ const Notes = () => {
           <View style={styles.fullImageModal}>
             <Image source={{ uri: fullImageUri }} style={styles.fullImage} />
             <TouchableOpacity
-              style={styles.closeButton}
+              style={styles.closeButtonFullImage}
               onPress={() => setFullImageUri(null)}
             >
               <Text style={styles.FullcloseText}>✖</Text>
@@ -396,8 +403,7 @@ const Notes = () => {
           style={styles.textInput}
           value={note}
           onChangeText={setNote}
-          placeholder="Type your note here..."
-          placeholderTextColor={"#ccc"}
+
           multiline
         />
 
@@ -443,14 +449,14 @@ const Notes = () => {
 const styles = StyleSheet.create({
   innerContainer: { flex: 1, padding: 20 },
   title: {
-    fontSize: 22,
-    fontWeight: "bold",
+    fontSize: 18,
+    fontWeight: "300",
     textAlign: "center",
     marginBottom: 10,
     backgroundColor: "#F8FBFF",
   },
 
-  notesContainer: { flexGrow: 1, paddingBottom: 100 },
+  notesContainer: { flexGrow: 1, paddingBottom: 100, overflowY: "scroll" },
 
   NoNotes: {
     fontSize: 24,
@@ -461,11 +467,11 @@ const styles = StyleSheet.create({
 
   noteBubble: {
     backgroundColor: "#FFFFFF",
+    width: "100%",
     padding: 10,
     borderRadius: 8,
-    marginVertical: 5,
-
-    maxWidth: "80%",
+    marginVertical: 10,
+    maxWidth: "100%",
     borderColor: "lightgray", // Outline color (blue in this case)
     borderWidth: 0.5, // Outline thickness
     shadowColor: "#000", // Shadow color (black)
@@ -476,52 +482,62 @@ const styles = StyleSheet.create({
   },
 
   noteHeader: {
+    display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
 
   noteAuthor: { color: "grey" },
-  noteText: { fontSize: 14, marginVertical: 1 },
+  noteAuthorImage: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    marginRight: 5,
+  },
+  noteText: { fontSize: 14, marginVertical: 1, padding: 10 },
 
   noteImage: {
     width: "100%",
     height: 140,
     borderRadius: 8,
     marginTop: 0,
-    resizeMode: "contain",
-    marginBottom: 7,
+    resizeMode: "cover",
+    marginBottom: 15,
   },
 
-  noteDate: { fontSize: 12, color: "gray", alignSelf: "flex-end" },
+  noteDate: { fontSize: 12, color: "gray" },
+  noteTranslate: {
+    fontSize: 12,
+    color: "gray",
+    textAlign: "right",
+    fontStyle: "italic",
+  },
 
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
+    paddingTop: 10,
 
-    padding: 10,
+    paddingBottom: 25,
     backgroundColor: "#fff",
     borderTopWidth: 1,
     borderTopColor: "#ccc",
-    paddingBottom: 24,
+    paddingHorizontal: 20,
   },
 
   textInput: {
-    // backgroundColor: 'white',
-    // display: "flex",
-    // justifyContent: 'center',
-    // alignItems: 'center',
-
-    // flex: 1,
-    // padding: 10,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     flex: 1,
-    height: 40,
+    height: 'auto',
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 20,
-    paddingLeft: 12,
+    borderRadius: 18,
+    padding: 12,
     fontSize: 16,
-    paddingTop: 10,
+
     backgroundColor: "#f0f0f0",
   },
 
@@ -548,25 +564,36 @@ const styles = StyleSheet.create({
 
   // Image Preview for Selected Image
   imagePreviewWrapper: {
-    position: "relative",
-    alignItems: "center",
-    justifyContent: "center",
+    borderRadius: 30,
+    display: "flex",
+    marginRight: 10,
     marginBottom: 10,
+    marginTop: 10,
   },
   dropdown: {
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 5,
-    paddingHorizontal: 10,
+    paddingVertical: 5,
+    alignItems: "center",
+    width: 150,
+    borderRadius: 40,
+    backgroundColor: "#ffffff",
   },
   dropdownList: {
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
+    position: "absolute",
+    top: 40,
+    right: 0,
+    width: 150,
+    zIndex: 99,
+    backgroundColor: "#ffffff",
   },
   headerContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
   },
   translateButton: {
     backgroundColor: "#0078D4",
@@ -593,14 +620,23 @@ const styles = StyleSheet.create({
   previewImage: {
     width: 70,
     height: 70,
-    borderRadius: 5,
+    borderRadius: 15,
     resizeMode: "cover",
   },
-
-  closeButton: {
+  closeButtonFullImage:{
     position: "absolute",
-    top: 80,
-    right: 20,
+    top: 50,
+    right: 25,
+    backgroundColor: "lightgray",
+    borderRadius: 10,
+    padding: 5,
+    zIndex:99,
+  },
+  closeButton: {
+
+    position: "absolute",
+    top: -10,
+    right: -10,
     backgroundColor: "lightgray",
     borderRadius: 10,
     padding: 5,

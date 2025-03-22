@@ -31,7 +31,7 @@ export default function Home() {
 
   const { shifts, fetchData, caregivers, patients, loading, token, messages } = context;
 
-  console.log(context, 'web scoket >>>>>>>');
+  // console.log(context, 'web scoket >>>>>>>');
 
   const [refreshing, setRefreshing] = useState(false);
 

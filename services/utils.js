@@ -32,35 +32,6 @@ export const formatTimeOnly = (timestamp) => {
         hour12: true,
     });
 };
-
-
-export const uriToFile = async (uri) => {
-    try {
-      // Get file info (to retrieve the size and MIME type)
-      const fileInfo = await FileSystem.getInfoAsync(uri);
-      if (!fileInfo.exists) throw new Error("File does not exist");
-  
-      // Read the file as a Blob
-      const fileData = await fetch(uri);
-      const blob = await fileData.blob();
-  
-      // Create a File object
-      const file = new File([blob], "image.jpg", {
-        type: "image/jpeg", // Modify based on actual MIME type
-        lastModified: fileInfo.modificationTime * 1000, // Convert to milliseconds
-      });
-  
-      // Add lastModifiedDate property to File object
-      file.lastModifiedDate = new Date(fileInfo.modificationTime * 1000);
-  
-      return file;
-    } catch (error) {
-      console.error("Error converting URI to File:", error);
-      return null;
-    }
-  };
-  
-
   
 
 export const formatDateAndMonthOnly = (timestamp) => {
@@ -79,26 +50,25 @@ export const formatShiftTimeOnly = (timestamp) => {
         hour12: true,
     });
 };
+export function formatLocalDateTime(dateString) {
+    const date = new Date(dateString);
 
-export const getBlobFromUri = async (uri) => {
-    const blob = await new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.onload = function () {
-          resolve(xhr.response);
-        };
-        xhr.onerror = function (e) {
-          console.log(e);
-          reject(new TypeError("Network request failed"));
-        };
-        xhr.responseType = "blob";
-        xhr.open("GET", uri, true);
-        xhr.send(null);
-      });
-  
-      const filename = image.substring(image.lastIndexOf('/') + 1);
-      const ref = app.storage().ref().child(filename);
-      await ref.put(blob);
-      console.log(ref);
-      const snapshot = await ref.put(blob);
-      blob.close();
-  };
+    // Get local date and time
+    const options = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit', 
+        hour12: true 
+    };
+
+    return date.toLocaleString('en-US', options);
+}
+
+// Example usage
+const timestamp = "2025-03-21T17:27:01-07:00"; // Input timestamp
+console.log(formatLocalDateTime(timestamp));
+

@@ -123,6 +123,8 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     await fetchShifts();
   };
 
+
+
   const fetchCaregiver = async () => {
     if (!userData || !userData.uid) return; // Ensure userData is available
     try {
@@ -139,6 +141,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     if (!token) return; // Ensure token is available
     try {
       const result = await getDocuments("patients", token);
+      console.log("fetching>>>>>>>>>>>>>");
       if (result.success && userData?.uid) {
         const patientsWithCaregiver = getPatientsForCaregiver(result.data, userData.uid);
         setPatients(patientsWithCaregiver);
@@ -147,6 +150,8 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       console.error("Error fetching patients:", error);
     }
   };
+
+
 
   const getPatientsForCaregiver = (patients: any[], caregiverID: string): any[] => {
     return patients.filter((patient) =>
@@ -168,6 +173,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       setShifts([]);
     }
   };
+
 
   return (
     <AppContext.Provider

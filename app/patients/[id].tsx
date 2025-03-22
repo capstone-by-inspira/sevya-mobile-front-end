@@ -74,7 +74,7 @@ const PatientDetails = () => {
 
 
 
-  const generateCaregiverPlan = async () =>{
+   const generateCaregiverPlan = async () =>{
     setLoading(true);
     try {
       // Make the API call to your backend
@@ -182,7 +182,7 @@ const PatientDetails = () => {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.link}
-          onPress={() => router.push({ pathname: "/patients/Notes", params: {singlePatientData:JSON.stringify(patient)} })}
+          onPress={() => router.push({ pathname: "/patients/Notes", params: {id:id, singlePatientData:JSON.stringify(patient), singleCaregiverData : AllCaregivers}})}
         >
           
           <FontAwesome5 name="calendar-alt" size={18} color="#2D5DA3" />

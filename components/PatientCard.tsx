@@ -22,7 +22,7 @@ const PatientCard: React.FC<PatientCardProps> = ({
       {/* Left: Circular Avatar Placeholder */}
       <View >
         <Image
-          style={{ width: "50", height: "50", borderRadius: 50, marginRight: 10 }}
+          style={styles.profileImage}
           source={{
             uri:image,
           }}
@@ -49,20 +49,27 @@ const PatientCard: React.FC<PatientCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
+    width:"100%",
     flexDirection: "row",
     alignItems: "center",
+    justifyContent:'space-between',
+    paddingLeft:20,
     backgroundColor: "white",
     borderRadius: 25,
-    padding: 20,
+    paddingVertical: 5,
+
     borderWidth: 1,
     borderColor: "#ccc",
-    marginBottom: 2,
-    marginTop: 15,
+    marginBottom: 10,
+    marginTop: 10,
     boxShadow:
       "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
   },
-  avatar: {
-   
+  profileImage: {
+   width:50,
+   height:50,
+   borderRadius:50,
+   marginRight:10
   },
   cross: {
     fontSize: 20,
