@@ -26,9 +26,6 @@ const LoginScreen: React.FC = () => {
   const router = useRouter();
   const navigation = useNavigation();
 
-  React.useLayoutEffect(() => {
-    navigation.setOptions({ headerShown: false });
-  }, [navigation]);
 
 
 
@@ -45,7 +42,7 @@ const LoginScreen: React.FC = () => {
       );
       const idToken = await userCredential.user.getIdToken();
       await authenticate(idToken);
-      router.push("/(tabs)/home");
+      // router.push("/(tabs)/home");
     } catch (error) {
       console.error("Login Error:", error);
       Alert.alert("Error", "Invalid email or password");
@@ -62,11 +59,27 @@ const LoginScreen: React.FC = () => {
       await saveSecureData("token", data.token);
       await saveSecureData("user", JSON.stringify(data.user));
 
+    
+
       const first_time_login = await getSecureData("first_time_login");
-      if (!first_time_login) {
-        router.replace("/screens/InfoScreen");
+  
+
+      console.log(first_time_login, '>>>>>> fsttttttt');
+
+      if (first_time_login == null || first_time_login == undefined) {
+        console.log('go to info screen');
+        
+
+          router.replace("/screens/InfoScreen");
+
+      
+        console.log('go to info screen done');
+
       } else {
+        console.log('go to home screen');
         router.replace("/(tabs)/home");
+
+
       }
 
       Alert.alert("Success", "Login Successful");
