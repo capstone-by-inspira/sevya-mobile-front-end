@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,25 +7,32 @@ import {
   TouchableOpacity,
   Alert,
   StyleSheet,
+  Image,
 } from "react-native";
 import Button from "@/components/ui/Button";
-import { useRouter } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import axios from "axios";
 import { auth } from "@/config/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { saveSecureData, getSecureData } from "@/services/secureStorage";
 import { API_URL } from "@/services/api";
-import { useNavigation } from "expo-router";
-import Icon from "react-native-vector-icons/FontAwesome"; // Import the icon library
+import Icon from "react-native-vector-icons/MaterialCommunityIcons"; 
+
 
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState<string>("nammy@caregiver.com");
   const [password, setPassword] = useState<string>("nammy123");
-  const [showPassword, setShowPassword] = useState<boolean>(false); // State for password visibility
+  const [secureText, setSecureText] = useState(true);
   const router = useRouter();
   const navigation = useNavigation();
 
   React.useLayoutEffect(() => {
+    navigation.setOptions({ headerShown: false });
+  }, [navigation]);
+
+
+
+  useEffect(() => {
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
 
@@ -75,38 +82,49 @@ const LoginScreen: React.FC = () => {
       style={styles.background}
     >
       <View style={styles.overlay}>
+        <View style={styles.logoContainer}>
+          <Image
+            source={require("@/assets/Sevya-logo.png")} 
+            style={styles.logo} 
+            resizeMode="contain" 
+          />
+        </View>
         <View style={styles.container}>
           <Text style={styles.title}>Sign in with E-mail</Text>
-          <TextInput
-            placeholder="Enter your e-mail"
-            value={email}
-            onChangeText={setEmail}
-            style={styles.input}
-            placeholderTextColor="#ccc"
-          />
-          <View style={styles.passwordContainer}>
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>E-mail</Text>
             <TextInput
-              placeholder="Enter password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword} // Toggle visibility
+              placeholder="Enter your e-mail"
+              value={email}
+              onChangeText={setEmail}
               style={styles.input}
               placeholderTextColor="#ccc"
             />
-            <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
-              <Icon
-                name={showPassword ? "eye" : "eye-slash"} // Toggle icon based on state
-                size={20}
-                color="#000"
-                style={styles.eyeIcon}
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Password</Text>
+            <View style={styles.passwordWrapper}>
+              <TextInput
+                placeholder="Enter password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={secureText}
+                style={styles.passwordInput} // Applied correct styling
+                placeholderTextColor="#ccc"
               />
+              <TouchableOpacity onPress={() => setSecureText(!secureText)} style={styles.icon}>
+                <Icon name={secureText ? "eye-off" : "eye"} size={24} color="#666" />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.inputContainer}>
+            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+              <Text style={{color: "#fff"}}>Login</Text> 
             </TouchableOpacity>
           </View>
-          <Button
-            handleButtonClick={handleLogin}
-            buttonText="Login"
-            disabled={false}
-          />
+          
         </View>
       </View>
     </ImageBackground>
@@ -118,23 +136,46 @@ const styles = StyleSheet.create({
     flex: 1,
     resizeMode: "cover",
   },
+  loginButton: {
+    backgroundColor: "#10B981", 
+    paddingVertical: 10,
+    paddingHorizontal: 50,
+    borderRadius: 50,
+    alignItems: "center",
+    marginTop: 40,
+    fontFamily: "Lato",
+  },
+
   overlay: {
     flex: 1,
     backgroundColor: "rgba(7, 24, 50, 0.7)",
     justifyContent: "center",
     alignItems: "center",
   },
-  container: {
-    width: "85%",
-    padding: 20,
-    borderRadius: 15,
+  logoContainer: {
+    justifyContent: "center",
     alignItems: "center",
+    marginBottom: 70,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
+  logo: {
+    width: 75,
+    height: 75,
+  },
+  container: {
+    width: "60%",
+    paddingTop: 5,
+    paddingBottom: 5,
+    alignItems: "center",
+    marginBottom: 80
+  },
+  title: {    
     color: "white",
     marginBottom: 20,
+    fontFamily: "Lato",
+    fontSize: 22,
+    fontStyle: "normal",
+    fontWeight: "400",
+    lineHeight: 26,
   },
   input: {
     width: "100%",
@@ -144,17 +185,36 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     textAlign: "left",
   },
-  passwordContainer: {
-    position:"relative",
+  inputContainer: {
     width: "100%",
+    marginBottom: 10,
+  },
+  inputLabel: {
+    color: "#FFF", 
+    fontFamily: "Lato",
+    fontSize: 14,
+    fontStyle: "normal",
+    fontWeight: "400",
+    lineHeight: 14,
+    paddingBottom: 8,
+  },
+  passwordWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    paddingHorizontal: 15,
   },
-  eyeIcon: {
-    position:'absolute',
-    right:5,
-    top:6,
+  passwordInput: {
+    flex: 1, 
+    paddingVertical: 15,
+    textAlign: "left",
+    fontSize: 14,
+  },
+  icon: {
+    padding: 10,
   },
 });
 
