@@ -60,7 +60,7 @@ const parsePlanText = (text: string): Section[] => {
 };
 
 const CarePlan = () => {
-  const { plan } = useLocalSearchParams();
+  const { plan } = useLocalSearchParams(); // Get AI-generated care plan from params
   const navigation = useNavigation();
   const [parsedPlan, setParsedPlan] = useState<CarePlanSection[]>([]);
 
