@@ -93,11 +93,11 @@ const LoginScreen: React.FC = () => {
               style={styles.input}
               placeholderTextColor="#ccc"
             />
-            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
               <Icon
                 name={showPassword ? "eye" : "eye-slash"} // Toggle icon based on state
                 size={20}
-                color="#ccc"
+                color="#000"
                 style={styles.eyeIcon}
               />
             </TouchableOpacity>
@@ -142,16 +142,19 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.7)",
     borderRadius: 25,
     marginBottom: 15,
-    textAlign: "center",
+    textAlign: "left",
   },
   passwordContainer: {
+    position:"relative",
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
   eyeIcon: {
-    marginLeft: 10,
+    position:'absolute',
+    right:5,
+    top:6,
   },
 });
 
