@@ -173,7 +173,7 @@ const ShiftCard: React.FC = () => {
 
           );
         } else if (todayShift && item.id === todayShift.id && itemDate === today) {
-          return <TodayShiftDetailCard location={item.location} shiftTime={item.startTime} shiftEndTime={item.endTime} shiftId={todayShift.id} />
+          return <TodayShiftDetailCard location={item.location} shiftTime={item.startTime} shiftEndTime={item.endTime} shiftId={todayShift.id} shifts={shifts} patients={patients} />
         } else {
           return renderShiftDetailCard({ item });
         }
@@ -190,7 +190,9 @@ const ShiftCard: React.FC = () => {
 
 const styles = StyleSheet.create({
   scrollView: {
-    flex: 1
+    flex: 1,
+    paddingTop: 75,
+    backgroundColor: '#F8FBFF',
   },
   container: {
     paddingHorizontal: 16,
@@ -211,7 +213,7 @@ const styles = StyleSheet.create({
     // padding: 16,
     paddingHorizontal: 16,
     paddingTop: 16,
-    backgroundColor: '#f0f0f0',
+    // backgroundColor: '#f0f0f0',
   },
   modalBackground: {
     flex: 1,

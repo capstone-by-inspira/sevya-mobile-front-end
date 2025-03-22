@@ -10,11 +10,21 @@ interface TodayShiftDetailCardProps {
     shiftTime: string;
     shiftEndTime: string;
     shiftId: string;
+    shifts: any,
+    patients: any
 }
 
-const TodayShiftDetailCard: React.FC<TodayShiftDetailCardProps> = ({ location, shiftTime, shiftEndTime, shiftId }) => {
+const TodayShiftDetailCard: React.FC<TodayShiftDetailCardProps> = ({ location, shiftTime, shiftEndTime, shiftId, shifts, patients }) => {
     const handleViewMore = () => {
-        router.push(`/shiftTest/${shiftId}`);
+        // router.push(`/shiftTest/${shiftId}`);
+        router.push({
+            pathname: `/shiftTest/[id]`,
+            params: {
+                id: shiftId,  
+                shiftData: JSON.stringify(shifts),
+                patientData: JSON.stringify(patients),  
+            }
+        })
     }
     return (
         <Card style={styles.card}>

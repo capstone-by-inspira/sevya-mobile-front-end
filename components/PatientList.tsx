@@ -3,7 +3,7 @@ import React from "react";
 import PatientUCard from "./PatientUCard";
 import { useRouter } from "expo-router";
 
-const PatientList = ({ patients }) => {
+const PatientList = ({ patients, shifts, caregivers }) => {
   const router = useRouter();
 
   const renderPatientCard = ({ item }) => (
@@ -12,7 +12,15 @@ const PatientList = ({ patients }) => {
       gender={item.gender}
       condition={item.medicalConditions?.join(", ") || "N/A"}
       image={item.image}
-      onPress={() => router.push(`/patients/${item.id}`)}
+      onPress={() => router.push({
+        pathname: `/patients/[id]`,
+        params: {
+          id: item.id,  // Pass the id as a query parameter
+          AllShifts: JSON.stringify(shifts),
+          AllPatients: JSON.stringify(patients),  // Pass shift data as a query parameter
+          AllCaregivers: JSON.stringify(caregivers)
+        }
+      })}
     />
   );
 

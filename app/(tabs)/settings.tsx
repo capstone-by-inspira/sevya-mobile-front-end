@@ -9,6 +9,7 @@ import * as Notifications from "expo-notifications";
 const settings = () => {
   const router = useRouter();
 
+
   const logout = async () => {
     await deleteSecureData("token");
     await deleteSecureData("user");
@@ -16,19 +17,19 @@ const settings = () => {
     router.replace("/login");
   };
 
+
+
+
   return (
     <SafeAreaView>
       <View style={styles.container}>
         <ProfileScreen />
         <Button handleButtonClick={logout} buttonText="Logout" />
       </View>
-      <View>
-        <Text>Notification Settings</Text>
-      </View>
     </SafeAreaView>
-  );
-  
-};
+
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -36,10 +37,10 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    padding: 20,
-    backgroundColor: "#F0F6FF",
-    height: "100%",
+    backgroundColor: '#F8FBFF',
+    height: '100%',
   },
 });
+
 
 export default settings;

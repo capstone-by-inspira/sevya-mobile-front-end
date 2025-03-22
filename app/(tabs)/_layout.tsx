@@ -23,8 +23,7 @@ export default function TabLayout() {
         name="shifts"
         options={{
           title: "Shifts",
-          headerTitle:"SHIFTS SCHEDULE",
-          headerShown:true,
+          headerShown:false,
           tabBarIcon: ({ color }) => <Ionicons name="timer-outline" size={24} color={color} />,
         }}
       />

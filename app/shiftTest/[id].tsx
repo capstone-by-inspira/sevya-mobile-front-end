@@ -44,7 +44,7 @@ const ShiftCheckIn: React.FC = () => {
     return <Text>Error: AppContext not found</Text>;
   }
 
-  const { token, fetchData, caregivers } = context;
+  const { token, caregivers, fetchData } = context;
 
   const shiftDataString = Array.isArray(shiftData) ? shiftData[0] : shiftData;
   const patientDataString = Array.isArray(patientData)
@@ -274,7 +274,15 @@ const ShiftCheckIn: React.FC = () => {
           gender={associatedPatient.gender}
           condition={associatedPatient.medicalConditions?.join(", ") || ""}
           image={associatedPatient.image}
-          onPress={() => router.push(`/patients/${associatedPatient.id}`)}
+          onPress={() => router.push({
+            pathname: `/patients/[id]`,
+            params: {
+              id: associatedPatient.id,  // Pass the id as a query parameter
+              AllShifts: JSON.stringify(shiftData),
+              AllPatients: JSON.stringify(patientData),  // Pass shift data as a query parameter
+              AllCaregivers: JSON.stringify(caregivers)
+            }
+          })}
         />
       </View>
     </View>
