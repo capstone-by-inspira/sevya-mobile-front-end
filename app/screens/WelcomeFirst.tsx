@@ -2,11 +2,20 @@ import { View, Text , Image, StyleSheet, TouchableOpacity, ImageBackground} from
 import { useRouter , useNavigation} from 'expo-router';
 import { useLayoutEffect } from 'react';
 
+import React, { useEffect } from "react";
+
+import { saveSecureData } from "../../services/secureStorage"; // Import Secure Storage utility
 
 const WelcomeFirst = () => {
   const router = useRouter();
 
   const navigation = useNavigation();
+  useEffect(() => {
+    const setFirstLogin = async () => {
+        await saveSecureData("first_time_login", 'true');
+    };
+    setFirstLogin();
+}, []);
 
   useLayoutEffect(() => {
     navigation.setOptions({
