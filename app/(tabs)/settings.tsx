@@ -13,21 +13,15 @@ const settings = () => {
   const logout = async () => {
     await deleteSecureData("token");
     await deleteSecureData("user");
-     await deleteSecureData("first_time_login");
+    await deleteSecureData("first_time_login");
     router.replace("/login");
   };
 
-
-
-
   return (
-    <SafeAreaView>
-      <View style={styles.container}>
-        <ProfileScreen />
-        <Button handleButtonClick={logout} buttonText="Logout" />
-      </View>
-    </SafeAreaView>
-
+    <View style={styles.container}>
+      <ProfileScreen />
+      <Button handleButtonClick={logout} buttonText="Logout" />
+    </View>
   )
 }
 
