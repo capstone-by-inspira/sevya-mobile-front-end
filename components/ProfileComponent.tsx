@@ -5,6 +5,7 @@ import { getSecureData } from '../services/secureStorage'; // Import secure stor
 import * as ImagePicker from 'expo-image-picker';
 import { updateDocument } from '../services/api'; // Import your uploadImage and updateDocument functions
 import { auth } from '@/config/firebase';
+import { Icon } from 'react-native-paper';
 
 const ProfileScreen = () => {
 
@@ -93,7 +94,8 @@ const ProfileScreen = () => {
           style={styles.profileImage}
         />
         <Text style={styles.changeImageText} onPress={pickImage}>
-          Change Profile Image
+          Change Profile Image  
+          <Icon source="pencil" size={18} color="#1E3A8A" />
         </Text>
       </View>
 
@@ -125,7 +127,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "flex-start",
-    paddingTop: 50,
+    paddingTop: 80,
     paddingHorizontal: 0,
     marginHorizontal: 0,
     backgroundColor: 'transparent',
@@ -149,6 +151,8 @@ const styles = StyleSheet.create({
     borderWidth: 6,
     borderColor: "#10B981", 
     backgroundColor: "#FFF",
+    boxShadow:
+      "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
   },
   changeImageText: {
     color: '#25578E',
@@ -163,7 +167,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: '#fff',
     padding: 20,
-    width: "100%"
+    width: 400,
+    boxShadow:
+      "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
 
   },
   detailText: {

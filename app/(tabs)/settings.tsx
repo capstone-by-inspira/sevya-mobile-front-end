@@ -21,12 +21,12 @@ const settings = () => {
 
   return (
 
-    <SafeAreaView>
+    
       <View style={styles.container}>
         <ProfileScreen />
         <Button handleButtonClick={logout} buttonText="Logout" />
       </View>
-    </SafeAreaView>
+    
 
   )
 }
