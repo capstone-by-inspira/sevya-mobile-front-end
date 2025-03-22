@@ -8,7 +8,7 @@ import { auth } from '@/config/firebase';
 
 const ProfileScreen = () => {
 
-    const context = useContext(AppContext);
+  const context = useContext(AppContext);
 
   if (!context) {
     return <Text>Error: AppContext not found</Text>;
@@ -39,20 +39,20 @@ const ProfileScreen = () => {
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
       setLoading(false);
-    //   try {
-    //     const uploadResult = await uploadImage(result.assets[0].uri, `profileImages/${userData.uid}`, token);
+      //   try {
+      //     const uploadResult = await uploadImage(result.assets[0].uri, `profileImages/${userData.uid}`, token);
 
-    //     if (uploadResult.success && uploadResult.url) {
-    //       setProfileImage(uploadResult.url);
-    //       await updateUserData(uploadResult.url);
-    //     } else {
-    //       console.error("Image upload failed:", uploadResult.error);
-    //     }
-    //   } catch (error) {
-    //     console.error("Error picking and uploading image:", error);
-    //   } finally {
-    //     setLoading(false);
-    //   }
+      //     if (uploadResult.success && uploadResult.url) {
+      //       setProfileImage(uploadResult.url);
+      //       await updateUserData(uploadResult.url);
+      //     } else {
+      //       console.error("Image upload failed:", uploadResult.error);
+      //     }
+      //   } catch (error) {
+      //     console.error("Error picking and uploading image:", error);
+      //   } finally {
+      //     setLoading(false);
+      //   }
     }
   };
 
@@ -80,7 +80,7 @@ const ProfileScreen = () => {
 
   return (
     <View style={styles.container}>
-    {/* <View> */}
+      {/* <View> */}
       {loading && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color="#0000ff" />
@@ -99,29 +99,35 @@ const ProfileScreen = () => {
 
       <View style={styles.detailsContainer}>
         <Text style={styles.detailText}>
-          Name: {caregivers.firstName} {caregivers.lastName}
+          <Text style={{ fontWeight: "bold" }}>Name:</Text> {caregivers.firstName} {caregivers.lastName}
         </Text>
-        <Text style={styles.detailText}>Email: {caregivers.email}</Text>
-        <Text style={styles.detailText}>Phone: {caregivers.phoneNumber}</Text>
-        <Text style={styles.detailText}>Total Shifts: {shifts?.length}</Text>
-        <Text style={styles.detailText}>Total Patients Assigned: {patients.length}</Text>
-
-
+        <Text style={styles.detailText}>
+          <Text style={{ fontWeight: "bold" }}>Email:</Text> {caregivers.email}
+        </Text>
+        <Text style={styles.detailText}>
+          <Text style={{ fontWeight: "bold" }}>Phone:</Text> {caregivers.phoneNumber}
+        </Text>
+        <Text style={styles.detailText}>
+          <Text style={{ fontWeight: "bold" }}>Total Shifts:</Text> {shifts?.length}
+        </Text>
+        <Text style={styles.detailText}>
+          <Text style={{ fontWeight: "bold" }}>Total Patients Assigned:</Text> {patients.length}
+        </Text>
         {/* Add other user details here */}
       </View>
+
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    display:"flex",
-    flexDirection: "column",
+    flex: 1,
     alignItems: "center",
-    justifyContent: "center",
-
-
-    padding: 20,
+    justifyContent: "flex-start",
+    paddingTop: 50,
+    paddingHorizontal: 0,
+    marginHorizontal: 0,
     backgroundColor: 'transparent',
   },
   loadingOverlay: {
@@ -136,17 +142,29 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   profileImage: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
+    width: 120,
+    height: 120,
     marginBottom: 10,
+    borderRadius: 200,
+    borderWidth: 6,
+    borderColor: "#10B981", 
+    backgroundColor: "#FFF",
   },
   changeImageText: {
-    color: 'blue',
+    color: '#25578E',
     marginTop: 5,
+    borderWidth: 1,
+    borderColor: '#25578E',
+    padding: 10,
+    borderRadius: 24,
   },
   detailsContainer: {
     marginTop: 20,
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    padding: 20,
+    width: "100%"
+
   },
   detailText: {
     fontSize: 16,

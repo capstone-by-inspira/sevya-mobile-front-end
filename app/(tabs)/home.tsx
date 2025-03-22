@@ -92,7 +92,7 @@ export default function Home() {
           </View>
 
           <View>
-            <PatientList patients={patients}></PatientList>
+            <PatientList patients={patients} shifts={shifts} caregivers={caregivers}></PatientList>
           </View>
 
           <View>
