@@ -60,7 +60,7 @@ export default function Home() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: '#F8FBFF', }}>
         <ActivityIndicator size="large" />
       </View>
     );
@@ -70,7 +70,7 @@ export default function Home() {
     <>
       {/* <SevyaToast message={messages}/> */}
 
-      <View style={{ height: 150 }}>
+      <View style={{ height: 150, backgroundColor: '#F8FBFF', }}>
         <Image
           style={{ width: "auto", height: 150, borderRadius: 0, margin: 0 }}
           source={{
@@ -78,14 +78,14 @@ export default function Home() {
           }}
         />
       </View>
-      <ScrollView
+      <ScrollView style={{backgroundColor: '#F8FBFF'}}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
         <View
           style={{
-            backgroundColor: "#F0F6FF",
+            backgroundColor: '#F8FBFF',
             display: "flex",
             flexDirection: "column",
             width: "100%",

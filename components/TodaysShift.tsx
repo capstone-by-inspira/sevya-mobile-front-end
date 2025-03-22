@@ -5,7 +5,7 @@ import Button from "@/components/ui/Button";
 import { router } from "expo-router";
 import { getDocumentById, getDocumentByKeyValue } from "@/services/api";
 import { getSecureData } from "@/services/secureStorage";
-import { formatDateOnly, formatTimeOnly } from "@/services/utils";
+import { formatDateAndMonthOnly, formatDateOnly, formatShiftTimeOnly, formatTimeOnly } from "@/services/utils";
 import { AppContext } from "../components/AppContext";
 
 interface Shift {
@@ -124,8 +124,8 @@ const TodaysShift: React.FC<TodayShiftProps> = ({ shifts, caregiver , patients})
               <View style={styles.row}>
                 <Icon source="information-outline" size={20} color="#2C3E50" />
                 <Text style={styles.cardText}>
-                  {formatDateOnly(shift?.startTime)}{" "}
-                  {formatTimeOnly(shift?.startTime)}
+                  {formatDateAndMonthOnly(shift?.startTime)},  
+                  {formatShiftTimeOnly(shift?.startTime)} - {formatShiftTimeOnly(shift?.endTime)}
                 </Text>
               </View>
             </View>
