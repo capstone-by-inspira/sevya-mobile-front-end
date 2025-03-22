@@ -72,7 +72,7 @@ const PatientDetails = () => {
     try {
       // Make the API call to your backend
       const response = await axios.post(
-        "http://10.0.0.240:8800/api/auth/generate-health-plan",
+        "http://3.227.60.242:8808/api/auth/generate-health-plan",
         {
           patientData: patientData,
         }
