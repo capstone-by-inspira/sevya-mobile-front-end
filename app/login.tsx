@@ -15,12 +15,19 @@ import { auth } from "@/config/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { saveSecureData, getSecureData } from "@/services/secureStorage";
 import { API_URL } from "@/services/api";
-
+import { useNavigation } from "expo-router";
+import Icon from "react-native-vector-icons/FontAwesome"; // Import the icon library
 
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState<string>("nammy@caregiver.com");
   const [password, setPassword] = useState<string>("nammy123");
+  const [showPassword, setShowPassword] = useState<boolean>(false); // State for password visibility
   const router = useRouter();
+  const navigation = useNavigation();
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({ headerShown: false });
+  }, [navigation]);
 
   const handleLogin = async () => {
     try {
@@ -77,14 +84,24 @@ const LoginScreen: React.FC = () => {
             style={styles.input}
             placeholderTextColor="#ccc"
           />
-          <TextInput
-            placeholder="Enter password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            style={styles.input}
-            placeholderTextColor="#ccc"
-          />
+          <View style={styles.passwordContainer}>
+            <TextInput
+              placeholder="Enter password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword} // Toggle visibility
+              style={styles.input}
+              placeholderTextColor="#ccc"
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <Icon
+                name={showPassword ? "eye" : "eye-slash"} // Toggle icon based on state
+                size={20}
+                color="#ccc"
+                style={styles.eyeIcon}
+              />
+            </TouchableOpacity>
+          </View>
           <Button
             handleButtonClick={handleLogin}
             buttonText="Login"
@@ -100,13 +117,6 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
     resizeMode: "cover",
-  },
-  loginButton: {
-    backgroundColor: "#4CAF50", // Green color
-    paddingVertical: 12,
-    paddingHorizontal: 80,
-    borderRadius: 50,
-    alignItems: "center",
   },
   overlay: {
     flex: 1,
@@ -133,6 +143,15 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     marginBottom: 15,
     textAlign: "center",
+  },
+  passwordContainer: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  eyeIcon: {
+    marginLeft: 10,
   },
 });
 

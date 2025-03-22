@@ -342,7 +342,7 @@ const Notes = () => {
 
                   {item.imageUrl && (
                     <TouchableOpacity
-                      onLongPress={() => handleImageLongPress(item.imageUrl)}
+                      onPress={() => handleImageLongPress(item.imageUrl)}
                     >
                       <Image
                         source={{ uri: item.imageUrl }}

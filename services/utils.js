@@ -1,5 +1,10 @@
 import * as FileSystem from 'expo-file-system';
 import { app } from '@/config/firebase';
+import { createDocument } from './api';
+import { getSecureData } from './secureStorage';
+
+
+
 
 
 export const formatTimestamp = (timestamp, timeZone = "UTC") => {
@@ -71,4 +76,22 @@ export function formatLocalDateTime(dateString) {
 // Example usage
 const timestamp = "2025-03-21T17:27:01-07:00"; // Input timestamp
 console.log(formatLocalDateTime(timestamp));
+
+
+export const sendNotification = async (title, body, createdBy, token) =>{
+    const data ={
+        title: title,
+        body: body,
+        createdBy: createdBy
+
+    }
+    const res = await createDocument(
+        "notifications",
+        data,
+        token
+      )
+      console.log(res, 'notification-created');
+
+
+} 
 

@@ -44,10 +44,8 @@ const styles = StyleSheet.create({
     marginRight: 0,
     alignItems: "center",
     width: 180,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
+       boxShadow:
+      "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
   },
   image: {
     width: 60,

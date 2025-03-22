@@ -5,7 +5,7 @@ import { updateDocument } from "@/services/api";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { Card, Divider, Icon, ProgressBar } from "react-native-paper";
 import Button from "@/components/ui/Button";
-import { formatDateOnly, formatTimeOnly } from "@/services/utils";
+import { formatDateOnly, formatTimeOnly ,sendNotification} from "@/services/utils";
 import { AppContext } from "@/components/AppContext";
 import PatientUCard from "@/components/PatientUCard";
 
@@ -44,7 +44,7 @@ const ShiftCheckIn: React.FC = () => {
     return <Text>Error: AppContext not found</Text>;
   }
 
-  const { token, fetchData } = context;
+  const { token, fetchData, caregivers } = context;
 
   const shiftDataString = Array.isArray(shiftData) ? shiftData[0] : shiftData;
   const patientDataString = Array.isArray(patientData)
@@ -160,6 +160,8 @@ const ShiftCheckIn: React.FC = () => {
       if (updateResult.success) {
         setShift(updateData);
         fetchData();
+        await sendNotification('Shift Started', 'shift has been started  ', caregivers.firstName, token);
+
         Alert.alert("Confirmation", "Shift started successfully");
       } else {
         Alert.alert("Error", "Failed to update check-in time.");
@@ -190,6 +192,8 @@ const ShiftCheckIn: React.FC = () => {
         setShift(updateData);
         setProgress(1);
         fetchData();
+        await sendNotification('Shift ended', 'shift has been ended', caregivers.firstName, token);
+
         Alert.alert("Confirmation", "Shift ended successfully");
       } else {
         Alert.alert("Error", "Failed to update check-out time.");
