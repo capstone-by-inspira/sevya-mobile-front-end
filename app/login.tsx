@@ -192,6 +192,10 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     marginBottom: 15,
     textAlign: "left",
+    fontFamily: "Lato",
+    fontSize: 16,
+    fontStyle: 'normal',
+    fontWeight: '400',
   },
   inputContainer: {
     width: "100%",
@@ -219,7 +223,10 @@ const styles = StyleSheet.create({
     flex: 1, 
     paddingVertical: 15,
     textAlign: "left",
-    fontSize: 14,
+    fontFamily: "Lato",
+    fontSize: 16,
+    fontStyle: 'normal',
+    fontWeight: '400',
   },
   icon: {
     padding: 10,
