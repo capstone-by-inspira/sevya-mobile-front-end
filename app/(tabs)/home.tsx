@@ -19,6 +19,7 @@ import * as Notifications from "expo-notifications";
 import Button from "@/components/ui/Button";
 import { createDocument } from "@/services/api";
 import { sendNotification } from "@/services/utils";
+import { Divider } from "react-native-paper";
 // import SevyaToast from '@/components/SevyaToast'
 
 export default function Home() {
@@ -73,9 +74,7 @@ export default function Home() {
       <View style={{ height: 150, backgroundColor: '#F8FBFF', }}>
         <Image
           style={{ width: "auto", height: 150, borderRadius: 0, margin: 0 }}
-          source={{
-            uri: "https://images.unsplash.com/photo-1584515933487-779824d29309",
-          }}
+          source={require("@/assets/heroImage.jpeg")}
         />
       </View>
       <ScrollView style={{backgroundColor: '#F8FBFF'}}
@@ -90,7 +89,7 @@ export default function Home() {
             flexDirection: "column",
             width: "100%",
             flex: 1,
-            gap: 50,
+            gap: 30,
           }}
         >
             {/* <Button
@@ -106,9 +105,12 @@ export default function Home() {
             />
           </View>
 
+          <Divider />
+
           <View>
             <PatientList patients={patients} shifts={shifts} caregivers={caregivers}></PatientList>
           </View>
+          <Divider />
 
           <View>
             <EmergencyHelpScreen />

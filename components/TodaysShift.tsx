@@ -25,7 +25,7 @@ interface TodayShiftProps {
   patients: any;
 }
 
-const TodaysShift: React.FC<TodayShiftProps> = ({ shifts, caregiver , patients}) => {
+const TodaysShift: React.FC<TodayShiftProps> = ({ shifts, caregiver, patients }) => {
   const [shift, setShift] = useState<Shift | null>(null);
   const [noShift, setNoShift] = useState(true); // Tracks no shift today
 
@@ -86,32 +86,36 @@ const TodaysShift: React.FC<TodayShiftProps> = ({ shifts, caregiver , patients})
   return (
     <View style={styles.container}>
       <Text style={styles.greeting}>
-        Hi, <Text style={styles.boldText}>{caregiver.firstName}</Text>
+        Hi, {caregiver.firstName}{(shift && shift.id) ? "! Ready for your shift?" : " "}
       </Text>
 
       {noShift ? (
         <Text style={styles.noShiftText}>No shift for today</Text>
       ) : (
         <>
-          {shift && shift.id ? (
-            <Button
-              handleButtonClick={() =>
-                router.push({
-                  pathname: `/shiftTest/[id]`,
-                  params: { 
-                    id: shift.id,  // Pass the id as a query parameter
-                    shiftData: JSON.stringify(shifts),
-                    patientData:JSON.stringify(patients),  // Pass shift data as a query parameter
+          <View style={{ flexDirection: "row", justifyContent: "center" }}>
+            {shift && shift.id ? (
+              <Button
+                handleButtonClick={() =>
+                  router.push({
+                    pathname: `/shiftTest/[id]`,
+                    params: {
+                      id: shift.id,  // Pass the id as a query parameter
+                      shiftData: JSON.stringify(shifts),
+                      patientData: JSON.stringify(patients),  // Pass shift data as a query parameter
+                    }
+                  })
                 }
-                })
-              }
-              buttonText="Ready for your shift?"
-            />
-          ) : (
-            <Text>No shift details available</Text>
-          )}
+                buttonText="Check in"
+                style={{ width: 95 }}
+              />
+            ) : (
+              <Text>No shift details available</Text>
+            )}
+          </View>
+          <Divider />
           <Text style={styles.shiftTitle}>
-            <Text style={styles.boldText}>Today's Shift:</Text>{" "}
+            <Text style={styles.boldText}>Today's Shift: </Text>{" "}
             {getCurrentDateDDMMYYYY()}
           </Text>
 
@@ -124,7 +128,7 @@ const TodaysShift: React.FC<TodayShiftProps> = ({ shifts, caregiver , patients})
               <View style={styles.row}>
                 <Icon source="information-outline" size={20} color="#2C3E50" />
                 <Text style={styles.cardText}>
-                  {formatDateAndMonthOnly(shift?.startTime)},  
+                  {formatDateAndMonthOnly(shift?.startTime)},
                   {formatShiftTimeOnly(shift?.startTime)} - {formatShiftTimeOnly(shift?.endTime)}
                 </Text>
               </View>
@@ -135,7 +139,7 @@ const TodaysShift: React.FC<TodayShiftProps> = ({ shifts, caregiver , patients})
               onPress={() => router.replace("/(tabs)/shifts")}
             >
               <Icon source="calendar" size={18} color="#1E3A8A" />
-              <Text style={styles.scheduleText}>View Your Schedule</Text>
+              <Text style={styles.scheduleText}>View Your Shift</Text>
             </TouchableOpacity>
           </Card>
         </>
@@ -153,10 +157,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   greeting: {
-    fontSize: 20,
-    color: "#000000",
+    color: "#000",
     marginBottom: 10,
     marginTop: 20,
+    fontFamily: 'Lato',
+    fontSize: 18, // 16
+    fontStyle: 'normal',
+    fontWeight: '700',
+    textAlign: 'center',
   },
   boldText: {
     fontWeight: "bold",
@@ -170,13 +178,20 @@ const styles = StyleSheet.create({
   shiftTitle: {
     fontSize: 16,
     color: "#1E293B",
-    marginBottom: 10,
+    marginVertical: 20,
   },
   card: {
     backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 15,
+    borderRadius: 8,
+    paddingTop: 14,
+    paddingLeft: 14,
+    paddingRight: 14,
+    paddingBottom: 6,
     elevation: 2,
+    shadowColor: 'rgba(0, 0, 0, 0.14)', 
+    shadowOffset: { width: 0, height: 0 }, 
+    shadowRadius: 4, 
+    shadowOpacity: 0.14,
   },
   cardContent: {
     marginBottom: 10,
@@ -187,9 +202,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   cardText: {
-    fontSize: 14,
+    fontSize: 16,
     color: "#374151",
     marginLeft: 8,
+    fontFamily: 'Lato',
+    fontStyle: 'normal',
+    fontWeight: '400',
+    lineHeight: 24,
   },
   scheduleButton: {
     flexDirection: "row",

@@ -1,4 +1,4 @@
-import { View, Text, FlatList } from "react-native";
+import { View, Text, FlatList, StyleSheet } from "react-native";
 import React from "react";
 import PatientUCard from "./PatientUCard";
 import { useRouter } from "expo-router";
@@ -26,6 +26,7 @@ const PatientList = ({ patients, shifts, caregivers }) => {
 
   return (
     <View>
+      <Text style={styles.title}>Patients Under Care</Text>
       <FlatList
         data={patients}
         renderItem={renderPatientCard}
@@ -36,5 +37,18 @@ const PatientList = ({ patients, shifts, caregivers }) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  title: {
+    fontSize: 16,
+    color: "#1E293B",
+    fontFamily: 'Lato',
+    fontStyle: 'normal',
+    fontWeight: '700',
+    lineHeight: 16,
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+  }
+});
 
 export default PatientList;
