@@ -33,6 +33,8 @@ const WelcomeFourth = () => {
         <Button
           handleButtonClick={handleHomeNavigation} 
           buttonText="Let`s go!"
+          buttonColor='#10B981'
+          style={{ width: 227 }} 
         />  
       </View>
     </View>
@@ -76,13 +78,14 @@ const stylesImage = StyleSheet.create({
       paddingBottom: 10,
     },
     ContainerText2: {
-        fontFamily: 'Radley',
-        fontSize: 22,
-        fontWeight: '400', 
-        textAlign: 'center',
-        color: 'white',
-        lineHeight: 28,
-        paddingBottom: 10,
+      fontFamily: 'Radley',
+      fontSize: 22,
+      fontWeight: '400',
+      textAlign: 'center',
+      color: '#fff',
+      paddingBottom: 10,
+      fontStyle: 'normal',
+      lineHeight: 22,
       },
     ContainerImage: {
         marginBottom: 0,

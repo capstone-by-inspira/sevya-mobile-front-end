@@ -12,6 +12,8 @@ import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { AppProvider } from "../components/AppContext"; // Import AppProvider
+import { Radley_400Regular } from "@expo-google-fonts/radley";
+import { Lato_400Regular, Lato_700Bold } from "@expo-google-fonts/lato";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -19,7 +21,9 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    Radley: Radley_400Regular,
+    LatoRegular: Lato_400Regular, 
+    LatoBold: Lato_700Bold,
   });
 
   useEffect(() => {
