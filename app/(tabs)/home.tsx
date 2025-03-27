@@ -103,6 +103,7 @@ export default function Home() {
               shifts={shifts}
               caregiver={caregivers}
               patients={patients}
+              token={token}
             />
           </View>
 

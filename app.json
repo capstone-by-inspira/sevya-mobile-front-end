@@ -8,6 +8,8 @@
     "scheme": "mysevya",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "owner": "amneesh3735",
+    "id": "f98e9d29-bf7c-44df-be6d-b41c8571e196",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.sevyamobilefrontend"
@@ -24,41 +26,51 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-      "plugins": [
-        "expo-router",
-        [
-          "expo-splash-screen",
-          {
-            "image": "./assets/images/splash-icon.png",
-            "imageWidth": 200,
-            "resizeMode": "contain",
-            "backgroundColor": "#ffffff"
-          }
-        ],
-        "expo-secure-store",
-        [
-          "expo-notifications",
-          {
-            "icon": "./assets/notification-icon.png",
-            "color": "#ffffff",
-            "sounds": [
-              "./assets/notification-sound.wav"
-            ]
-          }
-        ],
-        "expo-font"
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
       ],
-      "experiments": {
-        "typedRoutes": true
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#ffffff",
+          "sounds": [
+            "./assets/notification-sound.wav"
+          ]
+        }
+      ],
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "firebaseApiKey": "AIzaSyBX2gmQbTyv77Bep4DKVQrC--OVSx37q7s",
+      "firebaseAuthDomain": "sevya-f77df.firebaseapp.com",
+      "firebaseProjectId": "sevya-f77df",
+      "firebaseStorageBucket": "sevya-f77df.firebasestorage.app",
+      "firebaseMessagingSenderId": "62869950842",
+      "firebaseAppId": "1:62869950842:web:f0f59cb17ec508dbd786c3",
+      "firebaseMeasurementId": "G-E5Q564BTJ1",
+      "router": {
+        "origin": false
       },
-      "extra": {
-        "firebaseApiKey": "AIzaSyBX2gmQbTyv77Bep4DKVQrC--OVSx37q7s",
-        "firebaseAuthDomain": "sevya-f77df.firebaseapp.com",
-        "firebaseProjectId": "sevya-f77df",
-        "firebaseStorageBucket": "sevya-f77df.firebasestorage.app",
-        "firebaseMessagingSenderId": "62869950842",
-        "firebaseAppId": "1:62869950842:web:f0f59cb17ec508dbd786c3",
-        "firebaseMeasurementId": "G-E5Q564BTJ1"
+      "eas": {
+        "projectId": "29fd1c27-de68-40b2-892f-a947fb1e0eb0"
       }
+    },
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/29fd1c27-de68-40b2-892f-a947fb1e0eb0"
     }
   }
+}

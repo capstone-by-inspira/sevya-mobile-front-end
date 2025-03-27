@@ -23,9 +23,10 @@ interface TodayShiftProps {
   shifts: any;
   caregiver: any;
   patients: any;
+  token:any;
 }
 
-const TodaysShift: React.FC<TodayShiftProps> = ({ shifts, caregiver , patients}) => {
+const TodaysShift: React.FC<TodayShiftProps> = ({ shifts, caregiver , patients, token}) => {
   const [shift, setShift] = useState<Shift | null>(null);
   const [noShift, setNoShift] = useState(true); // Tracks no shift today
 
@@ -102,6 +103,7 @@ const TodaysShift: React.FC<TodayShiftProps> = ({ shifts, caregiver , patients})
                     id: shift.id,  // Pass the id as a query parameter
                     shiftData: JSON.stringify(shifts),
                     patientData:JSON.stringify(patients),  // Pass shift data as a query parameter
+                    token:token
                 }
                 })
               }

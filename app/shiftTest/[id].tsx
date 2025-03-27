@@ -33,7 +33,7 @@ interface Patient {
 }
 
 const ShiftCheckIn: React.FC = () => {
-  const { id, shiftData, patientData } = useLocalSearchParams();
+  const { id, shiftData, patientData, token } = useLocalSearchParams();
   const navigation = useNavigation();
 
   
@@ -44,7 +44,7 @@ const ShiftCheckIn: React.FC = () => {
     return <Text>Error: AppContext not found</Text>;
   }
 
-  const { token, caregivers, fetchData } = context;
+  const {  caregivers, fetchData } = context;
 
   const shiftDataString = Array.isArray(shiftData) ? shiftData[0] : shiftData;
   const patientDataString = Array.isArray(patientData)
@@ -150,6 +150,8 @@ const ShiftCheckIn: React.FC = () => {
       checkOut: false,
     };
 
+
+
     try {
       const updateResult = await updateDocument(
         "shifts",
@@ -157,6 +159,8 @@ const ShiftCheckIn: React.FC = () => {
         updateData,
         token
       );
+      console.log(updateResult, 'start');
+
       if (updateResult.success) {
         setShift(updateData);
         fetchData();
