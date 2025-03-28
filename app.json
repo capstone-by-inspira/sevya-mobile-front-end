@@ -4,7 +4,7 @@
     "slug": "sevya-mobile-front-end",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/Sevya-logo.png",
     "scheme": "mysevya",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -14,7 +14,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/Logo1.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.anonymous.sevyamobilefrontend"
@@ -22,7 +22,7 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/Logo1.png"
     },
       "plugins": [
         "expo-router",

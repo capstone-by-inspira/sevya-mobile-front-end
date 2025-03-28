@@ -27,7 +27,7 @@ const WelcomeFourth = () => {
         <Text style={stylesContainerText.ContainerText}>Everything so you can focus on your best talent: taking care of those in need.</Text>
         <Image
             style={stylesContainerText.ContainerImage}
-            source={require("../../assets/images/Logo (1).png")}
+            source={require("../../assets/images/Logo1.png")}
         />
         <Text style={stylesContainerText.ContainerText2}>Enjoy Sevya!</Text>
         <Button
