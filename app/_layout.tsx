@@ -18,6 +18,7 @@ import { Radley_400Regular } from "@expo-google-fonts/radley";
 import { Lato_400Regular, Lato_700Bold } from "@expo-google-fonts/lato";
 import 'react-native-gesture-handler';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import Notifications from "@/components/Notifications";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -50,28 +51,8 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AppProvider>
         <ThemeProvider value={colorScheme === "light" ? DefaultTheme : DefaultTheme}>
-          <Modalize ref={modalizeRef} snapPoint={250} modalHeight={300}>
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start', padding: 20 }}>
-              <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10 }}>
-                Notifications
-              </Text>
-
-              {/* Static Notifications */}
-              <View style={{ marginBottom: 10 }}>
-                <Text style={{ fontWeight: "bold" }}>🔔 Event Reminder</Text>
-                <Text>Your event is scheduled for tomorrow at 5 PM.</Text>
-              </View>
-
-              <View style={{ marginBottom: 10 }}>
-                <Text style={{ fontWeight: "bold" }}>📢 New Update</Text>
-                <Text>The app has been updated with new features!</Text>
-              </View>
-
-              <View>
-                <Text style={{ fontWeight: "bold" }}>🎉 Special Offer</Text>
-                <Text>Get 20% off on your next booking!</Text>
-              </View>
-            </View>
+          <Modalize ref={modalizeRef} snapPoint={700} modalHeight={700}>
+            <Notifications />
           </Modalize>
 
           <Stack>
