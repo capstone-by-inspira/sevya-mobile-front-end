@@ -7,6 +7,7 @@ import {
   ScrollView,
   RefreshControl,
   ActivityIndicator,
+  StyleSheet,
 } from "react-native";
 
 import PatientList from "@/components/PatientList";
@@ -20,6 +21,8 @@ import Button from "@/components/ui/Button";
 import { createDocument } from "@/services/api";
 import { sendNotification } from "@/services/utils";
 import { Divider } from "react-native-paper";
+import Placeholder from "@/components/Placeholder";
+import SkeletonComponent from "@/components/SkeletonComponent";
 // import SevyaToast from '@/components/SevyaToast'
 
 export default function Home() {
@@ -35,6 +38,7 @@ export default function Home() {
   // console.log(context, 'web scoket >>>>>>>');
 
   const [refreshing, setRefreshing] = useState(false);
+  const [loadedContent, setLoadedContent] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -56,68 +60,100 @@ export default function Home() {
 
   //  await sendNotification('done', 'work completed', caregivers.firstName, token);
 
-
   // }
 
-  if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: '#F8FBFF', }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
+  useEffect(() => {
+    console.log(shifts.length);
+    if (patients.length > 0 && shifts.length > 0 && caregivers) {
+      console.log("use effect >>>>>>>>>");
+      setLoadedContent(true);
+    }
+  }, [patients, caregivers, shifts]);
+
+  // Handle loading state
+  // if (!isDataReady) {
+  //   return (
+  //     <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#F8FBFF" }}>
+  //       <ActivityIndicator size="large" />
+  //     </View>
+  //   );
+  // }
+
+  // if (loading) {
+  //   return (
+  //     <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: '#F8FBFF', }}>
+  //       <ActivityIndicator size="large" />
+  //     </View>
+  //   );
+  // }
 
   return (
     <>
       {/* <SevyaToast message={messages}/> */}
-
-      <View style={{ height: 150, backgroundColor: '#F8FBFF', }}>
+      <View style={{ height: 150, backgroundColor: "#F8FBFF" }}>
         <Image
           style={{ width: "auto", height: 150, borderRadius: 0, margin: 0 }}
           source={require("@/assets/heroImage.jpeg")}
         />
       </View>
-      <ScrollView style={{backgroundColor: '#F8FBFF'}}
+
+      <ScrollView
+        style={{ backgroundColor: "#F8FBFF" }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        <View
-          style={{
-            backgroundColor: '#F8FBFF',
-            display: "flex",
-            flexDirection: "column",
-            width: "100%",
-            flex: 1,
-            gap: 30,
-          }}
-        >
+        {!loadedContent ? (
+          <Placeholder />
+        ) : (
+          <View
+            style={{
+              backgroundColor: "#F8FBFF",
+              display: "flex",
+              flexDirection: "column",
+              width: "100%",
+              flex: 1,
+              gap: 30,
+            }}
+          >
             {/* <Button
               handleButtonClick={handleNotification}
               buttonText="Send Notification"
               disabled={false}
             /> */}
-          <View>
-            <TodaysShift
-              shifts={shifts}
-              caregiver={caregivers}
-              patients={patients}
-            />
-          </View>
 
-          <Divider />
+            <View>
+              <TodaysShift
+                shifts={shifts}
+                caregiver={caregivers}
+                patients={patients}
+              />
+            </View>
 
-          <View>
-            <PatientList patients={patients} shifts={shifts} caregivers={caregivers}></PatientList>
-          </View>
-          <Divider />
+            <Divider />
 
-          <View>
-            <EmergencyHelpScreen />
+            <View style={styles.patientList}>
+              <PatientList
+                patients={patients}
+                shifts={shifts}
+                caregivers={caregivers}
+              ></PatientList>
+            </View>
             <EmergencyCall caregiver={caregivers} token={token} />
           </View>
+        )}
+        <Divider />
+        <View style={styles.emergency}>
+          <EmergencyHelpScreen />
         </View>
       </ScrollView>
     </>
   );
 }
+const styles = StyleSheet.create({
+  patientList: {},
+  emergency: {
+    marginTop: 20,
+    padding: 10,
+  },
+});

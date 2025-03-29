@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
         padding: 16,
         marginVertical: 16,
         marginHorizontal: 16,
-        elevation: 2,
+        elevation: 9,
     },
     row: {
         flexDirection: 'row',

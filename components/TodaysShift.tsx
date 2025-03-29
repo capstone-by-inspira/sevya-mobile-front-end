@@ -5,7 +5,12 @@ import Button from "@/components/ui/Button";
 import { router } from "expo-router";
 import { getDocumentById, getDocumentByKeyValue } from "@/services/api";
 import { getSecureData } from "@/services/secureStorage";
-import { formatDateAndMonthOnly, formatDateOnly, formatShiftTimeOnly, formatTimeOnly } from "@/services/utils";
+import {
+  formatDateAndMonthOnly,
+  formatDateOnly,
+  formatShiftTimeOnly,
+  formatTimeOnly,
+} from "@/services/utils";
 import { AppContext } from "../components/AppContext";
 
 interface Shift {
@@ -25,7 +30,11 @@ interface TodayShiftProps {
   patients: any;
 }
 
-const TodaysShift: React.FC<TodayShiftProps> = ({ shifts, caregiver, patients }) => {
+const TodaysShift: React.FC<TodayShiftProps> = ({
+  shifts,
+  caregiver,
+  patients,
+}) => {
   const [shift, setShift] = useState<Shift | null>(null);
   const [noShift, setNoShift] = useState(true); // Tracks no shift today
 
@@ -65,9 +74,9 @@ const TodaysShift: React.FC<TodayShiftProps> = ({ shifts, caregiver, patients })
 
   // Filter and return today's shift
   const getTodaysShift = (shifts: any[]) => {
-    const today = new Date().toLocaleDateString("en-GB"); // Get today's date in DD/MM/YYYY format
+    const today = new Date().toLocaleDateString("en-CA"); // Get today's date in DD/MM/YYYY format
     const todaysShifts = shifts.filter((shift) => {
-      const shiftDate = new Date(shift.startTime).toLocaleDateString("en-GB");
+      const shiftDate = new Date(shift.startTime).toLocaleDateString("en-CA");
       return shiftDate === today;
     });
 
@@ -86,7 +95,8 @@ const TodaysShift: React.FC<TodayShiftProps> = ({ shifts, caregiver, patients })
   return (
     <View style={styles.container}>
       <Text style={styles.greeting}>
-        Hi, {caregiver.firstName}{(shift && shift.id) ? "! Ready for your shift?" : " "}
+        Hi, {caregiver.firstName}
+        {shift && shift.id ? "! Ready for your shift?" : " "}
       </Text>
 
       {noShift ? (
@@ -100,10 +110,10 @@ const TodaysShift: React.FC<TodayShiftProps> = ({ shifts, caregiver, patients })
                   router.push({
                     pathname: `/shiftTest/[id]`,
                     params: {
-                      id: shift.id,  // Pass the id as a query parameter
+                      id: shift.id, // Pass the id as a query parameter
                       shiftData: JSON.stringify(shifts),
-                      patientData: JSON.stringify(patients),  // Pass shift data as a query parameter
-                    }
+                      patientData: JSON.stringify(patients), // Pass shift data as a query parameter
+                    },
                   })
                 }
                 buttonText="Check in"
@@ -129,7 +139,8 @@ const TodaysShift: React.FC<TodayShiftProps> = ({ shifts, caregiver, patients })
                 <Icon source="information-outline" size={20} color="#2C3E50" />
                 <Text style={styles.cardText}>
                   {formatDateAndMonthOnly(shift?.startTime)},
-                  {formatShiftTimeOnly(shift?.startTime)} - {formatShiftTimeOnly(shift?.endTime)}
+                  {formatShiftTimeOnly(shift?.startTime)} -{" "}
+                  {formatShiftTimeOnly(shift?.endTime)}
                 </Text>
               </View>
             </View>
@@ -160,11 +171,11 @@ const styles = StyleSheet.create({
     color: "#000",
     marginBottom: 10,
     marginTop: 20,
-    fontFamily: 'Lato',
+    fontFamily: "Lato",
     fontSize: 18, // 16
-    fontStyle: 'normal',
-    fontWeight: '700',
-    textAlign: 'center',
+    fontStyle: "normal",
+    fontWeight: "700",
+    textAlign: "center",
   },
   boldText: {
     fontWeight: "bold",
@@ -187,11 +198,8 @@ const styles = StyleSheet.create({
     paddingLeft: 14,
     paddingRight: 14,
     paddingBottom: 6,
-    elevation: 2,
-    shadowColor: 'rgba(0, 0, 0, 0.14)', 
-    shadowOffset: { width: 0, height: 0 }, 
-    shadowRadius: 4, 
-    shadowOpacity: 0.14,
+    boxShadow:
+      "rgba(60, 64, 67, 0.3) 0px 2px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
   },
   cardContent: {
     marginBottom: 10,
@@ -205,9 +213,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#374151",
     marginLeft: 8,
-    fontFamily: 'Lato',
-    fontStyle: 'normal',
-    fontWeight: '400',
+    fontFamily: "Lato",
+    fontStyle: "normal",
+    fontWeight: "400",
     lineHeight: 24,
   },
   scheduleButton: {

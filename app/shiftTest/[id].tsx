@@ -8,6 +8,7 @@ import Button from "@/components/ui/Button";
 import { formatDateOnly, formatTimeOnly ,sendNotification} from "@/services/utils";
 import { AppContext } from "@/components/AppContext";
 import PatientUCard from "@/components/PatientUCard";
+import ConfettiCannon from 'react-native-confetti-cannon';
 
 interface Shift {
   id: number;
@@ -36,7 +37,6 @@ const ShiftCheckIn: React.FC = () => {
   const { id, shiftData, patientData } = useLocalSearchParams();
   const navigation = useNavigation();
 
-  
 
   const context = useContext(AppContext);
 
@@ -56,6 +56,7 @@ const ShiftCheckIn: React.FC = () => {
 
 
   const curr_shift = shifts.find((s:any) => s.id === id);
+  console.log(curr_shift, 'ttttt');
 
 
   const [shift, setShift] = useState<Shift | null>(curr_shift);
@@ -63,9 +64,10 @@ const ShiftCheckIn: React.FC = () => {
     null
   );
   const [shiftStartButtonDisabled, setShiftStartButtonDisabled] =
-    useState(true);
-  const [shiftEndButtonDisabled, setShiftEndButtonDisabled] = useState(true);
+    useState(curr_shift.checkIn);
+  const [shiftEndButtonDisabled, setShiftEndButtonDisabled] = useState(curr_shift.checkOut);
   const [progress, setProgress] = useState(0);
+  const [showConfetti, setShowConfetti] = useState(false);
 
 
 
@@ -192,7 +194,11 @@ const ShiftCheckIn: React.FC = () => {
         setShift(updateData);
         setProgress(1);
         fetchData();
+        setShowConfetti(true);
+
         await sendNotification('Shift ended', 'shift has been ended', caregivers.firstName, token);
+       
+        setTimeout(() => setShowConfetti(false), 10000);
 
         Alert.alert("Confirmation", "Shift ended successfully");
       } else {
@@ -213,6 +219,18 @@ const ShiftCheckIn: React.FC = () => {
 
   return (
     <View style={styles.container}>
+        {showConfetti && (
+            <View style={styles.confettiContainer}>
+        <ConfettiCannon 
+        count={100} 
+        origin={{ x: 50, y: 1000 }} // Confetti starts from a different position
+        autoStart={true} // Start immediately
+        explosionSpeed={2000} // Speed of explosion
+        fallSpeed={2000} // Speed of falling
+        fadeOut={true}
+        />
+        </View>
+      )}
       <Divider />
       <View style={styles.buttonContainer}>
         <Button
@@ -227,13 +245,13 @@ const ShiftCheckIn: React.FC = () => {
         />
       </View>
 
-      <Divider />
+
 
       <View style={styles.progressContainer}>
         <Text style={styles.percentageText}>{Math.round(progress * 100)}%</Text>
         <ProgressBar
           progress={progress}
-          color="lightgreen"
+          color="#10B981"
           style={styles.progressBar}
         />
       </View>
@@ -302,17 +320,19 @@ const styles = StyleSheet.create({
   },
   progressContainer: {
     alignItems: "center",
-    marginVertical: 10,
+    // marginVertical: 10,
+    marginBottom:10,
     padding: 10,
   },
   progressBar: {
     width: 350,
     height: 15,
-    borderRadius: 5,
+    borderRadius: 95,
     marginHorizontal: 20,
     marginTop: 20,
-    backgroundColor: "#25578E",
+    backgroundColor: "#25578E",  
   },
+
   percentageText: {
     position: "absolute",
     top: 5,
@@ -361,6 +381,16 @@ const styles = StyleSheet.create({
   patientList: {
     marginHorizontal: 20,
   },
+  confettiContainer:{
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 9999, // Ensures it's on top
+    elevation: 9999, // For Android compatibility
+    pointerEvents: "none", // Allows button presses to go through
+  }
 });
 
 export default ShiftCheckIn;

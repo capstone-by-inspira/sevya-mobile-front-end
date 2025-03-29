@@ -13,8 +13,10 @@ export default function Index() {
 
   useEffect(() => {
     const checkAuth = async () => {
+      console.log('to');
       try {
         const token = await getSecureData("token");
+        console.log(token, 'token >>>>>>>>>>>>>');
         if (token) {
           setIsAuth(!!token);
         } else {
