@@ -191,7 +191,7 @@ const ShiftCard: React.FC = () => {
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    paddingTop: 75,
+    paddingTop: 5,
     backgroundColor: '#F8FBFF',
   },
   container: {
