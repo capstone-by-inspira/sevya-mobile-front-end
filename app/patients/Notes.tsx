@@ -240,7 +240,7 @@ const Notes = () => {
   };
 
   const uploadImage = async (uri: string) => {
-    const mainLink = "http://3.227.60.242:8808/api/auth/upload";
+    const mainLink = "https://sevya-admin.site:8808/api/auth/upload";
     console.log("Uploading image...");
 
     try {
@@ -403,7 +403,6 @@ const Notes = () => {
           style={styles.textInput}
           value={note}
           onChangeText={setNote}
-
           multiline
         />
 
@@ -531,7 +530,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flex: 1,
-    height: 'auto',
+    height: "auto",
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 18,
@@ -623,17 +622,16 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     resizeMode: "cover",
   },
-  closeButtonFullImage:{
+  closeButtonFullImage: {
     position: "absolute",
     top: 50,
     right: 25,
     backgroundColor: "lightgray",
     borderRadius: 10,
     padding: 5,
-    zIndex:99,
+    zIndex: 99,
   },
   closeButton: {
-
     position: "absolute",
     top: -10,
     right: -10,
