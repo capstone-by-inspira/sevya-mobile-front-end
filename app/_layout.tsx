@@ -72,8 +72,6 @@ export default function RootLayout() {
                     <TouchableOpacity onPress={openModal}>
                       <Ionicons name="notifications-outline" size={24} color="#25578E" />
                     </TouchableOpacity>
-
-
                     <TouchableOpacity onPress={() => router.replace("/(tabs)/settings")}>
                       <Image
                         source={require('../assets/images/placeholder-image.jpg')}
