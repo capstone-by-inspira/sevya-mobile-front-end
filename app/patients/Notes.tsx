@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useContext } from "react";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
+import * as Speech from "expo-speech";
+import { Audio } from "expo-av";
 import axios from "axios";
 
 import {
@@ -63,6 +65,9 @@ const Notes = () => {
   const [translatedNotes, setTranslatedNotes] = useState<{
     [key: number]: string;
   }>({});
+  const [recording, setRecording] = useState<Audio.Recording | null>(null);
+  const [voiceUri, setVoiceUri] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const [voiceMessage, setVoiceMessage] = useState("");
 
@@ -274,6 +279,49 @@ const Notes = () => {
     setFullImageUri(imageUrl);
   };
 
+  const startRecording = async () => {
+    try {
+      const permission = await Audio.requestPermissionsAsync();
+      if (permission.status !== "granted") {
+        alert("Permission to access microphone is required!");
+        return;
+      }
+
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
+      setRecording(recording);
+    } catch (err) {
+      console.error("Failed to start recording", err);
+    }
+  };
+
+  const stopRecording = async () => {
+    if (!recording) return;
+    setRecording(null);
+    await recording.stopAndUnloadAsync();
+    const uri = recording.getURI();
+    setVoiceUri(uri);
+  };
+
+  const playVoiceMessage = async () => {
+    if (!voiceUri) return;
+    const { sound } = await Audio.Sound.createAsync(
+      { uri: voiceUri },
+      { shouldPlay: true }
+    );
+    setIsPlaying(true);
+    sound.setOnPlaybackStatusUpdate((status) => {
+      if (!status.isLoaded || !status.isPlaying) {
+        setIsPlaying(false);
+      }
+    });
+  };
+
   // Inside your render method or functional component
 
   return (
@@ -403,7 +451,6 @@ const Notes = () => {
           style={styles.textInput}
           value={note}
           onChangeText={setNote}
-
           multiline
         />
 
@@ -413,6 +460,34 @@ const Notes = () => {
         >
           <Icon name="camera" style={styles.vIcon} />
         </TouchableOpacity>
+
+        {/* Voice message */}
+        <View style={styles.voiceContainer}>
+          <TouchableOpacity
+            onPress={recording ? stopRecording : startRecording}
+            style={styles.voiceButton}
+          >
+            <Icon
+              style={styles.vIcon}
+              name={recording ? "stop" : "microphone"}
+              size={24}
+              // color="white"
+            />
+          </TouchableOpacity>
+          {voiceUri && (
+            <TouchableOpacity
+              onPress={playVoiceMessage}
+              style={styles.playButton}
+            >
+              <Icon
+                style={styles.vIcon}
+                name={isPlaying ? "pause" : "play"}
+                size={24}
+                // color="white"
+              />
+            </TouchableOpacity>
+          )}
+        </View>
 
         <TouchableOpacity style={styles.sendButton} onPress={addNote}>
           <Text style={styles.sendText}>Send</Text>
@@ -531,7 +606,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flex: 1,
-    height: 'auto',
+    height: "auto",
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 18,
@@ -623,17 +698,16 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     resizeMode: "cover",
   },
-  closeButtonFullImage:{
+  closeButtonFullImage: {
     position: "absolute",
     top: 50,
     right: 25,
     backgroundColor: "lightgray",
     borderRadius: 10,
     padding: 5,
-    zIndex:99,
+    zIndex: 99,
   },
   closeButton: {
-
     position: "absolute",
     top: -10,
     right: -10,
@@ -666,6 +740,34 @@ const styles = StyleSheet.create({
 
   modalTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 20 },
   modalOption: { fontSize: 16, marginVertical: 10, textAlign: "center" },
+
+  voiceContainer: {
+    // backgroundColor: "#f8f9fa",
+    // padding: 20,
+    borderRadius: 10,
+    // width: 300,
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    // boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+    margin: "auto",
+  },
+
+  playButton: {
+    // backgroundColor: "#4caf50",
+    // color: "blue",
+    // border: "none",
+    // padding: 20,
+    fontSize: 16,
+    borderRadius: 5,
+    cursor: "pointer",
+    // transition: "background-color 0.3s ease",
+  },
+
+  playButtonHover: {
+    backgroundColor: "#45a049",
+  },
 });
 
 export default Notes;
