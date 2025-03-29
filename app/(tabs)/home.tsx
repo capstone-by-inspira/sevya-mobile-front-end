@@ -38,7 +38,7 @@ export default function Home() {
   // console.log(context, 'web scoket >>>>>>>');
 
   const [refreshing, setRefreshing] = useState(false);
-  const [loadedContent, setLoadedContent] = useState(false);
+  const [loadedContent, setLoadedContent] = useState(true);
 
   useEffect(() => {
     fetchData();
@@ -64,9 +64,14 @@ export default function Home() {
 
   useEffect(() => {
     console.log(shifts.length);
-    if (patients.length > 0 && shifts.length > 0 && caregivers) {
-      console.log("use effect >>>>>>>>>");
+    if (
+      Array.isArray(patients) && patients.length &&
+      caregivers && Object.keys(caregivers).length &&
+      Array.isArray(shifts) && shifts.length
+    ) {      console.log("use effect >>>>>>>>>");
       setLoadedContent(true);
+    }else{
+      setLoadedContent(false);
     }
   }, [patients, caregivers, shifts]);
 
@@ -139,7 +144,7 @@ export default function Home() {
                 caregivers={caregivers}
               ></PatientList>
             </View>
-            <EmergencyCall caregiver={caregivers} token={token} />
+            <EmergencyCall caregiver={caregivers} token={token}  patients ={patients}/>
           </View>
         )}
         <Divider />

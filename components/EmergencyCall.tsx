@@ -3,7 +3,7 @@ import { View, Text, Alert, StyleSheet, Linking } from "react-native";
 import { Accelerometer } from "expo-sensors";
 import { getDocumentById, getDocuments, updateDocument , createDocument} from "@/services/api";
 
-const EmergencyCall = ({caregiver, token}) => {
+const EmergencyCall = ({caregiver, token, patients}) => {
   const phoneNumber = "7789"; // Replace with actual emergency contact
   const isAlertVisibleRef = useRef(false); // Use a ref to track alert visibility
   const lastShakeTimeRef = useRef(0); // Use a ref to track the last shake time
