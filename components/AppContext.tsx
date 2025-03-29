@@ -2,6 +2,11 @@ import React, { createContext, useState, useEffect, ReactNode } from "react";
 import { getSecureData } from "../services/secureStorage";
 import { View, ActivityIndicator } from "react-native";
 import { getDocuments, getDocumentById, getDocumentByKeyValue } from "@/services/api";
+import { WS_URL } from "@/services/api";
+import {jwtDecode} from "jwt-decode";
+
+import { useNavigation, useRouter } from "expo-router";
+
 
 interface AppContextType {
   isAuth: boolean;
@@ -32,14 +37,15 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [messages, setMessages] = useState<any[]>([]);
   const [ws, setWs] = useState<WebSocket | null>(null);
+  const router = useRouter();
 
   // Initialize WebSocket connection
   useEffect(() => {
     if (isAuth) {
-      const websocket = new WebSocket("ws://3.227.60.242:8808");
+      const websocket = new WebSocket(WS_URL);
 
       websocket.onopen = () => {
-        console.log("WebSocket connected");
+        console.log("WebSocket connected mobile");
       };
 
       websocket.onmessage = async (event) => {
@@ -86,6 +92,15 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       setLoading(true);
       try {
         const token = await getSecureData("token");
+        if (isTokenExpired(token)) {
+         router.replace('/login');
+          console.log("Token expired, redirecting to login...");
+          // Logout user, refresh token, or redirect to login
+        } else {
+      //    console.log("Token is valid, proceed...");
+        }
+        
+        console.log(token,'eeeeee');
         const userString = await getSecureData("user");
 
         if (token) {
@@ -111,6 +126,21 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     fetchUserAndData();
   }, []);
 
+  const isTokenExpired = (token: string | null): boolean => {
+    if (!token) return true; // Treat missing token as expired
+  
+    try {
+      const decoded: any = jwtDecode(token); // Decode JWT
+      if (!decoded.exp) return true; // If no expiration, treat as expired
+  
+      const currentTime = Date.now() / 1000; // Convert to seconds
+      return decoded.exp < currentTime; // Check if expired
+    } catch (error) {
+      console.error("Invalid token", error);
+      return true; // Treat invalid token as expired
+    }
+  };
+
   useEffect(() => {
     if (isAuth && userData) {
       fetchData();
@@ -122,6 +152,8 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     await fetchPatients();
     await fetchShifts();
   };
+
+
 
   const fetchCaregiver = async () => {
     if (!userData || !userData.uid) return; // Ensure userData is available
@@ -139,6 +171,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     if (!token) return; // Ensure token is available
     try {
       const result = await getDocuments("patients", token);
+      console.log("fetching>>>>>>>>>>>>>");
       if (result.success && userData?.uid) {
         const patientsWithCaregiver = getPatientsForCaregiver(result.data, userData.uid);
         setPatients(patientsWithCaregiver);
@@ -147,6 +180,8 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       console.error("Error fetching patients:", error);
     }
   };
+
+
 
   const getPatientsForCaregiver = (patients: any[], caregiverID: string): any[] => {
     return patients.filter((patient) =>
@@ -168,6 +203,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       setShifts([]);
     }
   };
+
 
   return (
     <AppContext.Provider

@@ -1,15 +1,26 @@
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, ViewStyle } from 'react-native';
 import React from 'react';
 
 interface ButtonProps {
-  handleButtonClick: () => void; 
-  buttonText: string; 
-  disabled?: boolean; 
+  handleButtonClick: () => void;
+  buttonText: string;
+  disabled?: boolean;
+  buttonColor?: string;
+  style?: ViewStyle;
 }
 
-const Button: React.FC<ButtonProps> = ({ handleButtonClick, buttonText, disabled }) => {
+const Button: React.FC<ButtonProps> = ({ handleButtonClick, buttonText, disabled, buttonColor, style }) => {
   return (
-    <TouchableOpacity onPress={handleButtonClick} style={[styles.button, disabled && styles.disabledButton]} disabled={disabled}>
+    <TouchableOpacity 
+      onPress={handleButtonClick} 
+      style={[
+        styles.button, 
+        { backgroundColor: buttonColor || '#25578E', opacity: disabled ? 0.5 : 1 }, // Adjust opacity
+        style
+      ]} 
+      disabled={disabled}
+      activeOpacity={disabled ? 1 : 0.7} // Prevent touch effect if disabled
+    >
       <Text style={styles.buttonText}>{buttonText}</Text>
     </TouchableOpacity>
   );
@@ -19,9 +30,8 @@ export default Button;
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: '#25578E',
-    paddingHorizontal: 20,
-    paddingVertical: 13,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
     margin: 20,
     width: 'auto',
     alignItems: 'center',
@@ -30,8 +40,5 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
-  },
-  disabledButton: {
-    backgroundColor: '#D3D3D3', // Gray color when button is disabled
   },
 });

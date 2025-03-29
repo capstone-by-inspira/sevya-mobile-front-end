@@ -34,13 +34,14 @@ const EmergencyHelpScreen: React.FC = () => {
 };
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "transparent",
+    // flex: 1,
+    // justifyContent: "center",
+    // alignItems: "center",
+    // backgroundColor: "transparent",
     
   },
   card: {
+
     backgroundColor: "transparent",
     paddingHorizontal: 10,
     borderRadius: 8,

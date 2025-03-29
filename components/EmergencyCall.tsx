@@ -59,6 +59,7 @@ const EmergencyCall = ({caregiver, token}) => {
   };
 
  const createEmergencyDocument = async () => {
+  console.log(caregiver.id, '>>>>>>>>>>>>>>>>>>>>>>> 9999999');
   const data = {
     name: "Emergency Call",
     timestamp:new Date(),

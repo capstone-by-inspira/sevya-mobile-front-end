@@ -1,6 +1,11 @@
 import axios from "axios";
 
-export const API_URL = "http://3.227.60.242:8808/api";
+export const API_URL = "https://sevya-admin.site:8808/api";
+// export const API_URL = "http://3.227.60.242:8808/api";
+export const WS_URL = "wss://sevya-admin.site:8808"
+
+// export const API_URL = "https://sevya-admin.site:8808/api";
+// export const WS_URL = "ws://localhost:8800"
 
 
 export const translatePatientNotes = async (patientData) => {
@@ -66,3 +71,36 @@ export const translatePatientNotes = async (patientData) => {
   // Delete a document by ID
   export const deleteDocument = (collection, id, token) =>
     apiRequest("DELETE", `${collection}/${id}`, {}, token);
+
+
+  export const uploadImage = async (file) => {
+    const fileData = {
+      uri: file.uri,
+      type: file.type || "image/jpeg", // Ensure you specify the MIME type
+      name: file.name || `image_${Date.now()}.jpg`, // Ensure the file has a name
+  };
+    const formData = new FormData();
+    // formData.append("image", fileData); // Append the file with a name
+    formData.append("image", file, file.name);  // Append the file with a name
+
+    console.log("File type:", file); // This will log the MIME type of the file (e.g., image/jpeg, image/png)
+
+    try {
+      const response = await axios.post(`${API_URL}/auth/upload`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data", // This tells axios to set the correct Content-Type for file uploads
+        },
+      });
+  
+      if (response.status === 200) {
+        const imageUrl = response.data.imageUrl; // Assuming the response returns { imageUrl }
+        return { success: true, imageUrl };
+      } else {
+        throw new Error(response.data.error || "Upload failed!");
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      throw error;
+    }
+  };
+  

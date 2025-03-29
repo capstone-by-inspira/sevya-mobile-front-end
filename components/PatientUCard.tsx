@@ -20,8 +20,7 @@ const PatientUCard: React.FC<PatientCardProps> = ({
   return (
     <View style={styles.card}>
       <Image
-        source={{uri:image}
-}
+        source={{ uri: image }}
         style={styles.image}
       />
       <Text style={styles.name}>{name}</Text>
@@ -41,13 +40,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 16,
     marginLeft: 25,
+    marginTop:10,
     marginRight: 0,
+    marginBottom: 20,
     alignItems: "center",
     width: 180,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
+       boxShadow:
+      "rgba(60, 64, 67, 0.3) 0px 2px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
   },
   image: {
     width: 60,

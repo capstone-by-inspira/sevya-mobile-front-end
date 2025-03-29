@@ -7,6 +7,7 @@ import {
   ScrollView,
   RefreshControl,
   ActivityIndicator,
+  StyleSheet,
 } from "react-native";
 
 import PatientList from "@/components/PatientList";
@@ -15,22 +16,29 @@ import EmergencyHelpScreen from "@/components/EmergencyComponent";
 import EmergencyCall from "@/components/EmergencyCall";
 import { AppContext } from "@/components/AppContext";
 import WebSocketClient from "@/components/WebSocketClient";
-import * as Notifications from 'expo-notifications';
-import Button from '@/components/ui/Button'
+import * as Notifications from "expo-notifications";
+import Button from "@/components/ui/Button";
+import { createDocument } from "@/services/api";
+import { sendNotification } from "@/services/utils";
+import { Divider } from "react-native-paper";
+import Placeholder from "@/components/Placeholder";
+import SkeletonComponent from "@/components/SkeletonComponent";
+// import SevyaToast from '@/components/SevyaToast'
 
 export default function Home() {
- 
-  
-
   const context = useContext(AppContext);
 
   if (!context) {
     return <Text>Error: AppContext n found</Text>;
   }
 
-  const { shifts, fetchData, caregivers, patients, loading, token } = context;
+  const { shifts, fetchData, caregivers, patients, loading, token, messages } =
+    context;
+
+  // console.log(context, 'web scoket >>>>>>>');
 
   const [refreshing, setRefreshing] = useState(false);
+  const [loadedContent, setLoadedContent] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -42,60 +50,110 @@ export default function Home() {
     setRefreshing(false);
   }, [fetchData]);
 
- 
- // console.log(patients, 'ncjnajncskcn');
+  // const handleNotification = async () =>{
+  //   console.log('handle notification >>>>>>>>>');
+  //   const data = {
+  //     title: 'New Message',
+  //     body: 'You have a new message',
+  //     createdBy:caregivers.firstName
+  //   }
 
-  if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
+  //  await sendNotification('done', 'work completed', caregivers.firstName, token);
 
+  // }
+
+  useEffect(() => {
+    console.log(shifts.length);
+    if (patients.length > 0 && shifts.length > 0 && caregivers) {
+      console.log("use effect >>>>>>>>>");
+      setLoadedContent(true);
+    }
+  }, [patients, caregivers, shifts]);
+
+  // Handle loading state
+  // if (!isDataReady) {
+  //   return (
+  //     <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#F8FBFF" }}>
+  //       <ActivityIndicator size="large" />
+  //     </View>
+  //   );
+  // }
+
+  // if (loading) {
+  //   return (
+  //     <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: '#F8FBFF', }}>
+  //       <ActivityIndicator size="large" />
+  //     </View>
+  //   );
+  // }
 
   return (
     <>
-      <View style={{ height: 150 }}>
+      {/* <SevyaToast message={messages}/> */}
+      <View style={{ height: 150, backgroundColor: "#F8FBFF" }}>
         <Image
           style={{ width: "auto", height: 150, borderRadius: 0, margin: 0 }}
-          source={{
-            uri: "https://images.unsplash.com/photo-1584515933487-779824d29309",
-          }}
+          source={require("@/assets/heroImage.jpeg")}
         />
       </View>
+
       <ScrollView
+        style={{ backgroundColor: "#F8FBFF" }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        <View
-          style={{
-            backgroundColor: "#F0F6FF",
-            display: "flex",
-            flexDirection: "column",
-            width: "100%",
-            flex: 1,
-            gap: 50,
-          }}
-        >
+        {!loadedContent ? (
+          <Placeholder />
+        ) : (
+          <View
+            style={{
+              backgroundColor: "#F8FBFF",
+              display: "flex",
+              flexDirection: "column",
+              width: "100%",
+              flex: 1,
+              gap: 30,
+            }}
+          >
+            {/* <Button
+              handleButtonClick={handleNotification}
+              buttonText="Send Notification"
+              disabled={false}
+            /> */}
 
-          <View>
-            <TodaysShift shifts  = {shifts} caregiver={caregivers}/>
-          </View>
+            <View>
+              <TodaysShift
+                shifts={shifts}
+                caregiver={caregivers}
+                patients={patients}
+              />
+            </View>
 
-          <View>
-            <PatientList patients={patients}></PatientList>
-          </View>
+            <Divider />
 
-          <View>
-            <EmergencyHelpScreen />
-            <EmergencyCall caregiver={caregivers} token={token}/>
+            <View style={styles.patientList}>
+              <PatientList
+                patients={patients}
+                shifts={shifts}
+                caregivers={caregivers}
+              ></PatientList>
+            </View>
+            <EmergencyCall caregiver={caregivers} token={token} />
           </View>
-          
+        )}
+        <Divider />
+        <View style={styles.emergency}>
+          <EmergencyHelpScreen />
         </View>
-
       </ScrollView>
     </>
   );
 }
+const styles = StyleSheet.create({
+  patientList: {},
+  emergency: {
+    marginTop: 20,
+    padding: 10,
+  },
+});
