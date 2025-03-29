@@ -245,7 +245,7 @@ const Notes = () => {
   };
 
   const uploadImage = async (uri: string) => {
-    const mainLink = "http://3.227.60.242:8808/api/auth/upload";
+    const mainLink = "https://sevya-admin.site:8808/api/auth/upload";
     console.log("Uploading image...");
 
     try {
