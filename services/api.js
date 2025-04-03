@@ -2,10 +2,10 @@ import axios from "axios";
 
 //export const API_URL = "https://sevya-admin.site:8808/api";
 // export const API_URL = "http://3.227.60.242:8808/api";
-//export const WS_URL = "wss://sevya-admin.site:8808"
+export const WS_URL = "wss://sevya-admin.site:8808"
 
  export const API_URL = "https://sevya-admin.site:8808/api";
- export const WS_URL = "ws://localhost:8800"
+ // export const WS_URL = "ws://localhost:8800"
 
 
 export const translatePatientNotes = async (patientData) => {
