@@ -19,6 +19,10 @@ import { Lato_400Regular, Lato_700Bold } from "@expo-google-fonts/lato";
 import 'react-native-gesture-handler';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Notifications from "@/components/Notifications";
+import Welcome from "./screens/Welcome";
+import 'react-native-gesture-handler';
+import 'react-native-reanimated';
+
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -83,6 +87,8 @@ export default function RootLayout() {
               }}
             />
             <Stack.Screen name="+not-found" />
+            <Stack.Screen name="Welcome" options={{ headerShown: false }} />
+
             {/* <Stack.Screen name="CarePlan"/> */}
           </Stack>
           <StatusBar style="auto" />
