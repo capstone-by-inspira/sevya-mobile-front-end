@@ -5,7 +5,13 @@ import { getSecureData } from './secureStorage';
 
 
 
-
+export const capitalize = (word)  => {
+    if (!word) return "";
+    return word
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+  };
 
 export const formatTimestamp = (timestamp, timeZone = "UTC") => {
     const date = new Date(timestamp);

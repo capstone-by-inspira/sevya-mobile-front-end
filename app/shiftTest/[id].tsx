@@ -33,8 +33,11 @@ interface Patient {
   image?: any;
 }
 
+
 const ShiftCheckIn: React.FC = () => {
   const { id, shiftData, patientData } = useLocalSearchParams();
+  console.log(patientData, 'ss');
+
   const navigation = useNavigation();
 
 
@@ -74,9 +77,13 @@ const ShiftCheckIn: React.FC = () => {
   // Find the shift and associated patient based on the ID
   useEffect(() => {
     const currentShift = shifts.find((s) => s.id === id);
+
     const associatedPatientData = patients.find(
       (p) => p.id === currentShift?.patientId
     );
+    console.log(currentShift?.patientId, 'cccurrent')
+    console.log('All patient IDs:', patients.map(p => p.id));
+
 
     if (currentShift) {
       setShift(currentShift);

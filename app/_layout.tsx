@@ -9,7 +9,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useRef } from "react";
 import "react-native-reanimated";
-import { View, Image, TouchableOpacity, Text } from "react-native";
+import { View, Image, TouchableOpacity, Text, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Modalize } from 'react-native-modalize';
 import { useColorScheme } from "@/hooks/useColorScheme";
@@ -19,6 +19,10 @@ import { Lato_400Regular, Lato_700Bold } from "@expo-google-fonts/lato";
 import 'react-native-gesture-handler';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Notifications from "@/components/Notifications";
+import Welcome from "./screens/Welcome";
+import 'react-native-gesture-handler';
+import 'react-native-reanimated';
+
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -62,10 +66,12 @@ export default function RootLayout() {
                 headerShown: true,
                 title: "",
                 headerLeft: () => (
-                  <Image
-                    source={require("@/assets/Sevya-logo.png")}
-                    style={{ width: 40, height: 40, resizeMode: "contain" }}
-                  />
+                  <Pressable onPress={() => router.replace("/(tabs)/home")}>
+                    <Image
+                      source={require("@/assets/Sevya-logo.png")}
+                      style={{ width: 40, height: 40, resizeMode: "contain" }}
+                    />
+                  </Pressable>
                 ),
                 headerRight: () => (
                   <View style={{ flexDirection: "row", alignItems: "center", gap: 15, marginRight: 2 }}>
@@ -75,7 +81,7 @@ export default function RootLayout() {
                     <TouchableOpacity onPress={() => router.replace("/(tabs)/settings")}>
                       <Image
                         source={require('../assets/images/placeholder-image.jpg')}
-                        style={{ width: 24, height: 24, borderRadius: 16 }}
+                        style={{ width: 40, height: 40, borderRadius: '50%' }}
                       />
                     </TouchableOpacity>
                   </View>
@@ -83,6 +89,8 @@ export default function RootLayout() {
               }}
             />
             <Stack.Screen name="+not-found" />
+            <Stack.Screen name="Welcome" options={{ headerShown: false }} />
+
             {/* <Stack.Screen name="CarePlan"/> */}
           </Stack>
           <StatusBar style="auto" />

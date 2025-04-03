@@ -5,6 +5,9 @@ import { Redirect } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { getSecureData } from "../services/secureStorage";
 import EmergencyCall from "@/components/EmergencyCall";
+import 'react-native-gesture-handler';
+import 'react-native-reanimated';
+
 
 SplashScreen.preventAutoHideAsync();
 
