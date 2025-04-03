@@ -1,4 +1,4 @@
-import { View, Text , Image, StyleSheet } from 'react-native'
+import { View, Text , Image, StyleSheet, ImageBackground} from 'react-native'
 import { useRouter, useNavigation } from 'expo-router';
 import Button from "@/components/ui/Button";
 import { useLayoutEffect } from 'react';
@@ -23,7 +23,12 @@ const WelcomeFourth = () => {
         source={require("../../assets/images/Image2.png")}
         style={stylesImage.image}
       />
-      <View style={stylesMain.Background}>     
+      <ImageBackground
+            source={require('../../assets/images/welcomeBack.png')} 
+            style={stylesMain.Background}
+            >
+        <View style={stylesMain.Background1}> 
+
         <Text style={stylesContainerText.ContainerText}>Everything so you can focus on your best talent: taking care of those in need.</Text>
         <Image
             style={stylesContainerText.ContainerImage}
@@ -36,7 +41,8 @@ const WelcomeFourth = () => {
           buttonColor='#10B981'
           style={{ width: 227 }} 
         />  
-      </View>
+        </View>
+      </ImageBackground>
     </View>
   )
 }
@@ -44,7 +50,7 @@ const WelcomeFourth = () => {
 const stylesImage = StyleSheet.create({
     image: {
       width: "100%", 
-      maxHeight: 200,
+      //maxHeight: 200,
       resizeMode: "cover", 
       padding: 0,
       margin: 0,
@@ -52,18 +58,25 @@ const stylesImage = StyleSheet.create({
   });
   
   const stylesMain = StyleSheet.create({
+    mainContainer:{
+
+    },
     Background: {
-      backgroundColor: '#18385B',  
       fontFamily: 'Lato-Regular',
       fontSize: 16,
-      fontWeight: '400', 
-      display: 'flex',
-      flexDirection: "column",
-      gap: 20,
+      fontWeight: '400',    
       alignItems: 'center',
-      paddingBottom: 250,
+      marginBlockStart: -43, 
+      //position: 'absolute',
+      //top:503,
+      width: '100%',
       height:'100%',
+      resizeMode:"cover",
     },
+    Background1: {
+      marginBottom: 20, 
+      alignItems: 'center',
+    }
   });
   
   const stylesContainerText = StyleSheet.create({
@@ -75,7 +88,8 @@ const stylesImage = StyleSheet.create({
       color: 'white',
       lineHeight: 28,
       padding: 46,
-      paddingBottom: 10,
+      paddingBottom: 40,
+      paddingTop: 110,
     },
     ContainerText2: {
       fontFamily: 'Radley',
@@ -83,7 +97,8 @@ const stylesImage = StyleSheet.create({
       fontWeight: '400',
       textAlign: 'center',
       color: '#fff',
-      paddingBottom: 10,
+      paddingBottom: 30,
+      paddingTop: 25,
       fontStyle: 'normal',
       lineHeight: 22,
       },

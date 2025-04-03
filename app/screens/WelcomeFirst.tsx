@@ -33,13 +33,18 @@ const WelcomeFirst = () => {
         source={require("../../assets/images/Image1.png")}
         style={stylesImage.image}
       />
-      <View style={stylesMain.Background}>
+      <ImageBackground
+            source={require('../../assets/images/welcomeBack.png')} 
+            style={stylesMain.Background}
+            >
+        <View style={stylesMain.Background1}>
+      
 
-          <Text style={stylesH1.TextH1}>Welcome, Adrian!</Text>
+          <Text style={stylesH1.TextH1}>Welcome, Adrian!</Text> 
           <View>
 
             <ImageBackground
-            source={require('../../assets/images/LogoBack.png')} // Replace with your image path
+            source={require('../../assets/images/LogoBack.png')} 
             style={stylesBack.backgroundImage}
             >
               <View style={stylesContainer.Container}>
@@ -57,7 +62,9 @@ const WelcomeFirst = () => {
 
             </ImageBackground>
           </View>
-      </View>
+        </View>
+      </ImageBackground>
+      
     </View>
   )
 }
@@ -65,7 +72,6 @@ const WelcomeFirst = () => {
 const stylesImage = StyleSheet.create({
     image: {
       width: "100%", 
-      // maxHeight: 200,
       resizeMode: "cover", 
       padding: 0,
       margin: 0,
@@ -77,13 +83,18 @@ const stylesImage = StyleSheet.create({
 
     },
     Background: {
-      backgroundColor: '#18385B',  
       fontFamily: 'Lato-Regular',
       fontSize: 16,
       fontWeight: '400',    
-      height:'100%',
-
+      alignItems: 'center',
+      marginBlockStart: -23, 
+      position: 'absolute',
+      top:303,
+      width: '100%',
     },
+    Background1: {
+      marginBottom: 20, 
+    }
   });
   
   const stylesH1 = StyleSheet.create({
@@ -92,9 +103,9 @@ const stylesImage = StyleSheet.create({
       fontFamily: 'Radley',
       fontSize: 32,
       fontWeight: '400', 
-      paddingTop: 40,
+      paddingTop: 60,
       paddingBottom: 30,
-      textAlign: 'center',
+      textAlign: 'center',     
     },
   });
   

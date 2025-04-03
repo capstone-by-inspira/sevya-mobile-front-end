@@ -23,7 +23,11 @@ const WelcomeThird = () => {
         source={require("../../assets/images/Image1.png")}
         style={stylesImage.image}
       />
-      <View style={stylesMain.Background}>
+      <ImageBackground
+            source={require('../../assets/images/welcomeBack.png')} 
+            style={stylesMain.Background}
+            >
+        <View style={stylesMain.Background1}>
 
           <Text style={stylesH1.TextH1}>Welcome, Adrian!</Text>
           <View>
@@ -45,9 +49,11 @@ const WelcomeThird = () => {
                 <Text style={styles.skipLink}>Skip</Text>
               </TouchableOpacity>
 
-            </ImageBackground>
+              </ImageBackground>
           </View>
-      </View>
+        </View>
+      </ImageBackground>
+      
     </View>
   )
 }
@@ -63,13 +69,22 @@ const stylesImage = StyleSheet.create({
   });
   
   const stylesMain = StyleSheet.create({
+    mainContainer:{
+
+    },
     Background: {
-      backgroundColor: '#18385B',  
       fontFamily: 'Lato-Regular',
       fontSize: 16,
-      fontWeight: '400', 
-      height:'100%',
+      fontWeight: '400',    
+      alignItems: 'center',
+      marginBlockStart: -23, 
+      position: 'absolute',
+      top:303,
+      width: '100%',
     },
+    Background1: {
+      marginBottom: 20, 
+    }
   });
   
   const stylesH1 = StyleSheet.create({
@@ -78,7 +93,7 @@ const stylesImage = StyleSheet.create({
       fontFamily: 'Radley',
       fontSize: 32,
       fontWeight: '400', 
-      paddingTop: 40,
+      paddingTop: 60,
       paddingBottom: 30,
       textAlign: 'center',
     },
