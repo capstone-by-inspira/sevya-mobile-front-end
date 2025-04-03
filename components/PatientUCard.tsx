@@ -4,6 +4,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 
 interface PatientCardProps {
   name: string;
+  lname: string;
   gender: string;
   condition: string;
   image: any;
@@ -12,6 +13,7 @@ interface PatientCardProps {
 
 const PatientUCard: React.FC<PatientCardProps> = ({
   name,
+  lname,
   gender,
   condition,
   image,
@@ -23,7 +25,8 @@ const PatientUCard: React.FC<PatientCardProps> = ({
         source={{ uri: image }}
         style={styles.image}
       />
-      <Text style={styles.name}>{name}</Text>
+      
+      <Text style={styles.name}>{name} {lname}</Text>
       <Text style={styles.gender}>{gender}</Text>
       <Text style={styles.condition}>{condition}</Text>
       <TouchableOpacity style={styles.button} onPress={onPress}>

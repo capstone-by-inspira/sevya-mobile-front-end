@@ -17,7 +17,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder, value, onChangeText 
         value={value}
         onChangeText={onChangeText}
       />
-      <Feather name="search" size={20} color="gray" style={styles.icon} />
+      <Feather name="search" size={20} color="#25578E" style={styles.icon} />
     </View>
   );
 };
@@ -27,8 +27,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
+    borderColor: "#E8E8E8",
+    borderRadius: 24,
     paddingHorizontal: 10,
     marginBottom: 10,
   },
