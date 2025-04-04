@@ -12,6 +12,8 @@ import {
   formatTimeOnly,
 } from "@/services/utils";
 import { AppContext } from "../components/AppContext";
+import { sendNotification , capitalize} from "@/services/utils";
+import DashboardCard from "./DashboardCard";
 
 interface Shift {
   id: number;
@@ -22,20 +24,22 @@ interface Shift {
   adminId: number;
   status: string;
   location: string;
-  checkIn:boolean;
-  checkOut:boolean;
+  checkIn: boolean;
+  checkOut: boolean;
 }
 
 interface TodayShiftProps {
   shifts: any;
   caregiver: any;
   patients: any;
+  token: any;
 }
 
 const TodaysShift: React.FC<TodayShiftProps> = ({
   shifts,
   caregiver,
   patients,
+  token,
 }) => {
   const [shift, setShift] = useState<Shift | null>(null);
   const [noShift, setNoShift] = useState(true); // Tracks no shift today
@@ -94,62 +98,115 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
     return latestShift;
   };
 
+  const reqTodayShift = async () => {
+    const today = new Date().toLocaleDateString("en-CA");
+
+    await sendNotification(
+      "Shift Request",
+      `Shift has been requested for ${today}`,
+      caregiver.firstName,
+      token
+    );
+    Alert.alert("Shift Requested", `Shift has been requested for ${today}`);
+
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.greeting}>
-        Hi, {caregiver.firstName}
+        Hi, {capitalize(caregiver.firstName)}
         {console.log(shift)}
         {shift && shift.id ? "! Ready for your shift?" : " "}
       </Text>
 
-      {noShift ? (
-        <Text style={styles.noShiftText}>No shift for today</Text>
-      ) : (
-        <>
-        <View style={{ flexDirection: "row", justifyContent: "center" }}>
-  {shift && shift.id ? (
-    // Check if checkIn and checkout are both true
-    shift?.checkIn && shift?.checkOut ? (
-      <Button
-        handleButtonClick={() =>
-          router.push({
-            pathname: `/shiftTest/[id]`,
-            params: {
-              id: shift.id, // Pass the id as a query parameter
-              shiftData: JSON.stringify(shifts),
-              patientData: JSON.stringify(patients), // Pass shift data as a query parameter
-            },
-          })
-        }
-        buttonText="Shift completed"
-        style={{ width: 200 }}
-      />
-    ) : (
-      <Button
-        handleButtonClick={() =>
-          router.push({
-            pathname: `/shiftTest/[id]`,
-            params: {
-              id: shift.id, // Pass the id as a query parameter
-              shiftData: JSON.stringify(shifts),
-              patientData: JSON.stringify(patients), // Pass shift data as a query parameter
-            },
-          })
-        }
-        buttonText="Check in"
-        style={{ width: 95 }}
-      />
-    )
-  ) : (
-    <Text>No shift details available</Text>
-  )}
-</View>
+      <View style={styles.analytics}>
+        <DashboardCard title={"Time Off"} data={1} />
+        <DashboardCard title={"Shift Covered"} data={shifts.length} />
+      </View>
 
+      {noShift ? (
+        <View style={styles.noShiftContainer}>
           <Divider />
-          <Text style={styles.shiftTitle}>
-            <Text style={styles.boldText}>Today's Shift: </Text>{" "}
-            {getCurrentDateDDMMYYYY()}
-          </Text>
+          <View style={styles.buttonShift}>
+            <Text style={styles.shiftTitle}>
+              <Text style={styles.boldText}>Today's Date: </Text>{" "}
+              {getCurrentDateDDMMYYYY()}
+            </Text>
+
+            <Button
+              handleButtonClick={reqTodayShift}
+              buttonText="Request shift"
+              style={{ width: "auto" }}
+            />
+          </View>
+
+          <Card style={styles.card}>
+            <View style={styles.cardContentNoShift}>
+              <View style={styles.row}>
+                <Icon source="information-outline" size={20} color="#2C3E50" />
+                <Text style={styles.cardText}>No shift for today</Text>
+              </View>
+            </View>
+            <Divider />
+            <TouchableOpacity
+              style={styles.scheduleButton}
+              onPress={() => router.replace("/(tabs)/shifts")}
+            >
+              <Icon source="calendar" size={18} color="#1E3A8A" />
+              <Text style={styles.scheduleText}>View Future Shifts</Text>
+            </TouchableOpacity>
+          </Card>
+        </View>
+      ) : (
+        //   <Card style={styles.card}>
+        // <Text style={styles.noShiftText}>No shift for today</Text>
+        // </Card>
+        <>
+          <View style={styles.noShiftContainer}>
+            <Divider />
+           
+            <View style={styles.buttonShift}>
+            <Text style={styles.shiftTitle}>
+              <Text style={styles.boldText}>Today's Shift: </Text>{" "}
+              {getCurrentDateDDMMYYYY()}
+            </Text>
+              {shift && shift.id ? (
+                // Check if checkIn and checkout are both true
+                shift?.checkIn && shift?.checkOut ? (
+                  <Button
+                    handleButtonClick={() =>
+                      router.push({
+                        pathname: `/shiftTest/[id]`,
+                        params: {
+                          id: shift.id, // Pass the id as a query parameter
+                          shiftData: JSON.stringify(shifts),
+                          patientData: JSON.stringify(patients), // Pass shift data as a query parameter
+                        },
+                      })
+                    }
+                    buttonText="Shift completed"
+                    style={{ width: 200 }}
+                  />
+                ) : (
+                  <Button
+                    handleButtonClick={() =>
+                      router.push({
+                        pathname: `/shiftTest/[id]`,
+                        params: {
+                          id: shift.id, // Pass the id as a query parameter
+                          shiftData: JSON.stringify(shifts),
+                          patientData: JSON.stringify(patients), // Pass shift data as a query parameter
+                        },
+                      })
+                    }
+                    buttonText="Check in"
+                    style={{ width: 95 }}
+                  />
+                )
+              ) : (
+                <Text>No shift details available</Text>
+              )}
+            </View>
+          </View>
 
           <Card style={styles.card}>
             <View style={styles.cardContent}>
@@ -184,6 +241,19 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
 export default TodaysShift;
 
 const styles = StyleSheet.create({
+  noShiftContainer: {
+    marginTop: 30,
+  },
+  analytics: {
+    marginTop:20,
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    gap:10,
+  
+  
+  },
   container: {
     flex: 1,
     width: "100%",
@@ -194,7 +264,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 20,
     fontFamily: "Lato",
-    fontSize: 18, // 16
+    fontSize: 22, // 16
     fontStyle: "normal",
     fontWeight: "700",
     textAlign: "center",
@@ -202,6 +272,14 @@ const styles = StyleSheet.create({
   boldText: {
     fontWeight: "bold",
   },
+  buttonShift: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+
+    flexDirection: "row",
+  },
+
   noShiftText: {
     fontSize: 26,
     color: "red",
@@ -223,8 +301,21 @@ const styles = StyleSheet.create({
     boxShadow:
       "rgba(60, 64, 67, 0.3) 0px 2px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
   },
-  cardContent: {
+  cardContentNoShift: {
+    display: "flex",
+
+    flexDirection: "row",
+
     marginBottom: 10,
+    height: 60,
+  },
+  cardContent: {
+    display: "flex",
+
+    flexDirection: "column",
+
+    marginBottom: 10,
+    height: 60,
   },
   row: {
     flexDirection: "row",
