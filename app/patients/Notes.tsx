@@ -4,6 +4,7 @@ import * as FileSystem from "expo-file-system";
 import * as Speech from "expo-speech";
 import { Audio } from "expo-av";
 import axios from "axios";
+import { v4 as uuidv4 } from "uuid";
 
 import {
   View,
@@ -53,6 +54,7 @@ import {
   formatLocalDateTime,
   formatTimeOnly,
 } from "@/services/utils";
+import AudioPlayer from "@/components/AudioPlayer";
 
 const Notes = () => {
   const { id, singlePatientData, singleCaregiverData } = useLocalSearchParams(); // Get patient ID
@@ -68,6 +70,7 @@ const Notes = () => {
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [voiceUri, setVoiceUri] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
 
   const [voiceMessage, setVoiceMessage] = useState("");
 
@@ -99,7 +102,7 @@ const Notes = () => {
   const [caregiverData, setCaregiverData] = useState(
     JSON.parse(caregiverDataString)
   );
-  console.log(caregiverData.image, "dddd.>>>>>>>");
+  // console.log(caregiverData.image, "dddd.>>>>>>>");
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -164,7 +167,10 @@ const Notes = () => {
 
   // Add a new note to Firebase
   const addNote = async () => {
-    if (!id || (!note.trim() && !imageUri && !voiceMessage)) return;
+    console.log("Adding note...");
+
+    if (!id || (!note.trim() && !imageUri && !voiceMessage && !voiceUri))
+      return;
 
     try {
       const userData = await getSecureData("user");
@@ -174,7 +180,7 @@ const Notes = () => {
       }
 
       const user = JSON.parse(userData);
-      console.log(user, "asss");
+      console.log("Got userData");
 
       if (!user?.name) {
         console.error("User name is missing.");
@@ -182,8 +188,14 @@ const Notes = () => {
       }
 
       let uploadedImageUrl = null;
+      let uploadedAudioUrl: string | null = null;
       if (imageUri) {
         uploadedImageUrl = await uploadImage(imageUri);
+      }
+
+      // Upload audio if available
+      if (voiceUri) {
+        uploadedAudioUrl = await uploadAudio(voiceUri); // Assuming you have a function to upload audio
       }
 
       const newNote = {
@@ -192,21 +204,25 @@ const Notes = () => {
         caregiverImage: caregiverData.image,
         myNote: note || voiceMessage || "",
         imageUrl: uploadedImageUrl || null,
+        audioUrl: uploadedAudioUrl || null,
         date: new Date().toISOString(),
       };
-      console.log(new Date(), "timeee/??????>>>>>>>>.");
+      // console.log(new Date(), "timeee/??????>>>>>>>>.");
+      if (uploadedAudioUrl != null) {
+        const docRef = doc(db, "patients", id as string);
+        await updateDoc(docRef, {
+          notes: arrayUnion(newNote),
+        });
 
-      const docRef = doc(db, "patients", id as string);
-      await updateDoc(docRef, {
-        notes: arrayUnion(newNote),
-      });
-
-      setNotes((prevNotes) => [...prevNotes, newNote]);
-      setNote("");
-      setImageUri(null);
-      setVoiceMessage("");
-
-      console.log("Note added successfully!");
+        setNotes((prevNotes) => [...prevNotes, newNote]);
+        setNote("");
+        setImageUri(null);
+        setVoiceMessage("");
+        setVoiceUri(null);
+        console.log("Note added successfully!");
+      } else {
+        alert("voice message not uploaded!");
+      }
     } catch (error) {
       console.error("Error adding note:", error);
     }
@@ -275,6 +291,55 @@ const Notes = () => {
       return null;
     }
   };
+
+  // const uploadAudio = async (audioUri) => {
+  //   const mainLink = "https://sevya-admin.site:8808/api/auth/upload-audio";
+  //   const formData = new FormData();
+  //   formData.append("audio", {
+  //     uri: audioUri,
+  //     type: "audio/mpeg", // Change type based on your file format (e.g., audio/wav, audio/mp3)
+  //     name: `audio_${Date.now()}.mp3`, // You can dynamically set the file name
+  //   } as any);
+
+  //   try {
+  //     const response = await axios.post(mainLink, formData, {
+  //       headers: {
+  //         "Content-Type": "multipart/form-data",
+  //       },
+  //     });
+  //     return response.data.audioUrl; // Return the URL of the uploaded audio
+  //   } catch (error) {
+  //     console.error("Error uploading audio:", error);
+  //     return null; // Return null if the upload fails
+  //   }
+  // };
+
+  // To generate a unique filename
+
+  const uploadAudio = async (audioUri) => {
+    if (!audioUri) return null;
+
+    try {
+      const fileName = `audio_${Date.now()}.mp3`; // Generate a unique filename
+      // Removed redundant redeclaration of storage
+      const reference = ref(storage, `audio/${fileName}`);
+
+      const response = await fetch(audioUri);
+      const blob = await response.blob();
+
+      // Upload the audio file
+      await uploadBytes(reference, blob);
+
+      // Get the uploaded file URL
+      const audioUrl = await getDownloadURL(reference);
+      console.log("Audio uploaded successfully:", audioUrl);
+      return audioUrl;
+    } catch (error) {
+      console.error("Error uploading audio:", error);
+      return null;
+    }
+  };
+
   const handleImageLongPress = (imageUrl: string) => {
     setFullImageUri(imageUrl);
   };
@@ -290,11 +355,16 @@ const Notes = () => {
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: true,
         playsInSilentModeIOS: true,
+        shouldDuckAndroid: true,
+        playThroughEarpieceAndroid: false, // Set to false to use the loudspeaker
       });
+
       const { recording } = await Audio.Recording.createAsync(
         Audio.RecordingOptionsPresets.HIGH_QUALITY
       );
+
       setRecording(recording);
+      setIsRecording(true); // Hide text field and show recording indicator
     } catch (err) {
       console.error("Failed to start recording", err);
     }
@@ -302,21 +372,36 @@ const Notes = () => {
 
   const stopRecording = async () => {
     if (!recording) return;
-    setRecording(null);
+
     await recording.stopAndUnloadAsync();
     const uri = recording.getURI();
-    setVoiceUri(uri);
+
+    if (uri) {
+      setVoiceUri(uri); // Store the audio URI
+    }
+
+    // We only want to hide the recording indicator after the recording has been stopped
+    setIsRecording(false);
+    // Don't reset the recording state to null right away
+  };
+
+  const clearRecording = () => {
+    setRecording(null); // Clear the recording object
+    setVoiceUri(null); // Clear the voice URI
   };
 
   const playVoiceMessage = async () => {
     if (!voiceUri) return;
+
     const { sound } = await Audio.Sound.createAsync(
       { uri: voiceUri },
       { shouldPlay: true }
     );
+
     setIsPlaying(true);
+
     sound.setOnPlaybackStatusUpdate((status) => {
-      if (!status.isLoaded || !status.isPlaying) {
+      if (status.isLoaded && status.didJustFinish) {
         setIsPlaying(false);
       }
     });
@@ -399,12 +484,31 @@ const Notes = () => {
                       />
                     </TouchableOpacity>
                   )}
-                  <Text
-                    style={styles.noteTranslate}
-                    onPress={() => translateNote(item.myNote, index)}
-                  >
-                    See Translate
-                  </Text>
+
+                  {item.audioUrl && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setVoiceUri(item.audioUrl);
+                        playVoiceMessage();
+                      }}
+                      style={styles.playButton}
+                    >
+                      {item.audioUrl && (
+                        <AudioPlayer audioUrl={item.audioUrl} />
+                      )}
+                      {/* 
+                      <Icon name="play" size={24} color="black" />
+                      <Text style={styles.noteText}>Play Voice Note</Text> */}
+                    </TouchableOpacity>
+                  )}
+                  {item.myNote !== "" && (
+                    <Text
+                      style={styles.noteTranslate}
+                      onPress={() => translateNote(item.myNote, index)}
+                    >
+                      See Translate
+                    </Text>
+                  )}
                 </View>
               ))
             ) : (
@@ -447,18 +551,71 @@ const Notes = () => {
           </View>
         )}
 
-        <TextInput
-          style={styles.textInput}
-          value={note}
-          onChangeText={setNote}
-          multiline
-        />
+        {/* {isRecording || recording !== null ? (
+          <View style={styles.recordingIndicator}>
+            <Icon name="microphone" size={24} color="red" />
+            <Text style={styles.recordingText}>
+              {isRecording ? "Recording..." : "Recording Stopped"}
+            </Text>
+          </View>
+        ) : (
+          <TextInput
+            value={note}
+            onChangeText={setNote}
+            placeholder="Type a note...!"
+            placeholderTextColor={"#999"}
+            style={styles.textInput}
+          />
+        )} */}
+
+        {isRecording || recording !== null ? (
+          <View
+            style={[
+              styles.recordingIndicator,
+              {
+                backgroundColor:
+                  isRecording || recording === null ? "#ffe6e6" : "#d4edda",
+              },
+            ]}
+          >
+            {isRecording ? (
+              <>
+                <Icon name="microphone" size={24} color="red" />
+                <Text style={styles.recordingText}>Recording...</Text>
+              </>
+            ) : (
+              <>
+                <Icon name="check" size={24} color="green" />
+                <Text style={[styles.recordingText, { color: "green" }]}>
+                  Audio recorded!
+                </Text>
+                <TouchableOpacity onPress={clearRecording}>
+                  <Icon name="close" size={24} color="gray" paddingLeft="30%" />
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
+        ) : (
+          <TextInput
+            value={note}
+            onChangeText={setNote}
+            placeholder="Type a note...!"
+            placeholderTextColor={"#999"}
+            style={styles.textInput}
+          />
+        )}
+
+        <TouchableOpacity
+          onPress={isRecording ? stopRecording : startRecording}
+        ></TouchableOpacity>
 
         <TouchableOpacity
           style={styles.imageButton}
           onPress={() => setModalVisible(true)}
         >
-          <Icon name="camera" style={styles.vIcon} />
+          {!isRecording && !recording && (
+            <Icon name="camera" style={styles.vIcon} />
+          )}
         </TouchableOpacity>
 
         {/* Voice message */}
@@ -467,12 +624,14 @@ const Notes = () => {
             onPress={recording ? stopRecording : startRecording}
             style={styles.voiceButton}
           >
-            <Icon
-              style={styles.vIcon}
-              name={recording ? "stop" : "microphone"}
-              size={24}
-              // color="white"
-            />
+            {!voiceUri && (
+              <Icon
+                style={styles.vIcon}
+                name={recording ? "stop" : "microphone"}
+                size={24}
+                // color="white"
+              />
+            )}
           </TouchableOpacity>
           {voiceUri && (
             <TouchableOpacity
@@ -480,7 +639,7 @@ const Notes = () => {
               style={styles.playButton}
             >
               <Icon
-                style={styles.vIcon}
+                style={[styles.vIcon, { paddingRight: 20 }]}
                 name={isPlaying ? "pause" : "play"}
                 size={24}
                 // color="white"
@@ -489,9 +648,11 @@ const Notes = () => {
           )}
         </View>
 
-        <TouchableOpacity style={styles.sendButton} onPress={addNote}>
-          <Text style={styles.sendText}>Send</Text>
-        </TouchableOpacity>
+        {!isRecording && (
+          <TouchableOpacity style={styles.sendButton} onPress={addNote}>
+            <Text style={styles.sendText}>Send</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Modal for image options */}
@@ -767,6 +928,19 @@ const styles = StyleSheet.create({
 
   playButtonHover: {
     backgroundColor: "#45a049",
+  },
+  recordingIndicator: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "60%",
+    padding: 10,
+    borderRadius: 10,
+  },
+  recordingText: {
+    // marginLeft: 10,
+    // paddingLeft: 10,
+    color: "red",
+    fontWeight: "bold",
   },
 });
 
