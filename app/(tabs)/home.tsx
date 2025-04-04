@@ -23,6 +23,7 @@ import { sendNotification } from "@/services/utils";
 import { Divider } from "react-native-paper";
 import Placeholder from "@/components/Placeholder";
 import SkeletonComponent from "@/components/SkeletonComponent";
+import DashboardCard from "@/components/DashboardCard";
 // import SevyaToast from '@/components/SevyaToast'
 
 export default function Home() {
@@ -128,6 +129,7 @@ export default function Home() {
                 shifts={shifts}
                 caregiver={caregivers}
                 patients={patients}
+                token={token}
               />
             </View>
 
