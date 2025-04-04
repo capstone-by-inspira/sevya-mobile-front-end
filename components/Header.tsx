@@ -61,7 +61,8 @@ const CustomHeader = () => {
       <Modalize
         ref={modalizeRef}
         snapPoint={100}
-        modalHeight={500}
+        modalHeight={1000}
+
         modalStyle={styles.modalStyle}
         flatListProps={{
           data: notifications,
@@ -147,11 +148,12 @@ const styles = StyleSheet.create({
     height:'100%',
   },
   modalStyle: {
-    position:'fixed',
-    width:"100%",
-    bottom:0,
-    zIndex: 99999999,
-    overflow:'hidden',
+    position: "absolute",  // Ensures it stays fixed at the bottom
+    width: "100%",
+    bottom: 0,
+    zIndex: 9999999, // Make sure modal is above other content
+    overflow: "hidden", // Prevent overflow
+
   },
   headerContainer: {
     flexDirection: "row",
