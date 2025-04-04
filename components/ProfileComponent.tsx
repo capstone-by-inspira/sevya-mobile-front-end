@@ -1,14 +1,22 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, ActivityIndicator, ImageBackground } from 'react-native';
-import { AppContext } from './AppContext'; // Adjust path as needed
-import { getSecureData } from '../services/secureStorage'; // Import secure storage
-import * as ImagePicker from 'expo-image-picker';
-import { updateDocument } from '../services/api'; // Import your uploadImage and updateDocument functions
-import { auth } from '@/config/firebase';
-import { Icon } from 'react-native-paper';
-import { formatDateOnly, formatLocalDate } from '@/services/utils';
+import React, { useContext, useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ActivityIndicator,
+  TouchableOpacity,
+  ImageBackground
+} from "react-native";
+import { AppContext } from "./AppContext"; // Adjust path as needed
+import { getSecureData } from "../services/secureStorage"; // Import secure storage
+import * as ImagePicker from "expo-image-picker";
+import { updateDocument } from "../services/api"; // Import your uploadImage and updateDocument functions
+import { auth } from "@/config/firebase";
+import { Icon } from "react-native-paper";
+import { formatDateOnly, formatLocalDate } from "@/services/utils";
+import axios from "axios";
 const ProfileScreen = () => {
-
   const context = useContext(AppContext);
 
   if (!context) {
@@ -22,8 +30,8 @@ const ProfileScreen = () => {
 
   useEffect(() => {
     const fetchProfileImage = async () => {
-      if (caregivers && caregivers.profileImage) {
-        setProfileImage(caregivers.profileImage);
+      if (caregivers && caregivers.image) {
+        setProfileImage(caregivers.image);
       }
     };
 
@@ -32,7 +40,7 @@ const ProfileScreen = () => {
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      mediaTypes: ["images"],
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
@@ -40,34 +48,68 @@ const ProfileScreen = () => {
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
       setLoading(false);
-      //   try {
-      //     const uploadResult = await uploadImage(result.assets[0].uri, `profileImages/${userData.uid}`, token);
-
-      //     if (uploadResult.success && uploadResult.url) {
-      //       setProfileImage(uploadResult.url);
-      //       await updateUserData(uploadResult.url);
-      //     } else {
-      //       console.error("Image upload failed:", uploadResult.error);
-      //     }
-      //   } catch (error) {
-      //     console.error("Error picking and uploading image:", error);
-      //   } finally {
-      //     setLoading(false);
-      //   }
+      setProfileImage(result.assets[0].uri);
+      let imageUrl = null;
+      if (profileImage) {
+        setLoading(true);
+        try {
+          imageUrl = await uploadImage(result.assets[0].uri);
+          if (imageUrl) {
+            await updateUserData(imageUrl);
+            setLoading(false);
+          } else {
+            console.error("Image upload failed, no URL returned.");
+          }
+        } catch (error) {
+          console.error("Error uploading image:", error);
+        }
+      }
     }
   };
 
   const updateUserData = async (imageUrl: string) => {
     if (caregivers && token) {
       try {
-        await updateDocument('caregivers', caregivers.uid, { profileImage: imageUrl }, token);
-        const updatedUser = { ...caregivers, profileImage: imageUrl };
-        fetchData()
+        await updateDocument(
+          "caregivers",
+          caregivers.uid,
+          { image: imageUrl },
+          token
+        );
+        const updatedUser = { ...caregivers, image: imageUrl };
+        fetchData();
         // await getSecureData("user", JSON.stringify(updatedUser));
         // fetchData();
       } catch (error) {
         console.error("Error updating user data:", error);
       }
+    }
+  };
+
+  const uploadImage = async (uri: string) => {
+    const mainLink = "https://sevya-admin.site:8808/api/auth/upload";
+
+    try {
+      const formData = new FormData();
+      formData.append("image", {
+        uri,
+        name: `image_${Date.now()}.jpg`,
+        type: "image/jpeg",
+      } as any);
+      const uploadResponse = await axios.post(mainLink, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (uploadResponse.status !== 200) {
+        throw new Error("Image upload failed.");
+      }
+
+      return uploadResponse.data.imageUrl || null;
+    } catch (error) {
+      console.error("Image upload error:", error);
+      return null;
     }
   };
 
@@ -139,7 +181,6 @@ const ProfileScreen = () => {
 
         {/* Add other user details here */}
       </View>
-
     </View>
   );
 };
