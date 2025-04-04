@@ -81,7 +81,6 @@ const ProfileScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* <View> */}
 
       
       {loading && (
@@ -147,22 +146,31 @@ const ProfileScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
+    width:'100%',
     flex: 1,
     backgroundColor: 'transparent',
   },
   loadingOverlay: {
-    ...StyleSheet.absoluteFillObject,
+  display:"flex",
     backgroundColor: 'transparent',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
   },
   imageContainer1: {
-    paddingLeft:110,
+    marginLeft:-30,
+flex:1,
+display:'flex',
+flexDirection:'row',
+alignItems:'center',
+justifyContent:'center',
   },
   imageContainer: {
-//    alignSelf: 'center' ,
-    alignItems: 'center',
+width:'100%',
+   display:'flex',
+   flexDirection:'column',
+   alignItems:'center',
+
   },
   profileImage: {
     width: 120,
@@ -190,14 +198,15 @@ const styles = StyleSheet.create({
   changeImageText: {
     color: '#CEE8F2',
     marginTop: 5,
+   
     borderWidth: 1,
     borderColor: '#CEE8F2',
     padding: 10,
     borderRadius: 24,
   },
   detailsContainer: {
-    paddingLeft: 20,
-    paddingTop:10,
+    paddingHorizontal: 20,
+    paddingVertical:10,
     width: 400,
     backgroundColor: '#F8FBFF',
   },
