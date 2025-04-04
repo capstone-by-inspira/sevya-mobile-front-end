@@ -30,7 +30,6 @@ const ShiftCard: React.FC = () => {
 
   const { shifts, caregivers, patients, fetchData, token } = context;
 
-  console.log('patients in shifts', patients);
 
   useEffect(() => {
     markShiftsOnCalendar();
@@ -38,13 +37,10 @@ const ShiftCard: React.FC = () => {
 
   const markShiftsOnCalendar = () => {
     const marks = shifts.reduce((acc: any, shift: any) => {
-      console.log('dates startTime', shift.startTime, shift.shiftDate);
       const shiftDate = new Date(shift.startTime).toLocaleDateString("en-CA"); // Extract YYYY-MM-DD
-      console.log('dates', shiftDate);
-      acc[shiftDate] = { selected: true, selectedColor: "#578FCA" };
+      acc[shiftDate] = { selected: true, selectedColor: "#10B981" };
       return acc;
     }, {});
-    console.log('shifts in calendar', shifts);
 
     setMarkedDates(marks);
     setAllShifts(shifts);

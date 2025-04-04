@@ -18,6 +18,7 @@ const PatientList = ({ patients, shifts, caregivers }) => {
   const renderPatientCard = ({ item }) => (
     <PatientUCard
       name={item.firstName}
+      lname={item.lastName}
       gender={item.gender}
       condition={item.medicalConditions?.join(", ") || "N/A"}
       image={item.image}

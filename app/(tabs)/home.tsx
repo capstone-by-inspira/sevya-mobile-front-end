@@ -151,7 +151,10 @@ export default function Home() {
   );
 }
 const styles = StyleSheet.create({
-  patientList: {},
+  patientList: {
+    marginRight: 20,
+    paddingRight: 0,
+  },
   emergency: {
     marginTop: 20,
     padding: 10,
