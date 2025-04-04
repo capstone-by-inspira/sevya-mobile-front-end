@@ -48,9 +48,9 @@ const PatientDetails = () => {
   const [error, setError] = useState<string | null>(null);
   const [plan, setPlan] = useState("");
   const [expandedSections, setExpandedSections] = useState({
-    patientInfo: false,
-    medicalInfo: false,
-    shifts: false,
+    patientInfo: true,
+    medicalInfo: true,
+    shifts: true,
   });
 
   useEffect(() => {
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 10,
     boxShadow:
-    "rgba(60, 64, 67, 0.3) 0px 2px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
+      "rgba(60, 64, 67, 0.3) 0px 2px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
   },
   sectionTitle: {
     fontSize: 16,
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
   sectionContent: {
     backgroundColor: "#fff",
     padding: 15,
-    marginTop:-5,
+    marginTop: -5,
     borderRadius: 8,
     marginBottom: 10,
     shadowColor: "#000",
