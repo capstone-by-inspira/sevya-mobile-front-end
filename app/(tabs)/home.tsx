@@ -121,12 +121,7 @@ export default function Home() {
               gap: 30,
             }}
           >
-            {/* <Button
-              handleButtonClick={handleNotification}
-              buttonText="Send Notification"
-              disabled={false}
-            /> */}
-
+           
             <View>
               <TodaysShift
                 shifts={shifts}

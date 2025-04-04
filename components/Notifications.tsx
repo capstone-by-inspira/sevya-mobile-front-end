@@ -1,58 +1,51 @@
 import { FlatList, StyleSheet, Text, View, Image } from 'react-native';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { AppContext } from "@/components/AppContext";
 import { Ionicons } from "@expo/vector-icons";
 
-const Notifications = () => {
+const Notifications = ({notification, onNewNotifications }) => {
+  console.log(notification, 'yes >>>>?????');
     const context = useContext(AppContext);
-    // const [notifications, setNotifications] = React.useState();
-
-    const notifications = [
-        {
-          id: "1",
-          title: "New Follower",
-          message: "@john_doe started following you.",
-        },
-        {
-          id: "2",
-          title: "Mention",
-          message: "@alice mentioned you in a tweet!",
-        },
-        {
-          id: "3",
-          title: "Like",
-          message: "@michael liked your tweet.",
-        },
-      ];
 
     if (!context) {
-        return <Text>Error: AppContext n found</Text>;
+        return <Text>Error: AppContext not found</Text>;
     }
+
+    const { notifications } = context;
+
+    useEffect(() => {
+      // Trigger the callback whenever the notifications array changes
+      if (notifications) {
+        onNewNotifications(notifications);
+      }
+    }, [notifications]);
+
+    console.log(notifications,' >>>>>>>>>>>>>');
 
     return (
         <View style={[styles.container, {backgroundColor: "#fff"}]}> 
-        <FlatList
-          data={notifications}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.notificationItem}>
-              <Image source={require("@/assets/Sevya-logo.png")} style={styles.icon} />
-              <View style={styles.textContainer}>
-                <Text style={[styles.title, { color: "#000" }]}>
-                  {item.title}
-                </Text>
-                <Text style={[styles.message, { color: "#555" }]}>
-                  {item.message}
-                </Text>
-              </View>
-            </View>
-          )}
-        />
-      </View>
-    )
-}
+            <FlatList
+              data={notifications}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <View style={styles.notificationItem}>
+                  <Image source={require("@/assets/Sevya-logo.png")} style={styles.icon} />
+                  <View style={styles.textContainer}>
+                    <Text style={[styles.title, { color: "#000" }]}>
+                      {item.title}
+                    </Text>
+                    <Text style={[styles.message, { color: "#555" }]}>
+                      {item.message}
+                    </Text>
+                  </View>
+                </View>
+              )}
+            />
+        </View>
+    );
+};
 
-export default Notifications
+export default Notifications;
 
 const styles = StyleSheet.create({
     container: {
@@ -84,4 +77,4 @@ const styles = StyleSheet.create({
       fontSize: 14,
       marginTop: 3,
     },
-  });
+});
