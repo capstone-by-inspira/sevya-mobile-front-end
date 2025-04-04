@@ -42,14 +42,16 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F8FBFF",
+    backgroundColor: "transparent",
     justifyContent: "center",
     alignItems: "center",
+    borderColor:'#10B981',
+    borderWidth: 1,
   },
   number: {
     fontSize: 18,
    
-    color: "#007BFF",
+    color: "#000000",
   },
   label: {
     fontSize: 16,
