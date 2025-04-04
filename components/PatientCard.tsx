@@ -2,6 +2,8 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import Button from '@/components/ui/Button'
+import { capitalize } from "@/services/utils";
+
 interface PatientCardProps {
   name: string;
   lname: string;
@@ -34,7 +36,7 @@ const PatientCard: React.FC<PatientCardProps> = ({
       {/* Middle: Patient Info */}
       <View style={styles.info}>
         <Text style={styles.name}>
-          {name} {lname}
+          {capitalize(name)} {capitalize(lname)}
         </Text>
         <Text style={styles.gender}>({gender})</Text>
         <Text style={styles.conditions}>

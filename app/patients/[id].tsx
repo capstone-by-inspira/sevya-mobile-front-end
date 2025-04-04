@@ -9,7 +9,7 @@ import {
 import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
 import axios from "axios";
-
+import { capitalize } from "@/services/utils";
 import { AppContext } from "@/components/AppContext";
 import SevyaLoader from "@/components/SevyaLoader";
 import { API_URL } from "@/services/api";
@@ -69,6 +69,10 @@ const PatientDetails = () => {
 
   if (error) return <Text style={styles.error}>{error}</Text>;
   if (!patientData) return <Text>No patient data available.</Text>;
+  console.log("====================================");
+  console.log(patientData.id, "PATIENT DATA");
+  console.log(patientData.phoneNumber, "PATIENT DATA");
+  console.log("====================================");
 
   const generateCaregiverPlan = async () => {
     setLoading(true);
@@ -127,7 +131,7 @@ const PatientDetails = () => {
           <View style={styles.sectionContent}>
             <Text>Name: {patientData.firstName}</Text>
             <Text>Age: {patientData.age ?? "N/A"}</Text>
-            <Text>Phone: {patientData.phoneNumber}</Text>
+            <Text>Phone: {patientData.phoneNumber ?? "N/A"}</Text>
           </View>
         )}
 
@@ -147,11 +151,13 @@ const PatientDetails = () => {
         </TouchableOpacity>
         {expandedSections.medicalInfo && (
           <View style={styles.sectionContent}>
-            <Text>
-              Conditions: {patientData.medicalConditions?.join(", ") || "N/A"}
+            <Text style={{ marginBottom: 1 }}>
+              Conditions:{" "}
+              {capitalize(patientData.medicalConditions?.join(", ")) || "N/A"}
             </Text>
             <Text>
-              Medications: {patientData.medications?.join(", ") || "N/A"}
+              Medications:{" "}
+              {capitalize(patientData.medications?.join(", ")) || "N/A"}
             </Text>
           </View>
         )}
@@ -176,8 +182,8 @@ const PatientDetails = () => {
             Object.keys(patientData.shifts).length > 0 ? (
               Object.entries(patientData.shifts).map(
                 ([time, shift]: [string, any], index) => (
-                  <Text key={index}>
-                    ⏰ {time}: {shift.firstName} ({shift.shiftDate})
+                  <Text key={index} style={{ marginBottom: 3 }}>
+                    ⏰ {time}: {capitalize(shift.firstName)} ({shift.shiftDate})
                   </Text>
                 )
               )

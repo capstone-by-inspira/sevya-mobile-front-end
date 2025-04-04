@@ -50,6 +50,7 @@ import NoteCard from "@/components/NotesCard";
 import Icon from "react-native-vector-icons/FontAwesome"; // Or MaterialIcons
 
 import {
+  capitalize,
   formatDateOnly,
   formatLocalDateTime,
   formatTimeOnly,
@@ -197,32 +198,30 @@ const Notes = () => {
       if (voiceUri) {
         uploadedAudioUrl = await uploadAudio(voiceUri); // Assuming you have a function to upload audio
       }
-
+      if (!note || !uploadedImageUrl || !uploadedAudioUrl) {
+      }
       const newNote = {
         caregiverFirstName: caregiverData.firstName,
         caregiverLastName: caregiverData.lastName,
         caregiverImage: caregiverData.image,
-        myNote: note || voiceMessage || "",
+        myNote: note || "",
         imageUrl: uploadedImageUrl || null,
         audioUrl: uploadedAudioUrl || null,
         date: new Date().toISOString(),
       };
       // console.log(new Date(), "timeee/??????>>>>>>>>.");
-      if (uploadedAudioUrl != null) {
-        const docRef = doc(db, "patients", id as string);
-        await updateDoc(docRef, {
-          notes: arrayUnion(newNote),
-        });
 
-        setNotes((prevNotes) => [...prevNotes, newNote]);
-        setNote("");
-        setImageUri(null);
-        setVoiceMessage("");
-        setVoiceUri(null);
-        // console.log("Note added successfully!");
-      } else {
-        // alert("voice message not uploaded!");
-      }
+      const docRef = doc(db, "patients", id as string);
+      await updateDoc(docRef, {
+        notes: arrayUnion(newNote),
+      });
+
+      setNotes((prevNotes) => [...prevNotes, newNote]);
+      setNote("");
+      setImageUri(null);
+      setVoiceMessage("");
+      setVoiceUri(null);
+      // console.log("Note added successfully!");
     } catch (error) {
       console.error("Error adding note:", error);
     }
@@ -291,30 +290,6 @@ const Notes = () => {
       return null;
     }
   };
-
-  // const uploadAudio = async (audioUri) => {
-  //   const mainLink = "https://sevya-admin.site:8808/api/auth/upload-audio";
-  //   const formData = new FormData();
-  //   formData.append("audio", {
-  //     uri: audioUri,
-  //     type: "audio/mpeg", // Change type based on your file format (e.g., audio/wav, audio/mp3)
-  //     name: `audio_${Date.now()}.mp3`, // You can dynamically set the file name
-  //   } as any);
-
-  //   try {
-  //     const response = await axios.post(mainLink, formData, {
-  //       headers: {
-  //         "Content-Type": "multipart/form-data",
-  //       },
-  //     });
-  //     return response.data.audioUrl; // Return the URL of the uploaded audio
-  //   } catch (error) {
-  //     console.error("Error uploading audio:", error);
-  //     return null; // Return null if the upload fails
-  //   }
-  // };
-
-  // To generate a unique filename
 
   const uploadAudio = async (audioUri) => {
     if (!audioUri) return null;
@@ -450,9 +425,9 @@ const Notes = () => {
                       <Text style={styles.noteAuthor}>
                         By
                         {" " +
-                          item.caregiverFirstName +
+                          capitalize(item.caregiverFirstName) +
                           " " +
-                          item.caregiverLastName}
+                          capitalize(item.caregiverLastName)}
                       </Text>
                     </View>
 
@@ -552,23 +527,6 @@ const Notes = () => {
           </View>
         )}
 
-        {/* {isRecording || recording !== null ? (
-          <View style={styles.recordingIndicator}>
-            <Icon name="microphone" size={24} color="red" />
-            <Text style={styles.recordingText}>
-              {isRecording ? "Recording..." : "Recording Stopped"}
-            </Text>
-          </View>
-        ) : (
-          <TextInput
-            value={note}
-            onChangeText={setNote}
-            placeholder="Type a note...!"
-            placeholderTextColor={"#999"}
-            style={styles.textInput}
-          />
-        )} */}
-
         {isRecording || recording !== null ? (
           <View
             style={[
@@ -582,7 +540,9 @@ const Notes = () => {
             {isRecording ? (
               <>
                 <Icon name="microphone" size={24} color="red" />
-                <Text style={styles.recordingText}>Recording...</Text>
+                <Text style={[styles.recordingText, { paddingLeft: 8 }]}>
+                  Recording...
+                </Text>
               </>
             ) : (
               <>
@@ -597,43 +557,49 @@ const Notes = () => {
             )}
           </View>
         ) : (
-          <TextInput
-            value={note}
-            onChangeText={setNote}
-            placeholder="Type a note...!"
-            placeholderTextColor={"#999"}
-            style={styles.textInput}
-          />
+          !imageUri && (
+            <TextInput
+              value={note}
+              onChangeText={setNote}
+              placeholder="Type a note...!"
+              placeholderTextColor={"#999"}
+              style={styles.textInput}
+            />
+          )
         )}
 
         <TouchableOpacity
           onPress={isRecording ? stopRecording : startRecording}
         ></TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.imageButton}
-          onPress={() => setModalVisible(true)}
-        >
-          {!isRecording && !recording && (
-            <Icon name="camera" style={styles.vIcon} />
-          )}
-        </TouchableOpacity>
+        {!imageUri && (
+          <TouchableOpacity
+            style={styles.imageButton}
+            onPress={() => setModalVisible(true)}
+          >
+            {!isRecording && !recording && (
+              <Icon name="camera" style={styles.vIcon} />
+            )}
+          </TouchableOpacity>
+        )}
 
         {/* Voice message */}
         <View style={styles.voiceContainer}>
-          <TouchableOpacity
-            onPress={recording ? stopRecording : startRecording}
-            style={styles.voiceButton}
-          >
-            {!voiceUri && (
-              <Icon
-                style={styles.vIcon}
-                name={recording ? "stop" : "microphone"}
-                size={24}
-                // color="white"
-              />
-            )}
-          </TouchableOpacity>
+          {!imageUri && (
+            <TouchableOpacity
+              onPress={recording ? stopRecording : startRecording}
+              style={styles.voiceButton}
+            >
+              {!voiceUri && (
+                <Icon
+                  style={styles.vIcon}
+                  name={recording ? "stop" : "microphone"}
+                  size={24}
+                  // color="white"
+                />
+              )}
+            </TouchableOpacity>
+          )}
           {voiceUri && (
             <TouchableOpacity
               onPress={playVoiceMessage}
@@ -755,7 +721,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingTop: 10,
-
     paddingBottom: 25,
     backgroundColor: "#fff",
     borderTopWidth: 1,

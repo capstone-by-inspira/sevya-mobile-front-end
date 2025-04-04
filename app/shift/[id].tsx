@@ -244,8 +244,7 @@ const ShiftCard: React.FC = () => {
           name={patient?.firstName ?? ""}
           gender={patient?.gender || ""}
           condition={patient?.medicalConditions?.join(", ") ?? ""}
-          image={patient?.image}
-        />
+          image={patient?.image} lname={""}        />
       </View>
     </View>
   );
