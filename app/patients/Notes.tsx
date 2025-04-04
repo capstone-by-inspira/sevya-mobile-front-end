@@ -332,6 +332,7 @@ const Notes = () => {
 
       // Get the uploaded file URL
       const audioUrl = await getDownloadURL(reference);
+      clearRecording(); // Clear the recording after upload
       console.log("Audio uploaded successfully:", audioUrl);
       return audioUrl;
     } catch (error) {
