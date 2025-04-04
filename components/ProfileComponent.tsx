@@ -6,6 +6,7 @@ import {
   Image,
   ActivityIndicator,
   TouchableOpacity,
+  ImageBackground
 } from "react-native";
 import { AppContext } from "./AppContext"; // Adjust path as needed
 import { getSecureData } from "../services/secureStorage"; // Import secure storage
@@ -122,55 +123,61 @@ const ProfileScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* <View> */}
+
+      
       {loading && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color="#0000ff" />
         </View>
       )}
-
-      <View style={styles.imageContainer}>
-        <Image
-          source={
-            profileImage
-              ? { uri: profileImage }
-              : require("../assets/images/placeholder-image.jpg")
-          } // Replace with your placeholder
-          style={styles.profileImage}
-        />
-        <TouchableOpacity onPress={pickImage}>
-          <Text style={styles.changeImageText}>
-            Change Profile Image
-            <Icon source="pencil" size={18} color="#1E3A8A" />
+      <ImageBackground
+        source={require("../assets/images/wrapper1.png")}
+        style={styles.backgroundImage}
+      >
+      <View style={styles.imageContainer1}>
+        <View style={styles.imageContainer}>
+          <Image
+            source={profileImage ? { uri: profileImage } : require('../assets/images/placeholder-image.jpg')} // Replace with your placeholder
+            style={styles.profileImage}
+          />
+          <Text style={styles.caregiverName}>{caregivers.firstName} {caregivers.lastName}</Text> 
+          <Text style={styles.caregiver}>Caregiver</Text>
+          <Text style={styles.changeImageText} onPress={pickImage}>
+            Change Profile Image  
+            <Icon source="pencil" size={18} color="#CEE8F2" />
           </Text>
-        </TouchableOpacity>
+        </View>
       </View>
+      </ImageBackground>
 
       <View style={styles.detailsContainer}>
+        <Text style={styles.detailText2}>Personal Info</Text>
         <Text style={styles.detailText}>
-          <Text style={{ fontWeight: "bold" }}>Name:</Text>{" "}
-          {caregivers.firstName} {caregivers.lastName}
+          <Image source={require('../assets/images/Mail.png')}
+          style={styles.icons}/>
+          <Text>    Email:</Text> {caregivers.email}
+        </Text>
+        <Text style={styles.detailText3}>
+          <Image source={require('../assets/images/Phone.png')}
+          style={styles.icons}/>
+          <Text>    Phone number:</Text> {caregivers.phoneNumber}
+        </Text>
+        <Text style={styles.detailText1}>Work Info</Text>
+        <Text style={styles.detailText}>
+          <Image source={require('../assets/images/User.png')}
+          style={styles.icons}/>
+          <Text>    Total Patients Assigned:</Text> {patients.length}
         </Text>
         <Text style={styles.detailText}>
-          <Text style={{ fontWeight: "bold" }}>Email:</Text> {caregivers.email}
+          <Image source={require('../assets/images/Clock.png')}
+          style={styles.icons}/>
+          <Text>    Total Shifts:</Text> {shifts?.length}
         </Text>
-        <Text style={styles.detailText}>
-          <Text style={{ fontWeight: "bold" }}>Phone:</Text>{" "}
-          {caregivers.phoneNumber}
-        </Text>
-        <Text style={styles.detailText}>
-          <Text style={{ fontWeight: "bold" }}>Total Shifts:</Text>{" "}
-          {shifts?.length}
-        </Text>
-        <Text style={styles.detailText}>
-          <Text style={{ fontWeight: "bold" }}>Total Patients Assigned:</Text>{" "}
-          {patients.length}
-        </Text>
+        
 
-        <Text style={styles.detailText}>
-          <Text style={{ fontWeight: "bold" }}>Availability:</Text>{" "}
-          {formatLocalDate(caregivers.availability)}
-        </Text>
+      {/*<Text style={styles.detailText}>
+          <Text style={{ fontWeight: "bold" }}>Availability:</Text> {formatLocalDate(caregivers.availability)}
+        </Text>*/}
 
         {/* Add other user details here */}
       </View>
@@ -180,24 +187,31 @@ const ProfileScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
+    width:'100%',
     flex: 1,
-    alignItems: "center",
-    justifyContent: "flex-start",
-    paddingTop: 80,
-    paddingHorizontal: 0,
-    marginHorizontal: 0,
-    backgroundColor: "transparent",
+    backgroundColor: 'transparent',
   },
   loadingOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "transparent",
-    justifyContent: "center",
-    alignItems: "center",
+  display:"flex",
+    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    alignItems: 'center',
     zIndex: 10,
   },
+  imageContainer1: {
+    marginLeft:-30,
+flex:1,
+display:'flex',
+flexDirection:'row',
+alignItems:'center',
+justifyContent:'center',
+  },
   imageContainer: {
-    alignItems: "center",
-    marginBottom: 20,
+width:'100%',
+   display:'flex',
+   flexDirection:'column',
+   alignItems:'center',
+
   },
   profileImage: {
     width: 120,
@@ -205,31 +219,79 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 200,
     borderWidth: 6,
-    borderColor: "#10B981",
+    borderColor: "#CEE8F2", 
+    alignItems: "center",
     backgroundColor: "#FFF",
     boxShadow:
       "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
   },
+  caregiverName:{
+    color:'white',
+    fontSize:16,
+    paddingTop:6,
+  },
+  caregiver:{
+    color:'white',
+    fontSize:12,
+    paddingBottom:6,
+    paddingTop:6,
+  },
   changeImageText: {
-    color: "#25578E",
+    color: '#CEE8F2',
     marginTop: 5,
+   
     borderWidth: 1,
-    borderColor: "#25578E",
+    borderColor: '#CEE8F2',
     padding: 10,
     borderRadius: 24,
   },
   detailsContainer: {
-    marginTop: 20,
-    borderRadius: 10,
-    backgroundColor: "#fff",
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical:10,
     width: 400,
-    boxShadow:
-      "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
+    backgroundColor: '#F8FBFF',
   },
   detailText: {
+    display:'flex',
+    columnGap:35,
     fontSize: 16,
-    marginBottom: 10,
+    marginBottom: 15,
+    color: '#424242',
+
+  },
+  detailText1: {
+    fontSize: 16,
+    borderTopWidth: 1,       
+    borderTopColor: '#E2E2E2', 
+    paddingTop:10,
+    marginBottom: 20,
+    color: '#424242',
+    fontStyle:'italic',
+    marginRight:20,
+  },
+  detailText2: {
+    fontSize: 16,
+    paddingTop:10,
+    marginBottom: 20,
+    color: '#424242',
+    fontStyle:'italic',
+  },
+  detailText3: {
+    fontSize: 16,
+    marginBottom: 20,
+    color: '#424242',
+  },
+  backgroundImage: {
+    width: "110%",
+    height: 308,
+    padding:0,
+    resizeMode: "cover",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  icons:{
+    height: 16,
+    paddingTop:1,
   },
 });
 
