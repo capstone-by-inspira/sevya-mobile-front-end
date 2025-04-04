@@ -1,5 +1,7 @@
 import { StyleSheet, Text, TouchableOpacity, ViewStyle } from 'react-native';
 import React from 'react';
+import { globalStyles } from "@/styles/globalStyles";
+
 
 interface ButtonProps {
   handleButtonClick: () => void;
@@ -11,34 +13,19 @@ interface ButtonProps {
 
 const Button: React.FC<ButtonProps> = ({ handleButtonClick, buttonText, disabled, buttonColor, style }) => {
   return (
-    <TouchableOpacity 
-      onPress={handleButtonClick} 
-      style={[
-        styles.button, 
-        { backgroundColor: buttonColor || '#25578E', opacity: disabled ? 0.5 : 1 }, // Adjust opacity
+    <TouchableOpacity onPress={handleButtonClick}
+      style={[ 
+        globalStyles.button,
+        { backgroundColor: buttonColor || '#25578E', opacity: disabled ? 0.5 : 1 }, 
         style
-      ]} 
+      ]}
       disabled={disabled}
-      activeOpacity={disabled ? 1 : 0.7} // Prevent touch effect if disabled
+      activeOpacity={disabled ? 1 : 0.7} 
     >
-      <Text style={styles.buttonText}>{buttonText}</Text>
+      <Text style={globalStyles.buttonText}>{buttonText}</Text>
     </TouchableOpacity>
   );
 };
 
 export default Button;
 
-const styles = StyleSheet.create({
-  button: {
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    margin: 20,
-    width: 'auto',
-    alignItems: 'center',
-    borderRadius: 50,
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-});

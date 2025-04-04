@@ -16,8 +16,9 @@ import { auth } from "@/config/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { saveSecureData, getSecureData } from "@/services/secureStorage";
 import { API_URL } from "@/services/api";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons"; 
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { LinearGradient } from 'expo-linear-gradient'; // Add this import
+import { globalStyles } from "@/styles/globalStyles";
 
 
 const LoginScreen: React.FC = () => {
@@ -60,14 +61,14 @@ const LoginScreen: React.FC = () => {
       await saveSecureData("token", data.token);
       await saveSecureData("user", JSON.stringify(data.user));
 
-    
+
 
       const first_time_login = await getSecureData("first_time_login");
-  
+
 
       console.log(first_time_login, '>>>>>> fsttttttt');
 
-     
+
 
       if (first_time_login == null || first_time_login == undefined) {
         router.replace("/screens/Welcome");
@@ -86,168 +87,67 @@ const LoginScreen: React.FC = () => {
   };
 
   return (
-  
+
     <ImageBackground
       source={require("../assets/main-bg.png")}
-      style={styles.background}
+      style={globalStyles.loginBackground}
     >
-        {/* <LinearGradient
+      {/* <LinearGradient
     colors={[ '#0D1F3A','#0D1F3A', '#050F1C']} // Adjust colors to match your design
 
     start={{ x: 0, y: 0 }}
     end={{ x: 0, y: 1 }}
     // style={styles.containerMain}
     > */}
-      <View style={styles.overlay}>
-        <View style={styles.logoContainer}>
+      <View style={globalStyles.loginOverlay}>
+        <View style={globalStyles.loginLogoContainer}>
           <Image
-            source={require("@/assets/Sevya-logo.png")} 
-            style={styles.logo} 
-            resizeMode="contain" 
+            source={require("@/assets/Sevya-logo.png")}
+            style={globalStyles.loginLogo}
+            resizeMode="contain"
           />
         </View>
-        <View style={styles.container}>
-          <Text style={styles.title}>Sign in with E-mail</Text>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>E-mail</Text>
+        <View style={globalStyles.loginContainer}>
+          <Text style={globalStyles.loginTitle}>Sign in with E-mail</Text>
+          <View style={globalStyles.loginInputContainer}>
+            <Text style={globalStyles.loginInputLabel}>E-mail</Text>
             <TextInput
               placeholder="Enter your e-mail"
               value={email}
               onChangeText={setEmail}
-              style={styles.input}
+              style={globalStyles.loginInput}
               placeholderTextColor="#ccc"
             />
           </View>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Password</Text>
-            <View style={styles.passwordWrapper}>
+          <View style={globalStyles.loginInputContainer}>
+            <Text style={globalStyles.loginInputLabel}>Password</Text>
+            <View style={globalStyles.loginPasswordWrapper}>
               <TextInput
                 placeholder="Enter password"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={secureText}
-                style={styles.passwordInput} // Applied correct styling
+                style={globalStyles.loginPasswordInput} // Applied correct styling
                 placeholderTextColor="#ccc"
               />
-              <TouchableOpacity onPress={() => setSecureText(!secureText)} style={styles.icon}>
+              <TouchableOpacity onPress={() => setSecureText(!secureText)} style={globalStyles.loginIcon}>
                 <Icon name={secureText ? "eye-off" : "eye"} size={24} color="#666" />
               </TouchableOpacity>
             </View>
           </View>
 
-          <View style={styles.inputContainer}>
-            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-              <Text style={{color: "#fff"}}>Login</Text> 
-            </TouchableOpacity>
-          </View>
-          
+          <View style={globalStyles.loginInputContainer}>
+            <TouchableOpacity style={globalStyles.loginButton} onPress={handleLogin}>
+              <Text style={{ color: "#fff" }}>Login</Text>
+            </TouchableOpacity>          </View>
+
         </View>
       </View>
       {/* </LinearGradient> */}
     </ImageBackground>
-   
+
   );
 };
-
-const styles = StyleSheet.create({
-  containerMain: {
-    // flex: 1,
-    // opacity:1,
-   
-    },
-  background: {
-   
-    flex: 1,
-    resizeMode: "cover",
-  },
-  loginButton: {
-    backgroundColor: "#10B981", 
-    paddingVertical: 10,
-    paddingHorizontal: 50,
-    borderRadius: 50,
-    alignItems: "center",
-    marginTop: 40,
-    fontFamily: "Lato",
-  },
-
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(7, 24, 50, 0.8)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  logoContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 70,
-  },
-  logo: {
-    width: 75,
-    height: 75,
-  },
-  container: {
-    width: "60%",
-    paddingTop: 5,
-    paddingBottom: 5,
-    alignItems: "center",
-    marginBottom: 80
-  },
-  title: {    
-    color: "white",
-    marginBottom: 20,
-    fontFamily: "Lato",
-    fontSize: 22,
-    fontStyle: "normal",
-    fontWeight: "400",
-    lineHeight: 26,
-  },
-  input: {
-    width: "100%",
-    padding: 15,
-    backgroundColor: "rgba(255, 255, 255, 0.7)",
-    borderRadius: 25,
-    marginBottom: 15,
-    textAlign: "left",
-    fontFamily: "Lato",
-    fontSize: 16,
-    fontStyle: 'normal',
-    fontWeight: '400',
-  },
-  inputContainer: {
-    width: "100%",
-    marginBottom: 10,
-  },
-  inputLabel: {
-    color: "#FFF", 
-    fontFamily: "Lato",
-    fontSize: 14,
-    fontStyle: "normal",
-    fontWeight: "400",
-    lineHeight: 14,
-    paddingBottom: 8,
-  },
-  passwordWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.7)",
-    borderRadius: 25,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    paddingHorizontal: 15,
-  },
-  passwordInput: {
-    flex: 1, 
-    paddingVertical: 15,
-    textAlign: "left",
-    fontFamily: "Lato",
-    fontSize: 16,
-    fontStyle: 'normal',
-    fontWeight: '400',
-  },
-  icon: {
-    padding: 10,
-  },
-});
 
 export default LoginScreen;
