@@ -22,6 +22,8 @@ interface Shift {
   adminId: number;
   status: string;
   location: string;
+  checkIn:boolean;
+  checkOut:boolean;
 }
 
 interface TodayShiftProps {
@@ -96,6 +98,7 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
     <View style={styles.container}>
       <Text style={styles.greeting}>
         Hi, {caregiver.firstName}
+        {console.log(shift)}
         {shift && shift.id ? "! Ready for your shift?" : " "}
       </Text>
 
@@ -103,26 +106,45 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
         <Text style={styles.noShiftText}>No shift for today</Text>
       ) : (
         <>
-          <View style={{ flexDirection: "row", justifyContent: "center" }}>
-            {shift && shift.id ? (
-              <Button
-                handleButtonClick={() =>
-                  router.push({
-                    pathname: `/shiftTest/[id]`,
-                    params: {
-                      id: shift.id, // Pass the id as a query parameter
-                      shiftData: JSON.stringify(shifts),
-                      patientData: JSON.stringify(patients), // Pass shift data as a query parameter
-                    },
-                  })
-                }
-                buttonText="Check in"
-                style={{ width: 95 }}
-              />
-            ) : (
-              <Text>No shift details available</Text>
-            )}
-          </View>
+        <View style={{ flexDirection: "row", justifyContent: "center" }}>
+  {shift && shift.id ? (
+    // Check if checkIn and checkout are both true
+    shift?.checkIn && shift?.checkOut ? (
+      <Button
+        handleButtonClick={() =>
+          router.push({
+            pathname: `/shiftTest/[id]`,
+            params: {
+              id: shift.id, // Pass the id as a query parameter
+              shiftData: JSON.stringify(shifts),
+              patientData: JSON.stringify(patients), // Pass shift data as a query parameter
+            },
+          })
+        }
+        buttonText="Shift completed"
+        style={{ width: 200 }}
+      />
+    ) : (
+      <Button
+        handleButtonClick={() =>
+          router.push({
+            pathname: `/shiftTest/[id]`,
+            params: {
+              id: shift.id, // Pass the id as a query parameter
+              shiftData: JSON.stringify(shifts),
+              patientData: JSON.stringify(patients), // Pass shift data as a query parameter
+            },
+          })
+        }
+        buttonText="Check in"
+        style={{ width: 95 }}
+      />
+    )
+  ) : (
+    <Text>No shift details available</Text>
+  )}
+</View>
+
           <Divider />
           <Text style={styles.shiftTitle}>
             <Text style={styles.boldText}>Today's Shift: </Text>{" "}

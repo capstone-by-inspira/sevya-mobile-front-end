@@ -9,7 +9,8 @@ import ShiftDetailCard from '@/components/ShiftDetailCard';
 import { AppContext } from '@/components/AppContext';
 import TodayShiftDetailCard from '@/components/TodayShiftCardDetail';
 import { Icon } from 'react-native-paper';
-import { formatDateOnly, formatShiftTimeOnly } from '@/services/utils';
+import { formatDateOnly, formatShiftTimeOnly, sendNotification } from '@/services/utils';
+import Button from "@/components/ui/Button";
 
 const ShiftCard: React.FC = () => {
   const context = useContext(AppContext);
@@ -27,7 +28,7 @@ const ShiftCard: React.FC = () => {
     return <Text>Error: AppContext not found</Text>;
   }
 
-  const { shifts, caregivers, patients, fetchData } = context;
+  const { shifts, caregivers, patients, fetchData, token } = context;
 
 
   useEffect(() => {
@@ -103,6 +104,12 @@ const ShiftCard: React.FC = () => {
 
   ];
 
+  const requestChange = async () =>{
+    await sendNotification('Shift Cancellation Request', `Date: ${selectedDate} `, caregivers.firstName, token);
+
+
+    
+  }
   return (
 
     <SectionList
@@ -157,6 +164,8 @@ const ShiftCard: React.FC = () => {
                           <Text style={styles.detailText}>
                             <Text style={styles.label}>End Shift:</Text> {formatShiftTimeOnly(item.endTime)}
                           </Text>
+                          <Button handleButtonClick={requestChange} buttonText="Request Shift Cancellation" />
+
                         </View>
                       )}
                       nestedScrollEnabled={true}

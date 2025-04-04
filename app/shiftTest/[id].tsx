@@ -28,6 +28,7 @@ interface Shift {
 interface Patient {
   id: number;
   firstName: string;
+  lastName: string;
   gender: string;
   medicalConditions?: string[];
   image?: any;
@@ -296,6 +297,7 @@ const ShiftCheckIn: React.FC = () => {
       <View style={styles.patientList}>
         <PatientUCard
           name={associatedPatient.firstName}
+          lname={associatedPatient.lastName}
           gender={associatedPatient.gender}
           condition={associatedPatient.medicalConditions?.join(", ") || ""}
           image={associatedPatient.image}

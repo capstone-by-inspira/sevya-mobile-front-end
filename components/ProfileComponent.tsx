@@ -6,7 +6,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { updateDocument } from '../services/api'; // Import your uploadImage and updateDocument functions
 import { auth } from '@/config/firebase';
 import { Icon } from 'react-native-paper';
-
+import { formatDateOnly, formatLocalDate } from '@/services/utils';
 const ProfileScreen = () => {
 
   const context = useContext(AppContext);
@@ -115,6 +115,11 @@ const ProfileScreen = () => {
         <Text style={styles.detailText}>
           <Text style={{ fontWeight: "bold" }}>Total Patients Assigned:</Text> {patients.length}
         </Text>
+
+        <Text style={styles.detailText}>
+          <Text style={{ fontWeight: "bold" }}>Availability:</Text> {formatLocalDate(caregivers.availability)}
+        </Text>
+
         {/* Add other user details here */}
       </View>
 
