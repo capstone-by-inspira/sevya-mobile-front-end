@@ -29,16 +29,17 @@ const Button: React.FC<ButtonProps> = ({ handleButtonClick, buttonText, disabled
 export default Button;
 
 const styles = StyleSheet.create({
-  button: {
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    margin: 20,
-    width: 'auto',
-    alignItems: 'center',
-    borderRadius: 50,
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
+button: {
+  paddingHorizontal: 15,
+  paddingVertical: 10,
+  margin: 20,
+  width: 'auto',
+  alignItems: 'center',
+  borderRadius: 50,
+  
+},
+buttonText: {
+  color: '#fff',
+  fontWeight: 'bold',
+},
 });

@@ -8,6 +8,7 @@ import { useContext, useState, useRef } from "react";
 import { Modalize } from "react-native-modalize";
 import Notifications from "./Notifications";
 import { SafeAreaView } from "react-native";
+import { Divider } from "react-native-paper";
 
 const CustomHeader = () => {
   const [newNotifications, setNewNotifications] = useState(0);
@@ -122,6 +123,7 @@ const CustomHeader = () => {
           </TouchableOpacity>
         </View>
       </View>
+      <Divider/>
     </SafeAreaView>
   );
 };
@@ -134,16 +136,22 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     justifyContent: "center",
     alignItems: "center",
+  
   },
   mainContainer: {
     backgroundColor: "#F8FBFF",
   },
+  modalizeContainer:{
+    position:'relative',
+    width:'100%',
+    height:'100%',
+  },
   modalStyle: {
-    // position:'static',
-    // width:"100%",
-    // bottom:0,
-    // zIndex: 99999999,
-    // overflow:'hidden',
+    position:'fixed',
+    width:"100%",
+    bottom:0,
+    zIndex: 99999999,
+    overflow:'hidden',
   },
   headerContainer: {
     flexDirection: "row",

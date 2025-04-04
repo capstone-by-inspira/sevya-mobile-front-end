@@ -70,7 +70,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     alignItems: "center",
     width: 180,
-    elevation: 3, // Android shadow
     boxShadow: "rgba(60, 64, 67, 0.3) 0px 2px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
   },
   image: {

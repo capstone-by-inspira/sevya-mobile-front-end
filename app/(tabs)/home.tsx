@@ -95,12 +95,7 @@ export default function Home() {
   return (
     <>
       {/* <SevyaToast message={messages}/> */}
-      <View style={{ height: 150, backgroundColor: "#F8FBFF" }}>
-        <Image
-          style={{ width: "auto", height: 150, borderRadius: 0, margin: 0 }}
-          source={require("@/assets/heroImage.jpeg")}
-        />
-      </View>
+ 
 
       <ScrollView
         style={{ backgroundColor: "#F8FBFF" }}
@@ -108,6 +103,12 @@ export default function Home() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
+             <View style={{ height: 150, backgroundColor: "#F8FBFF" }}>
+        <Image
+          style={{ width: "auto", height: 150, borderRadius: 0, margin: 0 }}
+          source={require("@/assets/heroImage.jpeg")}
+        />
+      </View>
         {!loadedContent ? (
           <Placeholder />
         ) : (

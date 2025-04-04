@@ -29,6 +29,7 @@ import React, {
   useRef,
   useContext,
 } from "react";
+import Header from "@/components/Header";
 
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -39,6 +40,7 @@ interface Caregiver {
 }
 export default function RootLayout() {
 
+
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     Radley: Radley_400Regular,
@@ -46,8 +48,7 @@ export default function RootLayout() {
     LatoBold: Lato_700Bold,
   });
 
-
-  
+ 
 
 
   useEffect(() => {
@@ -72,6 +73,9 @@ export default function RootLayout() {
         <ThemeProvider
           value={colorScheme === "light" ? DefaultTheme : DefaultTheme}
         >
+
+
+
        
           <Stack>
             <Stack.Screen
