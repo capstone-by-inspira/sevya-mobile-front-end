@@ -5,7 +5,7 @@ import { getDocuments, getDocumentById, getDocumentByKeyValue } from "@/services
 import { WS_URL } from "@/services/api";
 import {jwtDecode} from "jwt-decode";
 
-import { useNavigation, useRouter } from "expo-router";
+import { useNavigation, useRouter, useRootNavigationState } from "expo-router";
 
 
 interface AppContextType {
@@ -45,6 +45,8 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [notificationAlert, setNotificationAlert] = useState(false);
 
   const router = useRouter();
+  const rootNavigationState = useRootNavigationState(); 
+
 
   // Initialize WebSocket connection
   useEffect(() => {
@@ -128,7 +130,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
           setIsAuth(false);
         }
       } catch (error) {
-        console.error("Error fetching data:", error);
+       // console.error("Error fetching data:", error);
         setIsAuth(false);
       } finally {
         setLoading(false);

@@ -207,8 +207,11 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 370,
     borderRadius: 10,
-    elevation: 5,
-    marginTop: 16
+  
+    marginTop: 16,
+    boxShadow:
+    "rgba(60, 64, 67, 0.3) 0px 2px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
+
   },
   sectionHeader: {
     fontSize: 16,

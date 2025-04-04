@@ -38,7 +38,7 @@ const CustomHeader = () => {
 
   const modalizeRef = useRef<Modalize>(null);
 
-  console.log(notifications, "notify>>>>>>");
+  // console.log(notifications, "notify>>>>>>");
 
   useEffect(() => {
     // Trigger the callback whenever the notifications array changes
@@ -61,7 +61,8 @@ const CustomHeader = () => {
       <Modalize
         ref={modalizeRef}
         snapPoint={100}
-        modalHeight={500}
+        modalHeight={1000}
+
         modalStyle={styles.modalStyle}
         flatListProps={{
           data: notifications,
@@ -97,7 +98,7 @@ const CustomHeader = () => {
 
         <View style={styles.rightContainer}>
           <TouchableOpacity onPress={openModal}>
-            <Ionicons name="notifications-outline" size={24} color="#25578E" />
+            <Ionicons name="notifications-outline" size={27} color="#25578E" />
 
             {notificationAlertComing && (
               <View
@@ -147,11 +148,12 @@ const styles = StyleSheet.create({
     height:'100%',
   },
   modalStyle: {
-    position:'fixed',
-    width:"100%",
-    bottom:0,
-    zIndex: 99999999,
-    overflow:'hidden',
+    position: "absolute",  // Ensures it stays fixed at the bottom
+    width: "100%",
+    bottom: 0,
+    zIndex: 9999999, // Make sure modal is above other content
+    overflow: "hidden", // Prevent overflow
+
   },
   headerContainer: {
     flexDirection: "row",
