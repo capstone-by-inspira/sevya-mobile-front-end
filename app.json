@@ -35,22 +35,18 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      [
-        "expo-image-picker",
-        {
-          "photosPermission": "Allow the app to access your photos.",
-          "cameraPermission": "Allow the app to use the camera."
-        }
-      ],
       "expo-secure-store",
       [
         "expo-notifications",
         {
           "icon": "./assets/notification-icon.png",
           "color": "#ffffff",
-          "sounds": ["./assets/notification-sound.wav"]
+          "sounds": [
+            "./assets/notification-sound.wav"
+          ]
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
@@ -62,7 +58,17 @@
       "firebaseStorageBucket": "sevya-f77df.firebasestorage.app",
       "firebaseMessagingSenderId": "62869950842",
       "firebaseAppId": "1:62869950842:web:f0f59cb17ec508dbd786c3",
-      "firebaseMeasurementId": "G-E5Q564BTJ1"
+      "firebaseMeasurementId": "G-E5Q564BTJ1",
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "29fd1c27-de68-40b2-892f-a947fb1e0eb0"
+      }
+    },
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/29fd1c27-de68-40b2-892f-a947fb1e0eb0"
     }
   }
 }

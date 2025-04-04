@@ -1,43 +1,45 @@
-import React from "react";
-import { TouchableOpacity, Text, StyleSheet, ViewStyle } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, ViewStyle } from 'react-native';
+import React from 'react';
 
 interface ButtonProps {
   handleButtonClick: () => void;
   buttonText: string;
   disabled?: boolean;
-  style?: ViewStyle | ViewStyle[]; // Accepts external styles
+  buttonColor?: string;
+  style?: ViewStyle;
 }
 
-const Button: React.FC<ButtonProps> = ({
-  handleButtonClick,
-  buttonText,
-  disabled,
-  style,
-}) => {
+const Button: React.FC<ButtonProps> = ({ handleButtonClick, buttonText, disabled, buttonColor, style }) => {
   return (
-    <TouchableOpacity
-      onPress={handleButtonClick}
+    <TouchableOpacity 
+      onPress={handleButtonClick} 
+      style={[
+        styles.button, 
+        { backgroundColor: buttonColor || '#25578E', opacity: disabled ? 0.5 : 1 }, // Adjust opacity
+        style
+      ]} 
       disabled={disabled}
-      style={[styles.button, style]} // Merge styles
+      activeOpacity={disabled ? 1 : 0.7} // Prevent touch effect if disabled
     >
       <Text style={styles.buttonText}>{buttonText}</Text>
     </TouchableOpacity>
   );
 };
 
-const styles = StyleSheet.create({
-  button: {
-    backgroundColor: "#25578E",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 50,
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-});
-
 export default Button;
+
+const styles = StyleSheet.create({
+button: {
+  paddingHorizontal: 15,
+  paddingVertical: 10,
+  margin: 20,
+  width: 'auto',
+  alignItems: 'center',
+  borderRadius: 50,
+  
+},
+buttonText: {
+  color: '#fff',
+  fontWeight: 'bold',
+},
+});

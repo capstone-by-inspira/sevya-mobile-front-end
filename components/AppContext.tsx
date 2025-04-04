@@ -1,19 +1,12 @@
-import React, {
-  createContext,
-  useState,
-  useEffect,
-  ReactNode,
-  useContext,
-} from "react";
+import React, { createContext, useState, useEffect, ReactNode } from "react";
 import { getSecureData } from "../services/secureStorage";
-import { View, ActivityIndicator, Text } from "react-native";
-import { Redirect } from "expo-router";
-import { useRouter } from "expo-router";
-import {
-  getDocuments,
-  getDocumentById,
-  getDocumentByKeyValue,
-} from "@/services/api";
+import { View, ActivityIndicator } from "react-native";
+import { getDocuments, getDocumentById, getDocumentByKeyValue } from "@/services/api";
+import { WS_URL } from "@/services/api";
+import {jwtDecode} from "jwt-decode";
+
+import { useNavigation, useRouter } from "expo-router";
+
 
 interface AppContextType {
   isAuth: boolean;
@@ -24,11 +17,13 @@ interface AppContextType {
   setIsAuth: React.Dispatch<React.SetStateAction<boolean>>;
   loading: boolean;
   token: any;
-  messages: any[]; // Add WebSocket messages to the context
-  ws: WebSocket | null; // Add WebSocket connection to the context
+  messages: any[];
+  notifications:any[];
+  ws: WebSocket | null;
+  notificationAlert:boolean;
 }
 
-const AppContext = createContext<AppContextType | undefined>(undefined); // CREATING CONTEXT
+const AppContext = createContext<AppContextType | undefined>(undefined);
 
 interface AppProviderProps {
   children: ReactNode;
@@ -41,17 +36,23 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [caregivers, setCaregivers] = useState<any>([]);
   const [patients, setPatients] = useState<any>([]);
   const [shifts, setShifts] = useState<any>([]);
+  const [notifications, setNotifications] = useState<any>([]);
+
   const [loading, setLoading] = useState<boolean>(true);
-  const [messages, setMessages] = useState<any[]>([]); // State for WebSocket messages
-  const [ws, setWs] = useState<WebSocket | null>(null); // State for WebSocket connection
+  const [messages, setMessages] = useState<any[]>([]);
+  const [ws, setWs] = useState<WebSocket | null>(null);
+
+  const [notificationAlert, setNotificationAlert] = useState(false);
+
+  const router = useRouter();
 
   // Initialize WebSocket connection
   useEffect(() => {
     if (isAuth) {
-      const websocket = new WebSocket("ws://10.0.0.240:8800");
+      const websocket = new WebSocket(WS_URL);
 
       websocket.onopen = () => {
-        console.log("WebSocket connected");
+        console.log("WebSocket connected mobile");
       };
 
       websocket.onmessage = async (event) => {
@@ -59,7 +60,6 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         console.log("WebSocket message received:", message);
 
         if (message.event === "data_updated") {
-          // Refetch data based on the updated collection
           switch (message.collection) {
             case "shifts":
               await fetchShifts();
@@ -70,12 +70,16 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
             case "caregivers":
               await fetchCaregiver();
               break;
+              case "notificationsMobile":
+                await fetchNotifications();
+                setNotificationAlert(true);
+                break;
             default:
               break;
           }
         }
 
-        // Update messages state (optional, for debugging)
+
         setMessages((prevMessages) => [...prevMessages, message]);
       };
 
@@ -87,22 +91,28 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         console.error("WebSocket error:", error);
       };
 
-      setWs(websocket); // Store the WebSocket connection
+      setWs(websocket);
 
-      // Cleanup on unmount
       return () => {
         websocket.close();
       };
     }
-  }, [isAuth]); // Reconnect WebSocket when authentication status changes
+  }, [isAuth]);
 
   useEffect(() => {
     const fetchUserAndData = async () => {
-      setLoading(true); // Start loading
-
+      setLoading(true);
       try {
-        // Step 1: Fetch token and user data
         const token = await getSecureData("token");
+        if (isTokenExpired(token)) {
+         router.replace('/login');
+          console.log("Token expired, redirecting to login...");
+          // Logout user, refresh token, or redirect to login
+        } else {
+      //    console.log("Token is valid, proceed...");
+        }
+        
+        console.log(token,'eeeeee');
         const userString = await getSecureData("user");
 
         if (token) {
@@ -112,49 +122,54 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
           if (userString) {
             const user = JSON.parse(userString);
             setUserData(user);
-
-            // Step 2: Fetch additional data (patients, caregivers, shifts)
-            const [patientsResponse, caregiversResponse, shiftsResponse] =
-              await Promise.all([
-                getDocuments("patients", token),
-                getDocumentById("caregivers", user.uid, token),
-                getDocumentByKeyValue("shifts", "caregiverId", user.uid, token),
-              ]);
-
-            // Filter patients for the current caregiver
-            const patientsWithCaregiver = patientsResponse.data.filter(
-              (patient: any) =>
-                Object.values(patient.shifts).some(
-                  (shift: any) => shift.id === user.uid
-                )
-            );
-
-            // Update state with fetched data
-            setPatients(patientsWithCaregiver);
-            setCaregivers(caregiversResponse.data);
-            setShifts(shiftsResponse.data);
+            await fetchData();
           }
         } else {
-          setIsAuth(false); // No token found
+          setIsAuth(false);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
-        setIsAuth(false); // Authentication failed
+        setIsAuth(false);
       } finally {
-        setLoading(false); // Stop loading
+        setLoading(false);
       }
     };
 
-    fetchUserAndData(); // Call the combined function
+    fetchUserAndData();
   }, []);
+
+  const isTokenExpired = (token: string | null): boolean => {
+    if (!token) return true; // Treat missing token as expired
+  
+    try {
+      const decoded: any = jwtDecode(token); // Decode JWT
+      if (!decoded.exp) return true; // If no expiration, treat as expired
+  
+      const currentTime = Date.now() / 1000; // Convert to seconds
+      return decoded.exp < currentTime; // Check if expired
+    } catch (error) {
+      console.error("Invalid token", error);
+      return true; // Treat invalid token as expired
+    }
+  };
+
+  useEffect(() => {
+    if (isAuth && userData) {
+      fetchData();
+    }
+  }, [isAuth, userData]);
 
   const fetchData = async () => {
     await fetchCaregiver();
     await fetchPatients();
     await fetchShifts();
+    await fetchNotifications();
   };
 
+
+
   const fetchCaregiver = async () => {
+    if (!userData || !userData.uid) return; // Ensure userData is available
     try {
       const result = await getDocumentById("caregivers", userData.uid, token);
       if (result.success) {
@@ -166,13 +181,12 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   };
 
   const fetchPatients = async () => {
+    if (!token) return; // Ensure token is available
     try {
       const result = await getDocuments("patients", token);
-      if (result.success) {
-        const patientsWithCaregiver = getPatientsForCaregiver(
-          result.data,
-          userData.uid
-        );
+      console.log("fetching>>>>>>>>>>>>>");
+      if (result.success && userData?.uid) {
+        const patientsWithCaregiver = getPatientsForCaregiver(result.data, userData.uid);
         setPatients(patientsWithCaregiver);
       }
     } catch (error) {
@@ -180,25 +194,18 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   };
 
-  const getPatientsForCaregiver = (
-    patients: any[],
-    caregiverID: string
-  ): any[] => {
-    return patients.filter((patient) => {
-      return Object.values(patient.shifts).some(
-        (shift: any) => shift.id === caregiverID
-      );
-    });
+
+
+  const getPatientsForCaregiver = (patients: any[], caregiverID: string): any[] => {
+    return patients.filter((patient) =>
+      Object.values(patient.shifts).some((shift: any) => shift.id === caregiverID)
+    );
   };
 
   const fetchShifts = async () => {
+    if (!userData || !userData.uid) return; // Ensure userData is available
     try {
-      const result = await getDocumentByKeyValue(
-        "shifts",
-        "caregiverId",
-        userData.uid,
-        token
-      );
+      const result = await getDocumentByKeyValue("shifts", "caregiverId", userData.uid, token);
       if (result.success) {
         setShifts(result.data);
       } else {
@@ -206,8 +213,27 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       }
     } catch (error) {
       console.error("Error fetching shifts:", error);
+      setShifts([]);
     }
   };
+
+  const fetchNotifications = async () => {
+    if (!userData || !userData.uid) return; // Ensure userData is available
+
+    try {
+      const result = await getDocumentByKeyValue("notificationsMobile", "caregiverId", userData.uid, token);
+      console.log("m ? ??//?? ??????? ? ? ? ? ? ? ? ?", result);
+      if (result.success) {
+        setNotifications(result.data);
+      } else {
+        setNotifications([]);
+      }
+    } catch (error) {
+      console.error("Error fetching patients:", error);
+      setNotifications([]);
+    }
+  };
+
 
   return (
     <AppContext.Provider
@@ -220,14 +246,14 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         setIsAuth,
         loading,
         token,
-        messages, // Provide WebSocket messages to consumers
-        ws, // Provide WebSocket connection to consumers
+        messages,
+        ws,
+        notifications,
+        notificationAlert,
       }}
     >
       {loading ? (
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
           <ActivityIndicator size="large" />
         </View>
       ) : (

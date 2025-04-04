@@ -1,18 +1,10 @@
 import React, { useState, useEffect, useCallback, useContext } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  RefreshControl,
-  SafeAreaView,
-} from "react-native";
-import SearchBar from "../../components/SearchBar"; // Import SearchBar component
-import PatientCard from "../../components/PatientCard";
+import { View, Text, StyleSheet, FlatList, RefreshControl , SafeAreaView } from "react-native";
+import SearchBar from "@/components/SearchBar"; // Import SearchBar component
+import PatientCard from "@/components/PatientCard";
 import { useRouter } from "expo-router";
-import { getSecureData } from "../../services/secureStorage"; // Import secure storage function
-import { AppContext } from "../../components/AppContext";
-import { Title } from "react-native-paper";
+import { getSecureData } from "@/services/secureStorage"; // Import secure storage function
+import { AppContext } from "@/components/AppContext";
 
 const Patients = () => {
   const context = useContext(AppContext);
@@ -75,39 +67,50 @@ const Patients = () => {
 
   // Navigate to patient details
   const handlePatientPress = (id: string) => {
-    //  console.log(id);
-    router.push(`/patients/${id}`);
+  //  console.log(id);
+    // router.push(`/patients/${id}`);
+    router.push({
+      pathname: `/patients/[id]`,
+      params: {
+        id: id,  // Pass the id as a query parameter
+        AllShifts: JSON.stringify(shifts),
+        AllPatients: JSON.stringify(patients),  // Pass shift data as a query parameter
+        AllCaregivers: JSON.stringify(caregivers)
+      }
+    })
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.container}>
-        <Text style={styles.title}>My Patients</Text>
-        <SearchBar
-          placeholder="Search Patients!"
-          value={searchText}
-          onChangeText={handleSearch}
+    <View style={styles.container}>
+      {/*<Text style={styles.title}>My Patients</Text>*/}
+      <SearchBar
+        placeholder="Search Patients"
+        value={searchText}
+        onChangeText={handleSearch}
+      />
+      {filteredPatients.length > 0 ? (
+        <FlatList
+          data={filteredPatients} // ✅ Pass filteredPatients instead of patients
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <PatientCard
+            image={item.image}
+              name={item.firstName} 
+              lname={item.lastName} 
+              gender={item.gender}
+              conditions={item.medicalConditions}
+              onPress={() => handlePatientPress(item.id)}
+            />
+          )}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         />
-        {filteredPatients.length > 0 ? (
-          <FlatList
-            data={filteredPatients} // ✅ Pass filteredPatients instead of patients
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <PatientCard
-                name={item.firstName}
-                gender={item.lastName}
-                conditions={item.medicalConditions}
-                onPress={() => handlePatientPress(item.id)}
-              />
-            )}
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
-          />
-        ) : (
-          <Text style={styles.noDataText}>No patients found</Text>
-        )}
-      </View>
+      ) : (
+        <Text style={styles.noDataText}>No patients found</Text>
+      )}
+    </View>
     </SafeAreaView>
   );
 };
@@ -115,14 +118,14 @@ const Patients = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F0F6FF",
+    backgroundColor: '#F8FBFF',
     padding: 20,
   },
-  title: {
-    fontSize: 14,
-    fontWeight: "bold",
-    marginBottom: 14,
-  },
+  //title: {
+  //  fontSize: 14,
+  //  fontWeight: "bold",
+  //  marginBottom: 14,
+  //},
   noDataText: {
     textAlign: "center",
     fontSize: 16,

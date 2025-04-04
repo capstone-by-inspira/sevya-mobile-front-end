@@ -1,12 +1,14 @@
-import React, { useContext, useState, useEffect } from "react";
-import { View, Text, StyleSheet, Image, ActivityIndicator } from "react-native";
-import { AppContext } from "./AppContext"; // Adjust path as needed
-import { getSecureData } from "../services/secureStorage"; // Import secure storage
-import * as ImagePicker from "expo-image-picker";
-import { updateDocument } from "../services/api"; // Import your uploadImage and updateDocument functions
-import { auth } from "@/config/firebase";
-
+import React, { useContext, useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Image, ActivityIndicator } from 'react-native';
+import { AppContext } from './AppContext'; // Adjust path as needed
+import { getSecureData } from '../services/secureStorage'; // Import secure storage
+import * as ImagePicker from 'expo-image-picker';
+import { updateDocument } from '../services/api'; // Import your uploadImage and updateDocument functions
+import { auth } from '@/config/firebase';
+import { Icon } from 'react-native-paper';
+import { formatDateOnly, formatLocalDate } from '@/services/utils';
 const ProfileScreen = () => {
+
   const context = useContext(AppContext);
 
   if (!context) {
@@ -30,7 +32,7 @@ const ProfileScreen = () => {
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
@@ -58,14 +60,9 @@ const ProfileScreen = () => {
   const updateUserData = async (imageUrl: string) => {
     if (caregivers && token) {
       try {
-        await updateDocument(
-          "caregivers",
-          caregivers.uid,
-          { profileImage: imageUrl },
-          token
-        );
+        await updateDocument('caregivers', caregivers.uid, { profileImage: imageUrl }, token);
         const updatedUser = { ...caregivers, profileImage: imageUrl };
-        fetchData();
+        fetchData()
         // await getSecureData("user", JSON.stringify(updatedUser));
         // fetchData();
       } catch (error) {
@@ -93,68 +90,92 @@ const ProfileScreen = () => {
 
       <View style={styles.imageContainer}>
         <Image
-          source={
-            profileImage
-              ? { uri: profileImage }
-              : require("../assets/images/placeholder-image.jpg")
-          } // Replace with your placeholder
+          source={profileImage ? { uri: profileImage } : require('../assets/images/placeholder-image.jpg')} // Replace with your placeholder
           style={styles.profileImage}
         />
         <Text style={styles.changeImageText} onPress={pickImage}>
-          Change Profile Image
+          Change Profile Image  
+          <Icon source="pencil" size={18} color="#1E3A8A" />
         </Text>
       </View>
 
       <View style={styles.detailsContainer}>
         <Text style={styles.detailText}>
-          Name: {caregivers.firstName} {caregivers.lastName}
+          <Text style={{ fontWeight: "bold" }}>Name:</Text> {caregivers.firstName} {caregivers.lastName}
         </Text>
-        <Text style={styles.detailText}>Email: {caregivers.email}</Text>
-        <Text style={styles.detailText}>Phone: {caregivers.phoneNumber}</Text>
-        <Text style={styles.detailText}>Total Shifts: {shifts?.length}</Text>
         <Text style={styles.detailText}>
-          Total Patients Assigned: {patients.length}
+          <Text style={{ fontWeight: "bold" }}>Email:</Text> {caregivers.email}
+        </Text>
+        <Text style={styles.detailText}>
+          <Text style={{ fontWeight: "bold" }}>Phone:</Text> {caregivers.phoneNumber}
+        </Text>
+        <Text style={styles.detailText}>
+          <Text style={{ fontWeight: "bold" }}>Total Shifts:</Text> {shifts?.length}
+        </Text>
+        <Text style={styles.detailText}>
+          <Text style={{ fontWeight: "bold" }}>Total Patients Assigned:</Text> {patients.length}
+        </Text>
+
+        <Text style={styles.detailText}>
+          <Text style={{ fontWeight: "bold" }}>Availability:</Text> {formatLocalDate(caregivers.availability)}
         </Text>
 
         {/* Add other user details here */}
       </View>
+
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    display: "flex",
-    flexDirection: "column",
+    flex: 1,
     alignItems: "center",
-    justifyContent: "center",
-
-    padding: 20,
-    backgroundColor: "transparent",
+    justifyContent: "flex-start",
+    paddingTop: 80,
+    paddingHorizontal: 0,
+    marginHorizontal: 0,
+    backgroundColor: 'transparent',
   },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "transparent",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    alignItems: 'center',
     zIndex: 10,
   },
   imageContainer: {
-    alignItems: "center",
+    alignItems: 'center',
     marginBottom: 20,
   },
   profileImage: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
+    width: 120,
+    height: 120,
     marginBottom: 10,
+    borderRadius: 200,
+    borderWidth: 6,
+    borderColor: "#10B981", 
+    backgroundColor: "#FFF",
+    boxShadow:
+      "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
   },
   changeImageText: {
-    color: "blue",
+    color: '#25578E',
     marginTop: 5,
+    borderWidth: 1,
+    borderColor: '#25578E',
+    padding: 10,
+    borderRadius: 24,
   },
   detailsContainer: {
     marginTop: 20,
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    padding: 20,
+    width: 400,
+    boxShadow:
+      "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
+
   },
   detailText: {
     fontSize: 16,

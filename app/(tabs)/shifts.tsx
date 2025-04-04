@@ -1,20 +1,16 @@
 import {
-  Alert,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  Modal,
-  FlatList,
-  RefreshControl,
-  ScrollView,
+  Alert, StyleSheet, Text, TouchableOpacity, View, Modal, FlatList, RefreshControl, ScrollView,
   SafeAreaView,
-  SectionList,
-} from "react-native";
-import React, { useContext, useEffect, useState } from "react";
-import { Calendar } from "react-native-calendars";
-import ShiftDetailCard from "@/components/ShiftDetailCard";
-import { AppContext } from "@/components/AppContext";
+  SectionList
+} from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { Calendar } from 'react-native-calendars';
+import ShiftDetailCard from '@/components/ShiftDetailCard';
+import { AppContext } from '@/components/AppContext';
+import TodayShiftDetailCard from '@/components/TodayShiftCardDetail';
+import { Icon } from 'react-native-paper';
+import { formatDateOnly, formatShiftTimeOnly, sendNotification } from '@/services/utils';
+import Button from "@/components/ui/Button";
 
 const ShiftCard: React.FC = () => {
   const context = useContext(AppContext);
@@ -23,13 +19,17 @@ const ShiftCard: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [upComingShifts, setUpComingShifts] = useState<any[]>([]);
+  const [todayShift, setTodayShift] = useState<any>(null);
   const [refreshing, setRefreshing] = useState(false); // Refresh state
+  const [today, setToday] = useState('');
+  const [patientName, setPatientName] = useState('Patient Name');
 
   if (!context) {
     return <Text>Error: AppContext not found</Text>;
   }
 
-  const { shifts, fetchData } = context;
+  const { shifts, caregivers, patients, fetchData, token } = context;
+
 
   useEffect(() => {
     markShiftsOnCalendar();
@@ -37,35 +37,44 @@ const ShiftCard: React.FC = () => {
 
   const markShiftsOnCalendar = () => {
     const marks = shifts.reduce((acc: any, shift: any) => {
-      const date = shift.startTime.split("T")[0]; // Extract YYYY-MM-DD
-      acc[date] = { selected: true, selectedColor: "#25578E" };
+      const shiftDate = new Date(shift.startTime).toLocaleDateString("en-CA"); // Extract YYYY-MM-DD
+      acc[shiftDate] = { selected: true, selectedColor: "#10B981" };
       return acc;
     }, {});
 
     setMarkedDates(marks);
     setAllShifts(shifts);
 
-    // Filter upcoming shifts
-    const today = new Date().toISOString().split("T")[0];
-    const upcomingShiftData = shifts.filter(
-      (shift: any) => shift.startTime >= today
+    const todayLocal = new Date().toLocaleDateString("en-CA");
+    setToday(todayLocal);
+
+    const todayShiftData = shifts.find((shift: any) =>
+      new Date(shift.startTime).toLocaleDateString("en-CA") === todayLocal
     );
+    setTodayShift(todayShiftData || null); // Set to null if no shift found
+
+    const upcomingShiftData = shifts
+      .filter((shift: any) =>
+        new Date(shift.startTime).toLocaleDateString("en-CA") > todayLocal
+      )
+      .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+
     setUpComingShifts(upcomingShiftData);
   };
 
   // Pull-to-refresh function
-  const onRefresh = async () => {
+  const onRefresh = () => {
     setRefreshing(true);
-    await fetchData(); // Re-fetcall data (calendar + shifts)
+    fetchData();
     setRefreshing(false);
-    console.log("refreshing");
+    console.log('refreshing')
   };
 
   const handleDayPress = (day: any) => {
     const date = day.dateString;
     setSelectedDate(date);
-    const filteredShifts = allShifts.filter((shift) =>
-      shift.startTime.startsWith(date)
+    const filteredShifts = allShifts.filter(shift =>
+      new Date(shift.startTime).toLocaleDateString("en-CA") === date
     );
 
     if (filteredShifts.length > 0) {
@@ -76,128 +85,198 @@ const ShiftCard: React.FC = () => {
   };
 
   const renderShiftDetailCard = ({ item }: { item: any }) => (
-    <ShiftDetailCard location={item.location} shiftTime={item.startTime} />
+    <ShiftDetailCard location={item.location} shiftTime={item.startTime} shiftEndTime={item.endTime} />
   );
 
   const sections = [
     {
-      title: "Shifts Calendar",
-      data: [{ key: "calendar" }],
+      title: 'Shifts Calendar',
+      data: [{ key: 'calendar' }]
     },
     {
-      title: "Upcoming Shifts",
-      data: upComingShifts,
+      title: `Today's Shift`,
+      data: todayShift ? [todayShift] : []
     },
+    {
+      title: 'Next Shifts',
+      data: upComingShifts
+    },
+
   ];
 
+  const requestChange = async () =>{
+    await sendNotification('Shift Cancellation Request', `Date: ${selectedDate} `, caregivers.firstName, token);
+
+
+    
+  }
   return (
+
     <SectionList
       style={styles.scrollView}
       sections={sections}
       keyExtractor={(item, index) => item.id || index.toString()}
       renderItem={({ item }) => {
-        if (item.key === "calendar") {
+        const itemDate = new Date(item.startTime).toLocaleDateString("en-CA");
+        if (item.key === 'calendar') {
           return (
             <View style={styles.container}>
-              <Calendar
-                style={styles.calendar}
-                onDayPress={handleDayPress}
-                markedDates={markedDates}
-              />
-              <Modal
-                visible={modalVisible}
-                animationType="slide"
-                transparent={true}
-              >
+              <Calendar style={styles.calendar} onDayPress={handleDayPress}
+                markedDates={{
+                  ...markedDates,
+                  [today]: {
+                    selected: true,
+                    selectedColor: "#25578E",
+                    marked: true,
+                    dotColor: "white",
+                  },
+                }} />
+              <Modal visible={modalVisible} animationType="fade" transparent={true}>
                 <View style={styles.modalBackground}>
                   <View style={styles.modalContainer}>
-                    <Text style={styles.modalTitle}>
-                      Shifts on {selectedDate}
-                    </Text>
+
+                    <TouchableOpacity style={styles.closeIcon} onPress={() => setModalVisible(false)}>
+                      <Icon source="close" size={18} color="#1E3A8A" />
+                    </TouchableOpacity>
+
                     <FlatList
-                      data={allShifts.filter((shift) =>
-                        shift.startTime.startsWith(selectedDate!)
+                      data={allShifts.filter(shift =>
+                        new Date(shift.startTime).toLocaleDateString("en-CA") === selectedDate
                       )}
                       keyExtractor={(item) => item.id}
-                      renderItem={renderShiftDetailCard}
+                      renderItem={({ item }) => (
+                        <View style={styles.shiftDetails}>
+                          <Text style={styles.detailText}>
+                            <Text style={styles.label}>Patient:</Text> {patients.find(p => p.id === item.patientId).firstName || "Patient Name"}
+                          </Text>
+                          <Text style={styles.detailText}>
+                            <Text style={styles.label}>Caregiver:</Text> {caregivers.firstName || "Caregiver Name"}
+                          </Text>
+                          <Text style={styles.detailText}>
+                            <Text style={styles.label}>Address:</Text> {item.location}
+                          </Text>
+                          <Text style={styles.detailText}>
+                            <Text style={styles.label}>Date:</Text> {formatDateOnly(item.startTime)}
+                          </Text>
+                          <Text style={styles.detailText}>
+                            <Text style={styles.label}>Start Shift:</Text> {formatShiftTimeOnly(item.startTime)}
+                          </Text>
+                          <Text style={styles.detailText}>
+                            <Text style={styles.label}>End Shift:</Text> {formatShiftTimeOnly(item.endTime)}
+                          </Text>
+                          <Button handleButtonClick={requestChange} buttonText="Request Shift Cancellation" />
+
+                        </View>
+                      )}
                       nestedScrollEnabled={true}
                     />
-                    <TouchableOpacity
-                      style={styles.closeButton}
-                      onPress={() => setModalVisible(false)}
-                    >
-                      <Text style={styles.closeText}>Close</Text>
-                    </TouchableOpacity>
                   </View>
                 </View>
               </Modal>
+
             </View>
+
           );
+        } else if (todayShift && item.id === todayShift.id && itemDate === today) {
+          return <TodayShiftDetailCard location={item.location} shiftTime={item.startTime} shiftEndTime={item.endTime} shiftId={todayShift.id} shifts={shifts} patients={patients} />
+        } else {
+          return renderShiftDetailCard({ item });
         }
-        return renderShiftDetailCard({ item });
+
       }}
       renderSectionHeader={({ section: { title } }) => (
         <Text style={styles.sectionHeader}>{title}</Text>
       )}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     />
+
   );
 };
 
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: "#F0F6FF",
+    paddingTop: 5,
+    backgroundColor: '#F8FBFF',
   },
   container: {
-    padding: 20,
-    width: "100%",
-    backgroundColor: "#F0F6FF",
+    paddingHorizontal: 16,
+    width: '100%',
   },
   calendar: {
-    marginVertical: 20,
-    width: "100%",
+    width: '100%',
     height: 370,
     borderRadius: 10,
-    borderColor: "red",
     elevation: 5,
+    marginTop: 16
   },
   sectionHeader: {
-    fontSize: 20,
-    fontWeight: "bold",
-    padding: 10,
-    backgroundColor: "#F0F6FF",
+    fontSize: 16,
+    fontStyle: "normal",
+    fontWeight: "700",
+    lineHeight: 16 * 1.3,
+    // padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    // backgroundColor: '#f0f0f0',
   },
   modalBackground: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContainer: {
-    width: "85%",
+    width: "90%",
     backgroundColor: "white",
-    borderRadius: 10,
+    borderRadius: 12,
     padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+    position: "relative",
+  },
+  closeIcon: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    borderWidth: 1,
+    borderRadius: 20,
+    width: 30,
+    height: 30,
     alignItems: "center",
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  closeButton: {
-    backgroundColor: "#25578E",
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
+    justifyContent: "center",
+    shadowColor: 'rgba(100, 100, 111, 0.2)', 
+    shadowOffset: { width: 0, height: 7 }, 
+    shadowOpacity: 0.2, 
+    shadowRadius: 29, 
+    elevation: 3,
+    padding: 0,
+    zIndex: 1000, 
+    backgroundColor: 'white',
+    cursor: 'pointer'
   },
   closeText: {
-    color: "white",
+    fontSize: 18,
     fontWeight: "bold",
+    color: "#25578E",
   },
+  shiftDetails: {
+    marginVertical: 10,
+  },
+  detailText: {
+    fontSize: 16,
+    marginBottom: 5,
+    color: "#333",
+
+  },
+  label: {
+    fontWeight: "bold",
+    color: "#000",
+  },
+
 });
 
 export default ShiftCard;
