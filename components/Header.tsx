@@ -57,16 +57,36 @@ const CustomHeader = () => {
   return (
 
     <SafeAreaView style={styles.mainContainer}>
-       <Modalize ref={modalizeRef} snapPoint={100} modalHeight={500} modalStyle={styles.modalStyle}>
-          <Notifications
-            notification={notifications}
-            onNewNotifications={handleNewNotifications}
-          />
-        </Modalize>
+      <Modalize
+        ref={modalizeRef}
+        snapPoint={100}
+        modalHeight={500}
+        modalStyle={styles.modalStyle}
+        flatListProps={{
+          data: notifications,
+          keyExtractor: (item) => item.id,
+          renderItem: ({ item }) => (
+            <View style={styles.notificationItem}>
+              <Image source={require("@/assets/Sevya-logo.png")} style={styles.icon} />
+              <View style={styles.textContainer}>
+                <Text style={[styles.title, { color: "#000" }]}>
+                  {item.title}
+                </Text>
+                <Text style={[styles.message, { color: "#555" }]}>
+                  {item.message}
+                </Text>
+              </View>
+            </View>
+          ),
+          showsVerticalScrollIndicator: false,
+        }}
+      />
+
+
 
 
       <View style={styles.headerContainer}>
-       
+
         <TouchableOpacity onPress={() => router.replace("/(tabs)/home")}>
           <Image
             source={require("@/assets/Sevya-logo.png")}
@@ -130,7 +150,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     padding: 10,
-    backgroundColor: "#F8FBFF", // Customize header background color
+    backgroundColor: "#F8FBFF",
   },
   logo: {
     width: 40,
@@ -147,6 +167,31 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 50,
   },
+  notificationItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  icon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 15,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  message: {
+    fontSize: 14,
+    marginTop: 3,
+  },
+
 });
 
 export default CustomHeader;
