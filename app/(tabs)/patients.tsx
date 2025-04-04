@@ -5,6 +5,7 @@ import PatientCard from "@/components/PatientCard";
 import { useRouter } from "expo-router";
 import { getSecureData } from "@/services/secureStorage"; // Import secure storage function
 import { AppContext } from "@/components/AppContext";
+import { globalStyles } from "@/styles/globalStyles";
 
 const Patients = () => {
   const context = useContext(AppContext);
@@ -81,9 +82,8 @@ const Patients = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-    <View style={styles.container}>
-      {/*<Text style={styles.title}>My Patients</Text>*/}
+    <SafeAreaView style={globalStyles.patientContainer}>
+    <View style={globalStyles.patientContainer}>
       <SearchBar
         placeholder="Search Patients"
         value={searchText}
@@ -91,7 +91,7 @@ const Patients = () => {
       />
       {filteredPatients.length > 0 ? (
         <FlatList
-          data={filteredPatients} // ✅ Pass filteredPatients instead of patients
+          data={filteredPatients} 
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <PatientCard
@@ -108,30 +108,11 @@ const Patients = () => {
           }
         />
       ) : (
-        <Text style={styles.noDataText}>No patients found</Text>
+        <Text style={globalStyles.patientNoDataText}>No patients found</Text>
       )}
     </View>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FBFF',
-    padding: 20,
-  },
-  //title: {
-  //  fontSize: 14,
-  //  fontWeight: "bold",
-  //  marginBottom: 14,
-  //},
-  noDataText: {
-    textAlign: "center",
-    fontSize: 16,
-    color: "gray",
-    marginTop: 20,
-  },
-});
 
 export default Patients;

@@ -103,4 +103,24 @@ export const globalStyles = StyleSheet.create({
     loginIcon: {
         padding: 10,
     },
+    patientContainer: {
+        flex: 1,
+        backgroundColor: '#F8FBFF',
+        padding: 20,
+    },
+    patientNoDataText: {
+        textAlign: "center",
+        fontSize: 16,
+        color: "gray",
+        marginTop: 20,
+    },
+    homepagePatientList: {
+        marginRight: 20,
+        paddingRight: 0,
+    },
+    homepageEmergency: {
+        marginTop: 20,
+        padding: 10,
+    },
+
 });

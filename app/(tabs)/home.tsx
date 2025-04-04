@@ -24,6 +24,7 @@ import { Divider } from "react-native-paper";
 import Placeholder from "@/components/Placeholder";
 import SkeletonComponent from "@/components/SkeletonComponent";
 // import SevyaToast from '@/components/SevyaToast'
+import { globalStyles } from "@/styles/globalStyles";
 
 export default function Home() {
   const context = useContext(AppContext);
@@ -68,9 +69,10 @@ export default function Home() {
       Array.isArray(patients) && patients.length &&
       caregivers && Object.keys(caregivers).length &&
       Array.isArray(shifts) && shifts.length
-    ) {      console.log("use effect >>>>>>>>>");
+    ) {
+      console.log("use effect >>>>>>>>>");
       setLoadedContent(true);
-    }else{
+    } else {
       setLoadedContent(false);
     }
   }, [patients, caregivers, shifts]);
@@ -95,7 +97,7 @@ export default function Home() {
   return (
     <>
       {/* <SevyaToast message={messages}/> */}
- 
+
 
       <ScrollView
         style={{ backgroundColor: "#F8FBFF" }}
@@ -103,12 +105,12 @@ export default function Home() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-             <View style={{ height: 150, backgroundColor: "#F8FBFF" }}>
-        <Image
-          style={{ width: "auto", height: 150, borderRadius: 0, margin: 0 }}
-          source={require("@/assets/heroImage.jpeg")}
-        />
-      </View>
+        <View style={{ height: 150, backgroundColor: "#F8FBFF" }}>
+          <Image
+            style={{ width: "auto", height: 150, borderRadius: 0, margin: 0 }}
+            source={require("@/assets/heroImage.jpeg")}
+          />
+        </View>
         {!loadedContent ? (
           <Placeholder />
         ) : (
@@ -122,7 +124,7 @@ export default function Home() {
               gap: 30,
             }}
           >
-           
+
             <View>
               <TodaysShift
                 shifts={shifts}
@@ -133,31 +135,22 @@ export default function Home() {
 
             <Divider />
 
-            <View style={styles.patientList}>
+            <View style={globalStyles.homepagePatientList}>
               <PatientList
                 patients={patients}
                 shifts={shifts}
                 caregivers={caregivers}
               ></PatientList>
             </View>
-            <EmergencyCall caregiver={caregivers} token={token}  patients ={patients}/>
+            <EmergencyCall caregiver={caregivers} token={token} patients={patients} />
           </View>
         )}
         <Divider />
-        <View style={styles.emergency}>
+        <View style={globalStyles.homepageEmergency}>
           <EmergencyHelpScreen />
         </View>
       </ScrollView>
     </>
   );
 }
-const styles = StyleSheet.create({
-  patientList: {
-    marginRight: 20,
-    paddingRight: 0,
-  },
-  emergency: {
-    marginTop: 20,
-    padding: 10,
-  },
-});
+
