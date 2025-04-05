@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useContext } from "react";
+import React, { useState, useEffect, useCallback, useContext, useRef } from "react";
 import {
   View,
   Text,
@@ -24,16 +24,18 @@ import { Divider } from "react-native-paper";
 import Placeholder from "@/components/Placeholder";
 import SkeletonComponent from "@/components/SkeletonComponent";
 import DashboardCard from "@/components/DashboardCard";
+
 // import SevyaToast from '@/components/SevyaToast'
 
 export default function Home() {
   const context = useContext(AppContext);
 
+
   if (!context) {
     return <Text>Error: AppContext n found</Text>;
   }
 
-  const { shifts, fetchData, caregivers, patients, loading, token, messages } =
+  const { shifts, fetchData, caregivers, patients, loading, token, messages, notifications } =
     context;
 
   // console.log(context, 'web scoket >>>>>>>');
@@ -76,27 +78,13 @@ export default function Home() {
     }
   }, [patients, caregivers, shifts]);
 
-  // Handle loading state
-  // if (!isDataReady) {
-  //   return (
-  //     <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#F8FBFF" }}>
-  //       <ActivityIndicator size="large" />
-  //     </View>
-  //   );
-  // }
 
-  // if (loading) {
-  //   return (
-  //     <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: '#F8FBFF', }}>
-  //       <ActivityIndicator size="large" />
-  //     </View>
-  //   );
-  // }
 
   return (
     <>
       {/* <SevyaToast message={messages}/> */}
- 
+
+
 
       <ScrollView
         style={{ backgroundColor: "#F8FBFF" }}
@@ -162,4 +150,30 @@ const styles = StyleSheet.create({
     marginTop: 20,
     padding: 10,
   },
+
+  notificationItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  icon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 15,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  message: {
+    fontSize: 14,
+    marginTop: 3,
+  },
+
 });

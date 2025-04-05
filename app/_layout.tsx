@@ -76,16 +76,29 @@ export default function RootLayout() {
               name="shiftTest/[id]"
               options={{
                 title: "Shift Details",
-                headerBackTitle: "Home",
+                headerBackTitle: "Back",
+                headerStyle: {
+                  backgroundColor: "#F8FBFF",
+                },
+                headerTintColor: "#25578E",
+                headerTitleStyle: {
+                  color: "#25578E",
+                },
               }}
             />
-
 
             <Stack.Screen
               name="patients/[id]"
               options={{
                 title: "Patient Details",
-                headerBackTitle: "Patients",
+                headerBackTitle: "Back",
+                headerStyle: {
+                  backgroundColor: "#F8FBFF",
+                },
+                headerTintColor: "#25578E",
+                headerTitleStyle: {
+                  color: "#25578E",
+                },
               }}
             />
             {/* <Stack.Screen name="CarePlan"/> */}

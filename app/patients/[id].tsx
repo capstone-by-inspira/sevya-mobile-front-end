@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 15,
     backgroundColor: "#fff",
-    // borderRadius: 8,
+    //  borderRadius: 8,
     borderTopRightRadius: 8,
     borderTopLeftRadius: 8,
     marginBottom: 10,
@@ -294,13 +294,13 @@ const styles = StyleSheet.create({
 
   sectionIcon: {
     backgroundColor: "white",
-    borderRadius: 50,
+    // borderRadius: 50,
     padding: 5,
-    shadowColor: "#25578E", // Shadow color
-    shadowOffset: { width: 0, height: 2 }, // Shadow position
-    shadowOpacity: 0.3, // Shadow opacity
-    shadowRadius: 4, // Shadow blur radius
-    elevation: 5, // For Android shadow
+    // shadowColor: "#25578E", // Shadow color
+    // shadowOffset: { width: 0, height: 2 }, // Shadow position
+    // shadowOpacity: 0.3, // Shadow opacity
+    // shadowRadius: 4, // Shadow blur radius
+    // elevation: 5, // For Android shadow
   },
 });
 

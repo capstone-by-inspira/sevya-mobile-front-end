@@ -81,7 +81,7 @@ const Patients = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.safeContainer}>
     <View style={styles.container}>
       {/*<Text style={styles.title}>My Patients</Text>*/}
       <SearchBar
@@ -116,8 +116,13 @@ const Patients = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  safeContainer: {
     flex: 1,
+    backgroundColor: '#F8FBFF',
+    },
+  container: {
+    width:'100%',
+   
     backgroundColor: '#F8FBFF',
     padding: 20,
   },

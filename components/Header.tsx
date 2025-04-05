@@ -10,7 +10,7 @@ import Notifications from "./Notifications";
 import { SafeAreaView } from "react-native";
 import { Divider } from "react-native-paper";
 
-const CustomHeader = () => {
+const CustomHeader = ({onNotificationPress, onPassNotifications}) => {
   const [newNotifications, setNewNotifications] = useState(0);
   const [notificationAlertComing, setNotificationAlertComing] = useState(false);
 
@@ -38,9 +38,15 @@ const CustomHeader = () => {
 
   const modalizeRef = useRef<Modalize>(null);
 
-  // console.log(notifications, "notify>>>>>>");
+   console.log(notifications, "notify>>>>>>");
+   useEffect(() => {
+    if (notifications && onPassNotifications) {
+      onPassNotifications(notifications);
+    }
+  }, [notifications]);
 
   useEffect(() => {
+
     // Trigger the callback whenever the notifications array changes
     if (notificationAlert) {
       setNotificationAlertComing(true);
@@ -60,10 +66,19 @@ const CustomHeader = () => {
     <SafeAreaView style={styles.mainContainer}>
       <Modalize
         ref={modalizeRef}
-        snapPoint={100}
-        modalHeight={1000}
+        snapPoint={450}
+
 
         modalStyle={styles.modalStyle}
+        handleStyle={{
+          backgroundColor: "#25578E",
+          width: 50,
+          height: 6,
+          borderRadius: 60,
+          alignSelf: "center",
+          marginVertical: 10,
+        }}
+        
         flatListProps={{
           data: notifications,
           keyExtractor: (item) => item.id,
@@ -82,7 +97,8 @@ const CustomHeader = () => {
           ),
           showsVerticalScrollIndicator: false,
         }}
-      />
+      >
+        </Modalize>
 
 
 
@@ -97,7 +113,7 @@ const CustomHeader = () => {
         </TouchableOpacity>
 
         <View style={styles.rightContainer}>
-          <TouchableOpacity onPress={openModal}>
+          <TouchableOpacity onPress={onNotificationPress}>
             <Ionicons name="notifications-outline" size={27} color="#25578E" />
 
             {notificationAlertComing && (
@@ -143,16 +159,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#F8FBFF",
   },
   modalizeContainer:{
-    position:'relative',
-    width:'100%',
-    height:'100%',
+
+    // width:'100%',
+    // height:'100%',
   },
   modalStyle: {
-    position: "absolute",  // Ensures it stays fixed at the bottom
-    width: "100%",
-    bottom: 0,
-    zIndex: 9999999, // Make sure modal is above other content
-    overflow: "hidden", // Prevent overflow
+    // position: "absolute",  // Ensures it stays fixed at the bottom
+    // width: "100%",
+    // height: 50,
+    // bottom: 0,
+    // zIndex: 999999999999, // Make sure modal is above other content
+    // overflow: "hidden", // Prevent overflow
 
   },
   headerContainer: {
