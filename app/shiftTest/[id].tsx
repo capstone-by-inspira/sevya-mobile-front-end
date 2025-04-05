@@ -5,7 +5,7 @@ import { updateDocument } from "@/services/api";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { Card, Divider, Icon, ProgressBar } from "react-native-paper";
 import Button from "@/components/ui/Button";
-import { formatDateOnly, formatTimeOnly ,sendNotification} from "@/services/utils";
+import { formatDateAndMonthOnly, formatDateOnly, formatShiftTimeOnly, formatTimeOnly ,sendNotification} from "@/services/utils";
 import { AppContext } from "@/components/AppContext";
 import PatientUCard from "@/components/PatientUCard";
 import ConfettiCannon from 'react-native-confetti-cannon';
@@ -282,7 +282,7 @@ const ShiftCheckIn: React.FC = () => {
           <View style={styles.row}>
             <Icon source="information-outline" size={20} color="#2C3E50" />
             <Text style={styles.cardText}>
-              {formatDateOnly(shift.startTime)} {formatTimeOnly(shift.endTime)}
+              {formatDateAndMonthOnly(shift.startTime)}, {formatShiftTimeOnly(shift.startTime)}-{formatShiftTimeOnly(shift.endTime)}
             </Text>
           </View>
         </View>
