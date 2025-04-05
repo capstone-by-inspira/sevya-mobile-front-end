@@ -20,6 +20,7 @@ import "react-native-gesture-handler";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Notifications from "@/components/Notifications";
 import Welcome from "./screens/Welcome";
+import Home from "@/app/(tabs)/home";
 import "react-native-gesture-handler";
 import "react-native-reanimated";
 import React, {
@@ -31,7 +32,6 @@ import React, {
 } from "react";
 import Header from "@/components/Header";
 
-
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
@@ -39,17 +39,12 @@ interface Caregiver {
   [key: string]: any;
 }
 export default function RootLayout() {
-
-
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     Radley: Radley_400Regular,
     LatoRegular: Lato_400Regular,
     LatoBold: Lato_700Bold,
   });
-
- 
-
 
   useEffect(() => {
     if (loaded) {
@@ -61,22 +56,12 @@ export default function RootLayout() {
     return null;
   }
 
-
-
-
-
-
   return (
-
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AppProvider>
         <ThemeProvider
           value={colorScheme === "light" ? DefaultTheme : DefaultTheme}
         >
-
-
-
-       
           <Stack>
             <Stack.Screen
               name="(tabs)"
@@ -87,6 +72,22 @@ export default function RootLayout() {
             <Stack.Screen name="+not-found" />
             <Stack.Screen name="Welcome" options={{ headerShown: false }} />
 
+            <Stack.Screen
+              name="shiftTest/[id]"
+              options={{
+                title: "Shift Details",
+                headerBackTitle: "Home",
+              }}
+            />
+
+
+            <Stack.Screen
+              name="patients/[id]"
+              options={{
+                title: "Patient Details",
+                headerBackTitle: "Patients",
+              }}
+            />
             {/* <Stack.Screen name="CarePlan"/> */}
           </Stack>
           <StatusBar style="auto" />

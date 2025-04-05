@@ -229,7 +229,7 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
               onPress={() => router.replace("/(tabs)/shifts")}
             >
               <Icon source="calendar" size={18} color="#1E3A8A" />
-              <Text style={styles.scheduleText}>View Your Shift</Text>
+              <Text style={styles.scheduleText}>View Your Schedule</Text>
             </TouchableOpacity>
           </Card>
         </>
