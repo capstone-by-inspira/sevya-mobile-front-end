@@ -12,7 +12,7 @@ import {
   formatTimeOnly,
 } from "@/services/utils";
 import { AppContext } from "../components/AppContext";
-import { sendNotification , capitalize} from "@/services/utils";
+import { sendNotification, capitalize } from "@/services/utils";
 import DashboardCard from "./DashboardCard";
 
 interface Shift {
@@ -117,14 +117,14 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
         Hi {capitalize(caregiver.firstName)}
 
         {shift && shift.id ? (
-  shift.checkIn && shift.checkOut ? (
-    <Text className="text-green-600 font-semibold">, Shift completed!</Text>
-  ) : (
-    <Text className="text-blue-600 font-semibold">, Ready for your shift?</Text>
-  )
-) : (
-  <Text> </Text> // fallback or nothing
-)}
+          shift.checkIn && shift.checkOut ? (
+            <Text className="text-green-600 font-semibold">, Shift completed!</Text>
+          ) : (
+            <Text className="text-blue-600 font-semibold">, Ready for your shift?</Text>
+          )
+        ) : (
+          <Text> </Text> // fallback or nothing
+        )}
       </Text>
 
       <View style={styles.analytics}>
@@ -172,19 +172,19 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
         <>
           <View style={styles.noShiftContainer}>
             <Divider />
-           
+
             <View style={styles.buttonShift}>
-            <Text style={styles.shiftTitle}>
-              <Text style={styles.boldText}>Today's Shift: </Text>{" "}
-              {getCurrentDateDDMMYYYY()}
-            </Text>
+              <Text style={styles.shiftTitle}>
+                <Text style={styles.boldText}>Today's Shift: </Text>{" "}
+                {getCurrentDateDDMMYYYY()}
+              </Text>
               {shift && shift.id ? (
                 // Check if checkIn and checkout are both true
                 shift?.checkIn && shift?.checkOut ? (
-                
-                    <Text style={styles.shiftTitleGreen}>Shift Completed</Text>
 
-                  
+                  <Text style={styles.shiftTitleGreen}>Shift Completed</Text>
+
+
                 ) : (
                   <Button
                     handleButtonClick={() =>
@@ -194,7 +194,7 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
                           id: shift.id, // Pass the id as a query parameter
                           shiftData: JSON.stringify(shifts),
                           patientData: JSON.stringify(patients),
-                          token:token // Pass shift data as a query parameter
+                          token: token // Pass shift data as a query parameter
                         },
                       })
                     }
@@ -245,14 +245,14 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   analytics: {
-    marginTop:20,
+    marginTop: 20,
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-evenly",
     alignItems: "center",
-    gap:10,
-  
-  
+    gap: 10,
+
+
   },
   container: {
     flex: 1,
@@ -276,7 +276,6 @@ const styles = StyleSheet.create({
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-
     flexDirection: "row",
   },
 
@@ -291,11 +290,10 @@ const styles = StyleSheet.create({
     color: "#1E293B",
     marginVertical: 20,
   },
-  shiftTitleGreen:{
+  shiftTitleGreen: {
     fontSize: 16,
     color: "#000000",
     marginVertical: 20,
-
   },
   card: {
     backgroundColor: "#fff",
@@ -309,17 +307,13 @@ const styles = StyleSheet.create({
   },
   cardContentNoShift: {
     display: "flex",
-
     flexDirection: "row",
-
     marginBottom: 10,
     height: 60,
   },
   cardContent: {
     display: "flex",
-
     flexDirection: "column",
-
     marginBottom: 10,
     height: 60,
   },

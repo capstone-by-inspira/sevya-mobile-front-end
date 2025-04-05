@@ -36,31 +36,40 @@ const ShiftCard: React.FC = () => {
   }, [shifts]);
 
   const markShiftsOnCalendar = () => {
+    const todayDate = new Date().toLocaleDateString("en-CA");
+  
     const marks = shifts.reduce((acc: any, shift: any) => {
-      const shiftDate = new Date(shift.startTime).toLocaleDateString("en-CA"); // Extract YYYY-MM-DD
-      acc[shiftDate] = { selected: true, selectedColor: "#10B981" };
+      const shiftDate = new Date(shift.startTime).toLocaleDateString("en-CA");
+      
+      const isPast = shiftDate < todayDate;
+  
+      acc[shiftDate] = {
+        selected: true,
+        selectedColor: isPast ? "rgba(37, 87, 142, 0.5)" : "#10B981", 
+      };
+  
       return acc;
     }, {});
-
+  
     setMarkedDates(marks);
     setAllShifts(shifts);
-
-    const todayLocal = new Date().toLocaleDateString("en-CA");
-    setToday(todayLocal);
-
+  
+    setToday(todayDate);
+  
     const todayShiftData = shifts.find((shift: any) =>
-      new Date(shift.startTime).toLocaleDateString("en-CA") === todayLocal
+      new Date(shift.startTime).toLocaleDateString("en-CA") === todayDate
     );
-    setTodayShift(todayShiftData || null); // Set to null if no shift found
-
+    setTodayShift(todayShiftData || null);
+  
     const upcomingShiftData = shifts
       .filter((shift: any) =>
-        new Date(shift.startTime).toLocaleDateString("en-CA") > todayLocal
+        new Date(shift.startTime).toLocaleDateString("en-CA") > todayDate
       )
       .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
-
+  
     setUpComingShifts(upcomingShiftData);
   };
+  
 
   // Pull-to-refresh function
   const onRefresh = () => {
@@ -85,7 +94,7 @@ const ShiftCard: React.FC = () => {
   };
 
   const renderShiftDetailCard = ({ item }: { item: any }) => (
-    <ShiftDetailCard location={item.location} shiftTime={item.startTime} shiftEndTime={item.endTime} />
+    <ShiftDetailCard location={item.location} shiftTime={item.startTime} shiftEndTime={item.endTime} caregiverFirstname={caregivers.firstName} token={token} />
   );
 
   const sections = [
@@ -106,8 +115,10 @@ const ShiftCard: React.FC = () => {
 
   const requestChange = async () =>{
     await sendNotification('Shift Cancellation Request', `Date: ${selectedDate} `, caregivers.firstName, token);
-    
+    Alert.alert("Shift Cancellation", `Shift has been requested to cancel.`);
+    setModalVisible(false)
   }
+
   return (
 
     <SectionList
@@ -193,9 +204,8 @@ const ShiftCard: React.FC = () => {
 
 const styles = StyleSheet.create({
   scrollView: {
-
     flex: 1,
-    paddingTop: 5,
+    paddingTop: 0,
     backgroundColor: '#F8FBFF',
   },
   container: {
@@ -204,21 +214,20 @@ const styles = StyleSheet.create({
   },
   calendar: {
     width: '100%',
-    height: 370,
+    height: 350,
     borderRadius: 10,
     marginTop: 16,
-    boxShadow:
-    "rgba(60, 64, 67, 0.3) 0px 2px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
+    marginBottom: 16,
+    boxShadow: "rgba(60, 64, 67, 0.3) 0px 2px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
   },
   sectionHeader: {
     fontSize: 16,
     fontStyle: "normal",
     fontWeight: "700",
     lineHeight: 16 * 1.3,
-
     paddingHorizontal: 16,
-    paddingTop: 16,
-     backgroundColor: '#F8FBFF',
+    paddingVertical: 10,
+    backgroundColor: '#F8FBFF',
   },
   modalBackground: {
     flex: 1,
@@ -270,13 +279,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 5,
     color: "#333",
-
   },
   label: {
     fontWeight: "bold",
     color: "#000",
   },
-
 });
 
 export default ShiftCard;
