@@ -244,7 +244,7 @@ const ShiftCheckIn: React.FC = () => {
         />
         </View>
       )}
-      <Divider />
+
       <View style={styles.buttonContainer}>
         <Button
           handleButtonClick={handleStartShift}
@@ -323,6 +323,9 @@ const ShiftCheckIn: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
+    display:"flex",
+    flexDirection: "column",
+    paddingVertical: 40,
     backgroundColor: '#F8FBFF',
     height: '100%',
   },

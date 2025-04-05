@@ -69,6 +69,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     backgroundColor: "white",
+    gap:3,
     borderRadius: 10,
     padding: 10,
     marginBottom: 10,
@@ -107,6 +108,20 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: "bold",
     textDecorationLine: "underline",
+  },
+  button: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#25578E",
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 15,
+    marginTop: 10,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 12,
+    marginRight: 5,
   },
 });
 

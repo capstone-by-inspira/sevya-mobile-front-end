@@ -69,6 +69,7 @@ const styles = StyleSheet.create({
     marginRight: 2,
     marginBottom: 20,
     alignItems: "center",
+
     width: 180,
     boxShadow: "rgba(60, 64, 67, 0.3) 0px 2px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
   },
@@ -104,18 +105,20 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   button: {
+    marginTop:7,
     flexDirection: "row",
+    justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#25578E",
-    paddingVertical: 6,
+    paddingVertical: 8,
     paddingHorizontal: 14,
-    borderRadius: 15,
-    marginTop: 10,
+    borderRadius: 45,
+
   },
   buttonText: {
     color: "#fff",
-    fontSize: 12,
-    marginRight: 5,
+    fontSize: 15,
+
   },
 });
 
