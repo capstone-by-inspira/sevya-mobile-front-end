@@ -8,7 +8,7 @@ interface PatientCardProps {
   name: string;
   lname: string;
   gender: string;
-  conditions: string[];
+  conditions: any;
   image: string;
   onPress: () => void; // Function for handling "View Details"
 }

@@ -11,6 +11,7 @@ import TodayShiftDetailCard from '@/components/TodayShiftCardDetail';
 import { Icon } from 'react-native-paper';
 import { formatDateOnly, formatShiftTimeOnly, sendNotification } from '@/services/utils';
 import Button from "@/components/ui/Button";
+import { capitalize } from '@/services/utils';
 
 const ShiftCard: React.FC = () => {
   const context = useContext(AppContext);
@@ -156,10 +157,10 @@ const ShiftCard: React.FC = () => {
                       renderItem={({ item }) => (
                         <View style={styles.shiftDetails}>
                           <Text style={styles.detailText}>
-                            <Text style={styles.label}>Patient:</Text> {patients.find(p => p.id === item.patientId).firstName || "Patient Name"}
+                            <Text style={styles.label}>Patient:</Text> {capitalize(patients.find(p => p.id === item.patientId).firstName) || "Patient Name"}
                           </Text>
                           <Text style={styles.detailText}>
-                            <Text style={styles.label}>Caregiver:</Text> {caregivers.firstName || "Caregiver Name"}
+                            <Text style={styles.label}>Caregiver:</Text> {capitalize(caregivers.firstName) || "Caregiver Name"} {capitalize(caregivers.lastName) || "Caregiver Name"}
                           </Text>
                           <Text style={styles.detailText}>
                             <Text style={styles.label}>Address:</Text> {item.location}
@@ -173,8 +174,9 @@ const ShiftCard: React.FC = () => {
                           <Text style={styles.detailText}>
                             <Text style={styles.label}>End Shift:</Text> {formatShiftTimeOnly(item.endTime)}
                           </Text>
+                       <View style={styles.buttonContainer}>
                           <Button handleButtonClick={requestChange} buttonText="Request Shift Cancellation" />
-
+                          </View>
                         </View>
                       )}
                       nestedScrollEnabled={true}
@@ -284,6 +286,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000",
   },
+  buttonContainer:{
+    display:'flex',
+    flexDirection:'row',
+    alignItems:'center',
+    justifyContent:'center',
+    marginTop:14,
+  }
 });
 
 export default ShiftCard;

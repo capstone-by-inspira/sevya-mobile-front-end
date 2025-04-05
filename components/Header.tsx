@@ -54,8 +54,8 @@ const CustomHeader = ({onNotificationPress, onPassNotifications}) => {
   }, [notificationAlert]);
   const openModal = () => {
     setNotificationAlertComing(false);
-    console.log("opening", modalizeRef.current?.open);
-    modalizeRef.current?.open();
+    onNotificationPress();
+    // modalizeRef.current?.open();
   };
   const handleNewNotifications = (notifications) => {
     setNewNotifications(notifications.length);
@@ -113,7 +113,7 @@ const CustomHeader = ({onNotificationPress, onPassNotifications}) => {
         </TouchableOpacity>
 
         <View style={styles.rightContainer}>
-          <TouchableOpacity onPress={onNotificationPress}>
+          <TouchableOpacity onPress={openModal}>
             <Ionicons name="notifications-outline" size={27} color="#25578E" />
 
             {notificationAlertComing && (

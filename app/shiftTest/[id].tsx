@@ -9,6 +9,7 @@ import { formatDateAndMonthOnly, formatDateOnly, formatShiftTimeOnly, formatTime
 import { AppContext } from "@/components/AppContext";
 import PatientUCard from "@/components/PatientUCard";
 import ConfettiCannon from 'react-native-confetti-cannon';
+import PatientCard from "@/components/PatientCard";
 
 interface Shift {
   id: number;
@@ -298,9 +299,9 @@ const ShiftCheckIn: React.FC = () => {
       </Card>
       <Divider />
 
-      <Text style={styles.shiftInfoHeading}>Your Patients</Text>
+      <Text style={styles.shiftInfoHeading}>Your Patient</Text>
       <View style={styles.patientList}>
-        <PatientUCard
+        {/* <PatientUCard
           name={associatedPatient.firstName}
           lname={associatedPatient.lastName}
           gender={associatedPatient.gender}
@@ -315,7 +316,23 @@ const ShiftCheckIn: React.FC = () => {
               AllCaregivers: JSON.stringify(caregivers)
             }
           })}
-        />
+        /> */}
+          <PatientCard
+            image={associatedPatient.image}
+              name={associatedPatient.firstName} 
+              lname={associatedPatient.lastName} 
+              gender={associatedPatient.gender}
+              conditions={associatedPatient.medicalConditions}
+              onPress={() => router.push({
+                pathname: `/patients/[id]`,
+                params: {
+                  id: associatedPatient.id,  // Pass the id as a query parameter
+                  AllShifts: JSON.stringify(shiftData),
+                  AllPatients: JSON.stringify(patientData),  // Pass shift data as a query parameter
+                  AllCaregivers: JSON.stringify(caregivers)
+                }
+              })}
+            />
       </View>
     </View>
   );
@@ -397,6 +414,7 @@ const styles = StyleSheet.create({
   },
   patientList: {
     marginHorizontal: 20,
+    height:100,
   },
   confettiContainer:{
     position: "absolute",
