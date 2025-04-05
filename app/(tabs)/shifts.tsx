@@ -106,8 +106,6 @@ const ShiftCard: React.FC = () => {
 
   const requestChange = async () =>{
     await sendNotification('Shift Cancellation Request', `Date: ${selectedDate} `, caregivers.firstName, token);
-
-
     
   }
   return (
@@ -195,6 +193,7 @@ const ShiftCard: React.FC = () => {
 
 const styles = StyleSheet.create({
   scrollView: {
+
     flex: 1,
     paddingTop: 5,
     backgroundColor: '#F8FBFF',
@@ -207,18 +206,19 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 370,
     borderRadius: 10,
-    elevation: 5,
-    marginTop: 16
+    marginTop: 16,
+    boxShadow:
+    "rgba(60, 64, 67, 0.3) 0px 2px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
   },
   sectionHeader: {
     fontSize: 16,
     fontStyle: "normal",
     fontWeight: "700",
     lineHeight: 16 * 1.3,
-    // padding: 16,
+
     paddingHorizontal: 16,
     paddingTop: 16,
-    // backgroundColor: '#f0f0f0',
+     backgroundColor: '#F8FBFF',
   },
   modalBackground: {
     flex: 1,

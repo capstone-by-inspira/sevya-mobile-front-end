@@ -44,6 +44,7 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
   const [shift, setShift] = useState<Shift | null>(null);
   const [noShift, setNoShift] = useState(true); // Tracks no shift today
 
+
   // console.log(shifts,'rr');
   // Log the updated shift and noShift state
   useEffect(() => {
@@ -113,9 +114,17 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
   return (
     <View style={styles.container}>
       <Text style={styles.greeting}>
-        Hi, {capitalize(caregiver.firstName)}
-        {console.log(shift)}
-        {shift && shift.id ? "! Ready for your shift?" : " "}
+        Hi {capitalize(caregiver.firstName)}
+
+        {shift && shift.id ? (
+  shift.checkIn && shift.checkOut ? (
+    <Text className="text-green-600 font-semibold">, Shift completed!</Text>
+  ) : (
+    <Text className="text-blue-600 font-semibold">, Ready for your shift?</Text>
+  )
+) : (
+  <Text> </Text> // fallback or nothing
+)}
       </Text>
 
       <View style={styles.analytics}>
@@ -172,20 +181,10 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
               {shift && shift.id ? (
                 // Check if checkIn and checkout are both true
                 shift?.checkIn && shift?.checkOut ? (
-                  <Button
-                    handleButtonClick={() =>
-                      router.push({
-                        pathname: `/shiftTest/[id]`,
-                        params: {
-                          id: shift.id, // Pass the id as a query parameter
-                          shiftData: JSON.stringify(shifts),
-                          patientData: JSON.stringify(patients), // Pass shift data as a query parameter
-                        },
-                      })
-                    }
-                    buttonText="Shift completed"
-                    style={{ width: 200 }}
-                  />
+                
+                    <Text style={styles.shiftTitleGreen}>Shift Completed</Text>
+
+                  
                 ) : (
                   <Button
                     handleButtonClick={() =>
@@ -194,7 +193,8 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
                         params: {
                           id: shift.id, // Pass the id as a query parameter
                           shiftData: JSON.stringify(shifts),
-                          patientData: JSON.stringify(patients), // Pass shift data as a query parameter
+                          patientData: JSON.stringify(patients),
+                          token:token // Pass shift data as a query parameter
                         },
                       })
                     }
@@ -229,7 +229,7 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
               onPress={() => router.replace("/(tabs)/shifts")}
             >
               <Icon source="calendar" size={18} color="#1E3A8A" />
-              <Text style={styles.scheduleText}>View Your Shift</Text>
+              <Text style={styles.scheduleText}>View Your Schedule</Text>
             </TouchableOpacity>
           </Card>
         </>
@@ -290,6 +290,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#1E293B",
     marginVertical: 20,
+  },
+  shiftTitleGreen:{
+    fontSize: 16,
+    color: "#000000",
+    marginVertical: 20,
+
   },
   card: {
     backgroundColor: "#fff",

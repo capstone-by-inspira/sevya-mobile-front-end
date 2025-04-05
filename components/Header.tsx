@@ -38,7 +38,7 @@ const CustomHeader = () => {
 
   const modalizeRef = useRef<Modalize>(null);
 
-  console.log(notifications, "notify>>>>>>");
+  // console.log(notifications, "notify>>>>>>");
 
   useEffect(() => {
     // Trigger the callback whenever the notifications array changes
@@ -98,7 +98,7 @@ const CustomHeader = () => {
 
         <View style={styles.rightContainer}>
           <TouchableOpacity onPress={openModal}>
-            <Ionicons name="notifications-outline" size={24} color="#25578E" />
+            <Ionicons name="notifications-outline" size={27} color="#25578E" />
 
             {notificationAlertComing && (
               <View

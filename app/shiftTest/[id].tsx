@@ -5,7 +5,7 @@ import { updateDocument } from "@/services/api";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { Card, Divider, Icon, ProgressBar } from "react-native-paper";
 import Button from "@/components/ui/Button";
-import { formatDateOnly, formatTimeOnly ,sendNotification} from "@/services/utils";
+import { formatDateAndMonthOnly, formatDateOnly, formatShiftTimeOnly, formatTimeOnly ,sendNotification} from "@/services/utils";
 import { AppContext } from "@/components/AppContext";
 import PatientUCard from "@/components/PatientUCard";
 import ConfettiCannon from 'react-native-confetti-cannon';
@@ -36,8 +36,10 @@ interface Patient {
 
 
 const ShiftCheckIn: React.FC = () => {
-  const { id, shiftData, patientData } = useLocalSearchParams();
-  console.log(patientData, 'ss');
+  const { id, shiftData, patientData, token } = useLocalSearchParams();
+
+
+  console.log(token, 'ss');
 
   const navigation = useNavigation();
 
@@ -48,12 +50,14 @@ const ShiftCheckIn: React.FC = () => {
     return <Text>Error: AppContext not found</Text>;
   }
 
-  const { token, caregivers, fetchData } = context;
+  const { caregivers, fetchData } = context;
 
   const shiftDataString = Array.isArray(shiftData) ? shiftData[0] : shiftData;
   const patientDataString = Array.isArray(patientData)
     ? patientData[0]
     : patientData;
+
+
 
   const [shifts, setShifts] = useState(JSON.parse(shiftDataString));
   const [patients, setPatients] = useState(JSON.parse(patientDataString));
@@ -82,7 +86,7 @@ const ShiftCheckIn: React.FC = () => {
     const associatedPatientData = patients.find(
       (p) => p.id === currentShift?.patientId
     );
-    console.log(currentShift?.patientId, 'cccurrent')
+    console.log(currentShift, '????/')
     console.log('All patient IDs:', patients.map(p => p.id));
 
 
@@ -167,6 +171,7 @@ const ShiftCheckIn: React.FC = () => {
         updateData,
         token
       );
+      console.log(token, 'updateresult');
       if (updateResult.success) {
         setShift(updateData);
         fetchData();
@@ -277,7 +282,7 @@ const ShiftCheckIn: React.FC = () => {
           <View style={styles.row}>
             <Icon source="information-outline" size={20} color="#2C3E50" />
             <Text style={styles.cardText}>
-              {formatDateOnly(shift.startTime)} {formatTimeOnly(shift.endTime)}
+              {formatDateAndMonthOnly(shift.startTime)}, {formatShiftTimeOnly(shift.startTime)}-{formatShiftTimeOnly(shift.endTime)}
             </Text>
           </View>
         </View>
