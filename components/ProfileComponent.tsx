@@ -2,20 +2,16 @@ import React, { useContext, useState, useEffect } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   Image,
   ActivityIndicator,
-  TouchableOpacity,
   ImageBackground
 } from "react-native";
-import { AppContext } from "./AppContext"; // Adjust path as needed
-import { getSecureData } from "../services/secureStorage"; // Import secure storage
+import { AppContext } from "./AppContext";
 import * as ImagePicker from "expo-image-picker";
-import { updateDocument } from "../services/api"; // Import your uploadImage and updateDocument functions
-import { auth } from "@/config/firebase";
+import { updateDocument } from "../services/api"; 
 import { Icon } from "react-native-paper";
-import { formatDateOnly, formatLocalDate } from "@/services/utils";
 import axios from "axios";
+import { globalStyles } from "@/styles/globalStyles";
 const ProfileScreen = () => {
   const context = useContext(AppContext);
 
@@ -115,34 +111,32 @@ const ProfileScreen = () => {
 
   if (!caregivers) {
     return (
-      <View style={styles.container}>
+      <View style={globalStyles.profileScreenContainer}>
         <ActivityIndicator size="large" />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-
-      
+    <View style={globalStyles.profileScreenContainer}>
       {loading && (
-        <View style={styles.loadingOverlay}>
+        <View style={globalStyles.profileScreenLoadingOverlay}>
           <ActivityIndicator size="large" color="#0000ff" />
         </View>
       )}
       <ImageBackground
         source={require("../assets/images/wrapper1.png")}
-        style={styles.backgroundImage}
+        style={globalStyles.profileScreenBackgroundImage}
       >
-      <View style={styles.imageContainer1}>
-        <View style={styles.imageContainer}>
+      <View style={globalStyles.profileScreenImageWrapper}>
+        <View style={globalStyles.profileScreenImageContainer}>
           <Image
             source={profileImage ? { uri: profileImage } : require('../assets/images/placeholder-image.jpg')} // Replace with your placeholder
-            style={styles.profileImage}
+            style={globalStyles.profileScreenImage}
           />
-          <Text style={styles.caregiverName}>{caregivers.firstName} {caregivers.lastName}</Text> 
-          <Text style={styles.caregiver}>Caregiver</Text>
-          <Text style={styles.changeImageText} onPress={pickImage}>
+          <Text style={globalStyles.profileScreenCaregiverName}>{caregivers.firstName} {caregivers.lastName}</Text> 
+          <Text style={globalStyles.profileScreenCaregiver}>Caregiver</Text>
+          <Text style={globalStyles.profileScreenChangeImageText} onPress={pickImage}>
             Change Profile Image  
             <Icon source="pencil" size={18} color="#CEE8F2" />
           </Text>
@@ -150,149 +144,31 @@ const ProfileScreen = () => {
       </View>
       </ImageBackground>
 
-      <View style={styles.detailsContainer}>
-        <Text style={styles.detailText2}>Personal Info</Text>
-        <Text style={styles.detailText}>
+      <View style={globalStyles.profileScreenDetailsContainer}>
+        <Text style={globalStyles.profileScreenDetailText2}>Personal Info</Text>
+        <Text style={globalStyles.profileScreenDetailText}>
           <Image source={require('../assets/images/Mail.png')}
-          style={styles.icons}/>
+          style={globalStyles.profileScreenIcons}/>
           <Text>    Email:</Text> {caregivers.email}
         </Text>
-        <Text style={styles.detailText3}>
+        <Text style={globalStyles.profileScreenDetailText3}>
           <Image source={require('../assets/images/Phone.png')}
-          style={styles.icons}/>
+          style={globalStyles.profileScreenIcons}/>
           <Text>    Phone number:</Text> {caregivers.phoneNumber}
         </Text>
-        <Text style={styles.detailText1}>Work Info</Text>
-        <Text style={styles.detailText}>
+        <Text style={globalStyles.profileScreenDetailText1}>Work Info</Text>
+        <Text style={globalStyles.profileScreenDetailText}>
           <Image source={require('../assets/images/User.png')}
-          style={styles.icons}/>
+          style={globalStyles.profileScreenIcons}/>
           <Text>    Total Patients Assigned:</Text> {patients.length}
         </Text>
-        <Text style={styles.detailText}>
+        <Text style={globalStyles.profileScreenDetailText}>
           <Image source={require('../assets/images/Clock.png')}
-          style={styles.icons}/>
+          style={globalStyles.profileScreenIcons}/>
           <Text>    Total Shifts:</Text> {shifts?.length}
         </Text>
-        
-
-      {/*<Text style={styles.detailText}>
-          <Text style={{ fontWeight: "bold" }}>Availability:</Text> {formatLocalDate(caregivers.availability)}
-        </Text>*/}
-
-        {/* Add other user details here */}
       </View>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    width:'100%',
-    flex: 1,
-    backgroundColor: 'transparent',
-  },
-  loadingOverlay: {
-  display:"flex",
-    backgroundColor: 'transparent',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 10,
-  },
-  imageContainer1: {
-    marginLeft:-30,
-flex:1,
-display:'flex',
-flexDirection:'row',
-alignItems:'center',
-justifyContent:'center',
-  },
-  imageContainer: {
-width:'100%',
-   display:'flex',
-   flexDirection:'column',
-   alignItems:'center',
-
-  },
-  profileImage: {
-    width: 120,
-    height: 120,
-    marginBottom: 10,
-    borderRadius: 200,
-    borderWidth: 6,
-    borderColor: "#CEE8F2", 
-    alignItems: "center",
-    backgroundColor: "#FFF",
-    boxShadow:
-      "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
-  },
-  caregiverName:{
-    color:'white',
-    fontSize:16,
-    paddingTop:6,
-  },
-  caregiver:{
-    color:'white',
-    fontSize:12,
-    paddingBottom:6,
-    paddingTop:6,
-  },
-  changeImageText: {
-    color: '#CEE8F2',
-    marginTop: 5,
-   
-    borderWidth: 1,
-    borderColor: '#CEE8F2',
-    padding: 10,
-    borderRadius: 24,
-  },
-  detailsContainer: {
-    paddingHorizontal: 20,
-    paddingVertical:10,
-    width: 400,
-    backgroundColor: '#F8FBFF',
-  },
-  detailText: {
-    display:'flex',
-    columnGap:35,
-    fontSize: 16,
-    marginBottom: 15,
-    color: '#424242',
-
-  },
-  detailText1: {
-    fontSize: 16,
-    borderTopWidth: 1,       
-    borderTopColor: '#E2E2E2', 
-    paddingTop:10,
-    marginBottom: 20,
-    color: '#424242',
-    fontStyle:'italic',
-    marginRight:20,
-  },
-  detailText2: {
-    fontSize: 16,
-    paddingTop:10,
-    marginBottom: 20,
-    color: '#424242',
-    fontStyle:'italic',
-  },
-  detailText3: {
-    fontSize: 16,
-    marginBottom: 20,
-    color: '#424242',
-  },
-  backgroundImage: {
-    width: "110%",
-    height: 308,
-    padding:0,
-    resizeMode: "cover",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  icons:{
-    height: 16,
-    paddingTop:1,
-  },
-});
-
 export default ProfileScreen;

@@ -1,15 +1,13 @@
-import { View, Text, SafeAreaView, StyleSheet } from "react-native";
+import { View } from "react-native";
 import React from "react";
 import { deleteSecureData, getSecureData } from "../../services/secureStorage";
 import { useRouter } from "expo-router";
-
+import { globalStyles } from "@/styles/globalStyles";
 import Button from "@/components/ui/Button";
 import ProfileScreen from "@/components/ProfileComponent";
 import * as Notifications from "expo-notifications";
 const settings = () => {
   const router = useRouter();
-
-
   const logout = async () => {
     await deleteSecureData("token");
     await deleteSecureData("user");
@@ -18,23 +16,11 @@ const settings = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={globalStyles.settingsContainer}>
       <ProfileScreen />
       <Button handleButtonClick={logout} buttonText="Logout" />
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: '#F8FBFF',
-    height: '100%',
-  },
-});
-
 
 export default settings;

@@ -140,7 +140,8 @@ const LoginScreen: React.FC = () => {
           <View style={globalStyles.loginInputContainer}>
             <TouchableOpacity style={globalStyles.loginButton} onPress={handleLogin}>
               <Text style={{ color: "#fff" }}>Login</Text>
-            </TouchableOpacity>          </View>
+            </TouchableOpacity>
+          </View>
 
         </View>
       </View>
