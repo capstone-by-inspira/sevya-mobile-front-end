@@ -5,7 +5,6 @@ export const WS_URL = "wss://sevya-admin.site:8808"
 
 // export const WS_URL = "ws://localhost:8800"
 
-
 export const translatePatientNotes = async (patientData) => {
   try {
     const response = await axios.post(
