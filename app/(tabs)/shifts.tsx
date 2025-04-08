@@ -8,7 +8,7 @@ import { Calendar } from 'react-native-calendars';
 import ShiftDetailCard from '@/components/ShiftDetailCard';
 import { AppContext } from '@/components/AppContext';
 import TodayShiftDetailCard from '@/components/TodayShiftCardDetail';
-import { Icon } from 'react-native-paper';
+import { Card, Divider, Icon } from 'react-native-paper';
 import { formatDateOnly, formatShiftTimeOnly, sendNotification } from '@/services/utils';
 import Button from "@/components/ui/Button";
 import { capitalize } from '@/services/utils';
@@ -120,13 +120,27 @@ const ShiftCard: React.FC = () => {
     setModalVisible(false)
   }
 
+  const reqTodayShift = async () => {
+      const today = new Date().toLocaleDateString("en-CA");
+  
+      await sendNotification(
+        "Shift Request",
+        `Shift has been requested for ${today}`,
+        caregivers.firstName,
+        token
+      );
+      Alert.alert("Shift Requested", `Shift has been requested for ${today}`);
+  
+    };
+
   return (
 
     <SectionList
       style={styles.scrollView}
       sections={sections}
       keyExtractor={(item, index) => item.id || index.toString()}
-      renderItem={({ item }) => {
+      renderItem={({ item, section }) => {
+        const title = section.title;
         const itemDate = new Date(item.startTime).toLocaleDateString("en-CA");
         if (item.key === 'calendar') {
           return (
@@ -193,14 +207,52 @@ const ShiftCard: React.FC = () => {
         } else {
           return renderShiftDetailCard({ item });
         }
-
       }}
       renderSectionHeader={({ section: { title } }) => (
         <Text style={styles.sectionHeader}>{title}</Text>
       )}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      renderSectionFooter={({ section }) => {
+        if (section.title === "Today's Shift" && !todayShift) {
+          return (
+            <View style={styles.container}>
+              <Card style={styles.card}>
+                <View style={styles.cardContentNoShift}>
+                  <View style={styles.row}>
+                    <Icon source="information-outline" size={20} color="#2C3E50" />
+                    <Text style={styles.cardText}>No shift for today</Text>
+                  </View>
+                </View>
+                <Divider />
+                <TouchableOpacity
+                  style={styles.scheduleButton}
+                  onPress={reqTodayShift}
+                >
+                  {/* <Icon source="calendar" size={18} color="#1E3A8A" /> */}
+                  <Text style={styles.scheduleText}>Request Shift for Today</Text>
+                </TouchableOpacity>
+              </Card>
+            </View>
+          );
+        }
+      
+        if (section.title === "Next Shifts" && upComingShifts.length === 0) {
+          return (
+            <View style={styles.container}>
+              <Card style={styles.card}>
+                <View style={styles.cardContentNoShift}>
+                  <View style={styles.row}>
+                    <Icon source="information-outline" size={20} color="#2C3E50" />
+                    <Text style={styles.cardText}>No upcoming shifts</Text>
+                  </View>
+                </View>
+              </Card>
+            </View>
+          );
+        }
+        return null;
+      }}
     />
-
   );
 };
 
@@ -292,7 +344,59 @@ const styles = StyleSheet.create({
     alignItems:'center',
     justifyContent:'center',
     marginTop:14,
-  }
+  },
+  emptyText: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontStyle: 'italic',
+    color: '#666',
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    paddingTop: 14,
+    paddingLeft: 14,
+    paddingRight: 14,
+    paddingBottom: 6,
+    boxShadow:  "rgba(60, 64, 67, 0.3) 0px 2px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
+    marginVertical: 5,
+  },
+  cardContentNoShift: {
+    display: "flex",
+    flexDirection: "row",
+    marginBottom: 10,
+    height: 60,
+  },
+  cardContent: {
+    display: "flex",
+    flexDirection: "column",
+    marginBottom: 10,
+    height: 60,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  cardText: {
+    fontSize: 16,
+    color: "#374151",
+    marginLeft: 8,
+    fontFamily: "Lato",
+    fontStyle: "normal",
+    fontWeight: "400",
+    lineHeight: 24,
+  },
+  scheduleButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  scheduleText: {
+    color: "#1E3A8A",
+    fontWeight: "bold",
+    marginVertical: 10,
+  },
 });
 
 export default ShiftCard;
