@@ -137,8 +137,8 @@ const ShiftCard: React.FC = () => {
                   [today]: {
                     selected: true,
                     selectedColor: "#25578E",
-                    marked: true,
-                    dotColor: "white",
+                    // marked: true,
+                    // dotColor: "white",
                   },
                 }} />
               <Modal visible={modalVisible} animationType="fade" transparent={true}>
