@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     fontStyle: "normal",
     fontWeight: "700",
     lineHeight: 16,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     paddingBottom: 16,
   },
 
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     fontFamily: "Lato",
     lineHeight: 16,
     fontStyle: "normal",
-    textAlign: "center",
+    textAlign: "left",
     flexWrap: "wrap", // Ensure text wraps inside the container
     maxWidth: "100%", // Prevent text from overflowing
   },

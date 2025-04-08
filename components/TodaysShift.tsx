@@ -57,8 +57,15 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
 
   // Get today's date in DD/MM/YYYY format
   const getCurrentDateDDMMYYYY = (): string => {
-    return new Date().toLocaleDateString("en-GB");
+    const date = new Date();
+    return date.toLocaleDateString("en-CA", {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  
   };
+  
 
   // Find today's shift when the shifts prop changes
   useEffect(() => {
@@ -113,19 +120,24 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
   };
   return (
     <View style={styles.container}>
-      <Text style={styles.greeting}>
-        Welcome, {capitalize(caregiver.firstName)} {capitalize(caregiver.lastName)} !
+        {/* Welcome, {capitalize(caregiver.firstName)} {capitalize(caregiver.lastName)} ! */}
 
         {shift && shift.id ? (
           shift.checkIn && shift.checkOut ? (
+            <Text style={styles.greeting}>
+
             <Text className="text-green-600 font-semibold">, Shift completed!</Text>
+            </Text>
           ) : (
-            <Text className="text-blue-600 font-semibold">, Ready for your shift?</Text>
+            <Text style={styles.greeting}>
+
+            <Text className="text-blue-600 font-semibold">Ready for your shift ? </Text>
+            </Text>
           )
         ) : (
           <Text> </Text> // fallback or nothing
         )}
-      </Text>
+   
 
       <View style={styles.analytics}>
         <DashboardCard title={"Assigned Patients"} data={patients.length} />
@@ -134,7 +146,9 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
 
       {noShift ? (
         <View style={styles.noShiftContainer}>
-          <Divider />
+          <View style={styles.noShiftContainerDivider}>
+              <Divider />
+            </View>
           <View style={styles.buttonShift}>
             <Text style={styles.shiftTitle}>
               <Text style={styles.boldText}>Today's Date: </Text>{" "}
@@ -171,7 +185,9 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
         // </Card>
         <>
           <View style={styles.noShiftContainer}>
-            <Divider />
+            <View style={styles.noShiftContainerDivider}>
+              <Divider />
+            </View>
 
             <View style={styles.buttonShift}>
               <Text style={styles.shiftTitle}>
@@ -217,13 +233,15 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
               <View style={styles.row}>
                 <Icon source="information-outline" size={20} color="#2C3E50" />
                 <Text style={styles.cardText}>
-                  {formatDateAndMonthOnly(shift?.startTime)},
+                  {formatDateAndMonthOnly(shift?.startTime)} , {" "} 
                   {formatShiftTimeOnly(shift?.startTime)} -{" "}
                   {formatShiftTimeOnly(shift?.endTime)}
                 </Text>
               </View>
             </View>
+          
             <Divider />
+
             <TouchableOpacity
               style={styles.scheduleButton}
               onPress={() => router.replace("/(tabs)/shifts")}
@@ -242,11 +260,15 @@ export default TodaysShift;
 
 const styles = StyleSheet.create({
   noShiftContainer: {
+
     marginTop: 30,
   },
+  noShiftContainerDivider:{
+marginVertical:10,
+  },
   analytics: {
-    marginTop: 20,
-    display: "flex",
+   marginTop:0,
+    display: "flex",  
     flexDirection: "row",
     justifyContent: "space-evenly",
     alignItems: "center",
@@ -258,17 +280,20 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     paddingHorizontal: 20,
+
   },
   greeting: {
     color: "#000",
-    marginBottom: 10,
-    marginTop: 20,
+marginTop:-20,
+marginBottom:40,
+paddingBottom:0,
+
     fontFamily: "Lato",
-    fontSize: 22, // 16
+    fontSize: 20, // 16
     fontStyle: "normal",
-    fontWeight: "700",
+    fontWeight: "600",
     textAlign: "center",
-    
+
 
   },
   boldText: {

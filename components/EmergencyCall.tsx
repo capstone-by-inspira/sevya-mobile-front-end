@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { View, Text, Alert, StyleSheet, Linking } from "react-native";
 import { Accelerometer } from "expo-sensors";
 import { getDocumentById, getDocuments, updateDocument , createDocument} from "@/services/api";
+import { Divider } from "react-native-paper";
 
 const EmergencyCall = ({caregiver, token, patients}) => {
   const phoneNumber = "911"; // Replace with actual emergency contact
@@ -73,10 +74,17 @@ const EmergencyCall = ({caregiver, token, patients}) => {
       console.error("Error creating emergency document:", error);
     }
   };
-  return <></>;
+  return <>
+
+
+  </>;
 };
 
 const styles = StyleSheet.create({
+  emergencyDoc:{
+    paddingHorizontal:20,
+
+  },
   container: {
     flex: 1,
     justifyContent: "center",
