@@ -77,6 +77,7 @@ const Notes = () => {
 
   const [fullImageUri, setFullImageUri] = useState<string | null>(null); // New state for full image
 
+
   const languages = [
     { key: "en", value: "English" },
     { key: "pa", value: "Punjabi" },
@@ -419,7 +420,7 @@ const Notes = () => {
                   <View style={styles.noteHeader}>
                     <View style={styles.noteHeader}>
                       <Image
-                        source={{ uri: item.caregiverImage }}
+                        source={item.caregiverImage ? { uri: item.caregiverImage } : require('@/assets/caregiver.png')}
                         style={styles.noteAuthorImage}
                       />
                       <Text style={styles.noteAuthor}>
