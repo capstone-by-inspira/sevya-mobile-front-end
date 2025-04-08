@@ -203,7 +203,7 @@ const ShiftCard: React.FC = () => {
 
           );
         } else if (todayShift && item.id === todayShift.id && itemDate === today) {
-          return <TodayShiftDetailCard location={item.location} shiftTime={item.startTime} shiftEndTime={item.endTime} shiftId={todayShift.id} shifts={shifts} patients={patients} />
+          return <TodayShiftDetailCard location={item.location} shiftTime={item.startTime} shiftEndTime={item.endTime} shiftId={todayShift.id} shifts={shifts} patients={patients} caregivers={caregivers}/>
         } else {
           return renderShiftDetailCard({ item });
         }

@@ -43,12 +43,16 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
 }) => {
   const [shift, setShift] = useState<Shift | null>(null);
   const [noShift, setNoShift] = useState(true); // Tracks no shift today
-
-
+ 
+  
+ const filteredShiftsLength = shifts.filter(
+    (shift) => shift.checkIn === true && shift.checkOut === true
+  ).length;
   // console.log(shifts,'rr');
   // Log the updated shift and noShift state
   useEffect(() => {
     // console.log("Updated shift:", shift);
+    
   }, [shift]);
 
   useEffect(() => {
@@ -126,7 +130,7 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
           shift.checkIn && shift.checkOut ? (
             <Text style={styles.greeting}>
 
-            <Text className="text-green-600 font-semibold">, Shift completed!</Text>
+            <Text className="text-green-600 font-semibold"> Shift completed!</Text>
             </Text>
           ) : (
             <Text style={styles.greeting}>
@@ -141,7 +145,7 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
 
       <View style={styles.analytics}>
         <DashboardCard title={"Assigned Patients"} data={patients.length} />
-        <DashboardCard title={"Shift Covered"} data={shifts.length} />
+        <DashboardCard title={"Shift Covered"} data={filteredShiftsLength} />
       </View>
 
       {noShift ? (
@@ -210,6 +214,7 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
                           id: shift.id, // Pass the id as a query parameter
                           shiftData: JSON.stringify(shifts),
                           patientData: JSON.stringify(patients),
+                          caregiverData:JSON.stringify(caregiver),
                           token: token // Pass shift data as a query parameter
                         },
                       })
