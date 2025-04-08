@@ -117,7 +117,7 @@ const PatientDetails = () => {
           style={styles.sectionHeader}
           onPress={() => toggleSection("patientInfo")}
         >
-          <Text style={styles.sectionTitle}>Patient Info</Text>
+          <Text style={styles.sectionTitle}>Patient Information</Text>
           <View style={styles.sectionIcon}>
             <AntDesign
               name={expandedSections.patientInfo ? "minus" : "plus"}
@@ -140,7 +140,7 @@ const PatientDetails = () => {
           style={styles.sectionHeader}
           onPress={() => toggleSection("medicalInfo")}
         >
-          <Text style={styles.sectionTitle}>Medical Info</Text>
+          <Text style={styles.sectionTitle}>Medical Information</Text>
           <View style={styles.sectionIcon}>
             <AntDesign
               name={expandedSections.medicalInfo ? "minus" : "plus"}

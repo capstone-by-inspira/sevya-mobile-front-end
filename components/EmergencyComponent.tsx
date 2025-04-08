@@ -1,15 +1,39 @@
 import React from "react";
 import { View, Text, StyleSheet, Linking, Image, TouchableOpacity } from "react-native";
 import Button from "@/components/ui/Button";
+import { getDocumentById, getDocuments, updateDocument , createDocument} from "@/services/api";
 
-const EmergencyHelpScreen: React.FC = () => {
+
+
+
+const EmergencyHelpScreen = ({
+  caregiver, token, patients
+}) => {
   const phoneNumber = "911";
 
   const handleCallEmergency = () => {
+    console.log(caregiver.uid, 'assascascac');
     Linking.openURL(`tel:${phoneNumber}`).catch((err) =>
       console.error("Failed to make call:", err)
     );
+    createEmergencyDocument(caregiver.uid);
   };
+  const createEmergencyDocument = async (caregiverId) => {
+
+
+    const data = {
+      name: "Emergency Call",
+      timestamp:new Date(),
+      caregiverId:caregiverId,
+    }
+      try {
+        const response = await createDocument('emergency', data, token);
+        // console.log(response, 'emergency done');
+        console.log("Emergency document created successfully");
+      } catch (error) {
+        console.error("Error creating emergency document:", error);
+      }
+    };
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Emergency Help Needed ?</Text>

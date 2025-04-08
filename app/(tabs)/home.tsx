@@ -183,11 +183,13 @@ export default function Home() {
                 </View>
               </>
             )}
-            <EmergencyCall
-              caregiver={caregivers}
-              token={token}
-              patients={patients}
-            />
+            {caregiver && (
+              <EmergencyCall
+                caregiver={caregiver}
+                token={token}
+                patients={patients}
+              />
+            )}
           </View>
         )}
 
@@ -196,7 +198,13 @@ export default function Home() {
         </View>
 
         <View style={styles.emergency}>
-          <EmergencyHelpScreen />
+        {caregiver && (
+          <EmergencyHelpScreen
+             caregiver={caregiver}
+             token={token}
+             patients={patients}
+          />
+          )}
         </View>
       </ScrollView>
     </>
@@ -225,9 +233,8 @@ const styles = StyleSheet.create({
   emergencyDivider: {
     paddingHorizontal: 20,
 
-    marginTop:30,
-    marginBottom:10,
-
+    marginTop: 30,
+    marginBottom: 10,
   },
   emergency: {
     marginTop: 20,

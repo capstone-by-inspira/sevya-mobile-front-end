@@ -37,7 +37,7 @@ interface Patient {
 
 
 const ShiftCheckIn: React.FC = () => {
-  const { id, shiftData, patientData, token } = useLocalSearchParams();
+  const { id, shiftData, patientData, caregiverData, token  } = useLocalSearchParams();
 
 
   console.log(token, 'ss');
@@ -51,17 +51,19 @@ const ShiftCheckIn: React.FC = () => {
     return <Text>Error: AppContext not found</Text>;
   }
 
-  const { caregivers, fetchData } = context;
+  const {  fetchData } = context;
 
   const shiftDataString = Array.isArray(shiftData) ? shiftData[0] : shiftData;
   const patientDataString = Array.isArray(patientData)
     ? patientData[0]
     : patientData;
 
+    const caregiverDataString = Array.isArray(caregiverData) ? caregiverData[0] : caregiverData;
 
 
   const [shifts, setShifts] = useState(JSON.parse(shiftDataString));
   const [patients, setPatients] = useState(JSON.parse(patientDataString));
+  const [caregivers, setCaregivers] = useState(JSON.parse(caregiverDataString));
 
 
   const curr_shift = shifts.find((s:any) => s.id === id);
@@ -153,6 +155,27 @@ const ShiftCheckIn: React.FC = () => {
       setProgress(0);
     }
   };
+  const getFormattedCanadaDateTime = () => {
+    const date = new Date();
+  
+    const formattedDate = date.toLocaleDateString("en-CA", {
+      timeZone: "America/Toronto",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  
+    const formattedTime = date.toLocaleTimeString("en-CA", {
+      timeZone: "America/Toronto",
+      hour: "numeric",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+  
+    return `${formattedDate} at ${formattedTime.toLowerCase()}`;
+  };
+  
 
   const handleStartShift = async () => {
     if (!shift) return;
@@ -176,7 +199,7 @@ const ShiftCheckIn: React.FC = () => {
       if (updateResult.success) {
         setShift(updateData);
         fetchData();
-        await sendNotification('Shift Started', 'shift has been started  ', caregivers.firstName, token);
+        await sendNotification('Shift Started', `Shift has been started by ${caregivers? caregivers.firstName : 'Namrata Kanda'} on ${getFormattedCanadaDateTime()}`, caregivers? caregivers.firstName : 'Namrata Kanda', token);
 
         Alert.alert("Confirmation", "Shift started successfully");
       } else {
@@ -210,7 +233,7 @@ const ShiftCheckIn: React.FC = () => {
         fetchData();
         setShowConfetti(true);
 
-        await sendNotification('Shift ended', 'shift has been ended', caregivers.firstName, token);
+        await sendNotification('Shift Ended', `Shift has been ended by ${caregivers? caregivers.firstName : 'Namrata Kanda'} on ${getFormattedCanadaDateTime()}`, caregivers? caregivers.firstName : 'Namrata Kanda', token);
        
         setTimeout(() => setShowConfetti(false), 10000);
 

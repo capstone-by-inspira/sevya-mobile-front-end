@@ -15,6 +15,7 @@ const PatientList = ({ patients, shifts, caregivers }) => {
     }
   }, [patients]);
 
+  
   const renderPatientCard = ({ item }) => (
     <PatientUCard
       name={item.firstName}
