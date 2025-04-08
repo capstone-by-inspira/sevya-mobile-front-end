@@ -8,8 +8,10 @@ import { Calendar } from 'react-native-calendars';
 import ShiftDetailCard from '@/components/ShiftDetailCard';
 import { AppContext } from '@/components/AppContext';
 import TodayShiftDetailCard from '@/components/TodayShiftCardDetail';
-import { Icon } from 'react-native-paper';
-import { formatDateOnly, formatShiftTimeOnly } from '@/services/utils';
+import { Card, Divider, Icon } from 'react-native-paper';
+import { formatDateOnly, formatShiftTimeOnly, sendNotification } from '@/services/utils';
+import Button from "@/components/ui/Button";
+import { capitalize } from '@/services/utils';
 
 const ShiftCard: React.FC = () => {
   const context = useContext(AppContext);
@@ -27,43 +29,48 @@ const ShiftCard: React.FC = () => {
     return <Text>Error: AppContext not found</Text>;
   }
 
-  const { shifts, caregivers, patients, fetchData } = context;
+  const { shifts, caregivers, patients, fetchData, token } = context;
 
-  console.log('patients in shifts', patients);
 
   useEffect(() => {
     markShiftsOnCalendar();
   }, [shifts]);
 
   const markShiftsOnCalendar = () => {
+    const todayDate = new Date().toLocaleDateString("en-CA");
+  
     const marks = shifts.reduce((acc: any, shift: any) => {
-      console.log('dates startTime', shift.startTime, shift.shiftDate);
-      const shiftDate = new Date(shift.startTime).toLocaleDateString("en-CA"); // Extract YYYY-MM-DD
-      console.log('dates', shiftDate);
-      acc[shiftDate] = { selected: true, selectedColor: "#578FCA" };
+      const shiftDate = new Date(shift.startTime).toLocaleDateString("en-CA");
+      
+      const isPast = shiftDate < todayDate;
+  
+      acc[shiftDate] = {
+        selected: true,
+        selectedColor: isPast ? "rgba(37, 87, 142, 0.5)" : "#10B981", 
+      };
+  
       return acc;
     }, {});
-    console.log('shifts in calendar', shifts);
-
+  
     setMarkedDates(marks);
     setAllShifts(shifts);
-
-    const todayLocal = new Date().toLocaleDateString("en-CA");
-    setToday(todayLocal);
-
+  
+    setToday(todayDate);
+  
     const todayShiftData = shifts.find((shift: any) =>
-      new Date(shift.startTime).toLocaleDateString("en-CA") === todayLocal
+      new Date(shift.startTime).toLocaleDateString("en-CA") === todayDate
     );
-    setTodayShift(todayShiftData || null); // Set to null if no shift found
-
+    setTodayShift(todayShiftData || null);
+  
     const upcomingShiftData = shifts
       .filter((shift: any) =>
-        new Date(shift.startTime).toLocaleDateString("en-CA") > todayLocal
+        new Date(shift.startTime).toLocaleDateString("en-CA") > todayDate
       )
       .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
-
+  
     setUpComingShifts(upcomingShiftData);
   };
+  
 
   // Pull-to-refresh function
   const onRefresh = () => {
@@ -88,7 +95,7 @@ const ShiftCard: React.FC = () => {
   };
 
   const renderShiftDetailCard = ({ item }: { item: any }) => (
-    <ShiftDetailCard location={item.location} shiftTime={item.startTime} shiftEndTime={item.endTime} />
+    <ShiftDetailCard location={item.location} shiftTime={item.startTime} shiftEndTime={item.endTime} caregiverFirstname={caregivers.firstName} token={token} />
   );
 
   const sections = [
@@ -107,13 +114,33 @@ const ShiftCard: React.FC = () => {
 
   ];
 
+  const requestChange = async () =>{
+    await sendNotification('Shift Cancellation Request', `Date: ${selectedDate} `, caregivers.firstName, token);
+    Alert.alert("Shift Cancellation", `Shift has been requested to cancel.`);
+    setModalVisible(false)
+  }
+
+  const reqTodayShift = async () => {
+      const today = new Date().toLocaleDateString("en-CA");
+  
+      await sendNotification(
+        "Shift Request",
+        `Shift has been requested for ${today}`,
+        caregivers.firstName,
+        token
+      );
+      Alert.alert("Shift Requested", `Shift has been requested for ${today}`);
+  
+    };
+
   return (
 
     <SectionList
       style={styles.scrollView}
       sections={sections}
       keyExtractor={(item, index) => item.id || index.toString()}
-      renderItem={({ item }) => {
+      renderItem={({ item, section }) => {
+        const title = section.title;
         const itemDate = new Date(item.startTime).toLocaleDateString("en-CA");
         if (item.key === 'calendar') {
           return (
@@ -124,8 +151,8 @@ const ShiftCard: React.FC = () => {
                   [today]: {
                     selected: true,
                     selectedColor: "#25578E",
-                    marked: true,
-                    dotColor: "white",
+                    // marked: true,
+                    // dotColor: "white",
                   },
                 }} />
               <Modal visible={modalVisible} animationType="fade" transparent={true}>
@@ -144,10 +171,10 @@ const ShiftCard: React.FC = () => {
                       renderItem={({ item }) => (
                         <View style={styles.shiftDetails}>
                           <Text style={styles.detailText}>
-                            <Text style={styles.label}>Patient:</Text> {patients.find(p => p.id === item.patientId).firstName || "Patient Name"}
+                            <Text style={styles.label}>Patient:</Text> {capitalize(patients.find(p => p.id === item.patientId).firstName) || "Patient Name"}
                           </Text>
                           <Text style={styles.detailText}>
-                            <Text style={styles.label}>Caregiver:</Text> {caregivers.firstName || "Caregiver Name"}
+                            <Text style={styles.label}>Caregiver:</Text> {capitalize(caregivers.firstName) || "Caregiver Name"} {capitalize(caregivers.lastName) || "Caregiver Name"}
                           </Text>
                           <Text style={styles.detailText}>
                             <Text style={styles.label}>Address:</Text> {item.location}
@@ -161,6 +188,9 @@ const ShiftCard: React.FC = () => {
                           <Text style={styles.detailText}>
                             <Text style={styles.label}>End Shift:</Text> {formatShiftTimeOnly(item.endTime)}
                           </Text>
+                       <View style={styles.buttonContainer}>
+                          <Button handleButtonClick={requestChange} buttonText="Request Shift Cancellation" />
+                          </View>
                         </View>
                       )}
                       nestedScrollEnabled={true}
@@ -177,21 +207,59 @@ const ShiftCard: React.FC = () => {
         } else {
           return renderShiftDetailCard({ item });
         }
-
       }}
       renderSectionHeader={({ section: { title } }) => (
         <Text style={styles.sectionHeader}>{title}</Text>
       )}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      renderSectionFooter={({ section }) => {
+        if (section.title === "Today's Shift" && !todayShift) {
+          return (
+            <View style={styles.container}>
+              <Card style={styles.card}>
+                <View style={styles.cardContentNoShift}>
+                  <View style={styles.row}>
+                    <Icon source="information-outline" size={20} color="#2C3E50" />
+                    <Text style={styles.cardText}>No shift for today</Text>
+                  </View>
+                </View>
+                <Divider />
+                <TouchableOpacity
+                  style={styles.scheduleButton}
+                  onPress={reqTodayShift}
+                >
+                  {/* <Icon source="calendar" size={18} color="#1E3A8A" /> */}
+                  <Text style={styles.scheduleText}>Request Shift for Today</Text>
+                </TouchableOpacity>
+              </Card>
+            </View>
+          );
+        }
+      
+        if (section.title === "Next Shifts" && upComingShifts.length === 0) {
+          return (
+            <View style={styles.container}>
+              <Card style={styles.card}>
+                <View style={styles.cardContentNoShift}>
+                  <View style={styles.row}>
+                    <Icon source="information-outline" size={20} color="#2C3E50" />
+                    <Text style={styles.cardText}>No upcoming shifts</Text>
+                  </View>
+                </View>
+              </Card>
+            </View>
+          );
+        }
+        return null;
+      }}
     />
-
   );
 };
 
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    paddingTop: 75,
+    paddingTop: 0,
     backgroundColor: '#F8FBFF',
   },
   container: {
@@ -200,20 +268,20 @@ const styles = StyleSheet.create({
   },
   calendar: {
     width: '100%',
-    height: 370,
+    height: 350,
     borderRadius: 10,
-    elevation: 5,
-    marginTop: 16
+    marginTop: 16,
+    marginBottom: 16,
+    boxShadow: "rgba(60, 64, 67, 0.3) 0px 2px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
   },
   sectionHeader: {
     fontSize: 16,
     fontStyle: "normal",
     fontWeight: "700",
     lineHeight: 16 * 1.3,
-    // padding: 16,
     paddingHorizontal: 16,
-    paddingTop: 16,
-    // backgroundColor: '#f0f0f0',
+    paddingVertical: 10,
+    backgroundColor: '#F8FBFF',
   },
   modalBackground: {
     flex: 1,
@@ -265,13 +333,70 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 5,
     color: "#333",
-
   },
   label: {
     fontWeight: "bold",
     color: "#000",
   },
-
+  buttonContainer:{
+    display:'flex',
+    flexDirection:'row',
+    alignItems:'center',
+    justifyContent:'center',
+    marginTop:14,
+  },
+  emptyText: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontStyle: 'italic',
+    color: '#666',
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    paddingTop: 14,
+    paddingLeft: 14,
+    paddingRight: 14,
+    paddingBottom: 6,
+    boxShadow:  "rgba(60, 64, 67, 0.3) 0px 2px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
+    marginVertical: 5,
+  },
+  cardContentNoShift: {
+    display: "flex",
+    flexDirection: "row",
+    marginBottom: 10,
+    height: 60,
+  },
+  cardContent: {
+    display: "flex",
+    flexDirection: "column",
+    marginBottom: 10,
+    height: 60,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  cardText: {
+    fontSize: 16,
+    color: "#374151",
+    marginLeft: 8,
+    fontFamily: "Lato",
+    fontStyle: "normal",
+    fontWeight: "400",
+    lineHeight: 24,
+  },
+  scheduleButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  scheduleText: {
+    color: "#1E3A8A",
+    fontWeight: "bold",
+    marginVertical: 10,
+  },
 });
 
 export default ShiftCard;

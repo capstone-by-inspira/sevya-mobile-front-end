@@ -9,7 +9,7 @@ import {
 import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
 import axios from "axios";
-
+import { capitalize } from "@/services/utils";
 import { AppContext } from "@/components/AppContext";
 import SevyaLoader from "@/components/SevyaLoader";
 import { API_URL } from "@/services/api";
@@ -48,9 +48,9 @@ const PatientDetails = () => {
   const [error, setError] = useState<string | null>(null);
   const [plan, setPlan] = useState("");
   const [expandedSections, setExpandedSections] = useState({
-    patientInfo: false,
-    medicalInfo: false,
-    shifts: false,
+    patientInfo: true,
+    medicalInfo: true,
+    shifts: true,
   });
 
   useEffect(() => {
@@ -69,6 +69,10 @@ const PatientDetails = () => {
 
   if (error) return <Text style={styles.error}>{error}</Text>;
   if (!patientData) return <Text>No patient data available.</Text>;
+  console.log("====================================");
+  console.log(patientData.id, "PATIENT DATA");
+  console.log(patientData.phoneNumber, "PATIENT DATA");
+  console.log("====================================");
 
   const generateCaregiverPlan = async () => {
     setLoading(true);
@@ -114,16 +118,20 @@ const PatientDetails = () => {
           onPress={() => toggleSection("patientInfo")}
         >
           <Text style={styles.sectionTitle}>Patient Info</Text>
-          <AntDesign
-            name={expandedSections.patientInfo ? "minus" : "plus"}
-            size={20}
-          />
+          <View style={styles.sectionIcon}>
+            <AntDesign
+              name={expandedSections.patientInfo ? "minus" : "plus"}
+              size={20}
+              color={"#25578E"}
+              style={FontAwesome5}
+            />
+          </View>
         </TouchableOpacity>
         {expandedSections.patientInfo && (
           <View style={styles.sectionContent}>
             <Text>Name: {patientData.firstName}</Text>
             <Text>Age: {patientData.age ?? "N/A"}</Text>
-            <Text>Phone: {patientData.phoneNumber}</Text>
+            <Text>Phone: {patientData.phoneNumber ?? "N/A"}</Text>
           </View>
         )}
 
@@ -133,18 +141,23 @@ const PatientDetails = () => {
           onPress={() => toggleSection("medicalInfo")}
         >
           <Text style={styles.sectionTitle}>Medical Info</Text>
-          <AntDesign
-            name={expandedSections.medicalInfo ? "minus" : "plus"}
-            size={20}
-          />
+          <View style={styles.sectionIcon}>
+            <AntDesign
+              name={expandedSections.medicalInfo ? "minus" : "plus"}
+              size={20}
+              color={"#25578E"}
+            />
+          </View>
         </TouchableOpacity>
         {expandedSections.medicalInfo && (
           <View style={styles.sectionContent}>
-            <Text>
-              Conditions: {patientData.medicalConditions?.join(", ") || "N/A"}
+            <Text style={{ marginBottom: 1 }}>
+              Conditions:{" "}
+              {capitalize(patientData.medicalConditions?.join(", ")) || "N/A"}
             </Text>
             <Text>
-              Medications: {patientData.medications?.join(", ") || "N/A"}
+              Medications:{" "}
+              {capitalize(patientData.medications?.join(", ")) || "N/A"}
             </Text>
           </View>
         )}
@@ -155,10 +168,13 @@ const PatientDetails = () => {
           onPress={() => toggleSection("shifts")}
         >
           <Text style={styles.sectionTitle}>Scheduled Shifts</Text>
-          <AntDesign
-            name={expandedSections.shifts ? "minus" : "plus"}
-            size={20}
-          />
+          <View style={styles.sectionIcon}>
+            <AntDesign
+              name={expandedSections.shifts ? "minus" : "plus"}
+              size={20}
+              color={"#25578E"}
+            />
+          </View>
         </TouchableOpacity>
         {expandedSections.shifts && (
           <View style={styles.sectionContent}>
@@ -166,8 +182,8 @@ const PatientDetails = () => {
             Object.keys(patientData.shifts).length > 0 ? (
               Object.entries(patientData.shifts).map(
                 ([time, shift]: [string, any], index) => (
-                  <Text key={index}>
-                    ⏰ {time}: {shift.firstName} ({shift.shiftDate})
+                  <Text key={index} style={{ marginBottom: 3 }}>
+                    ⏰ {time}: {capitalize(shift.firstName)} ({shift.shiftDate})
                   </Text>
                 )
               )
@@ -220,10 +236,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 15,
     backgroundColor: "#fff",
-    borderRadius: 8,
+    //  borderRadius: 8,
+    borderTopRightRadius: 8,
+    borderTopLeftRadius: 8,
     marginBottom: 10,
-    boxShadow:
-    "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
+    shadowColor: "lightgray", // Shadow color
+    shadowOffset: { width: 0, height: 2 }, // Shadow position
+    shadowOpacity: 0.3, // Shadow opacity
+    shadowRadius: 4, // Shadow blur radius
+    elevation: 5, // For Android shadow
+    // boxShadow:
+    //   "rgba(60, 64, 67, 0.3) 0px 2px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
   },
   sectionTitle: {
     fontSize: 16,
@@ -232,13 +255,16 @@ const styles = StyleSheet.create({
   sectionContent: {
     backgroundColor: "#fff",
     padding: 15,
-    marginTop:-5,
-    borderRadius: 8,
+    marginTop: -10,
+    // borderRadius: 8,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
     marginBottom: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowColor: "lightgray", // Shadow color
+    shadowOffset: { width: 0, height: 2 }, // Shadow position
+    shadowOpacity: 0.3, // Shadow opacity
+    shadowRadius: 4, // Shadow blur radius
+    elevation: 5, // For Android shadow
   },
   bottomLinks: {
     position: "absolute",
@@ -264,6 +290,17 @@ const styles = StyleSheet.create({
     color: "red",
     textAlign: "center",
     marginTop: 20,
+  },
+
+  sectionIcon: {
+    backgroundColor: "white",
+    // borderRadius: 50,
+    padding: 5,
+    // shadowColor: "#25578E", // Shadow color
+    // shadowOffset: { width: 0, height: 2 }, // Shadow position
+    // shadowOpacity: 0.3, // Shadow opacity
+    // shadowRadius: 4, // Shadow blur radius
+    // elevation: 5, // For Android shadow
   },
 });
 

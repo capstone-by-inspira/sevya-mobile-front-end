@@ -5,9 +5,11 @@ import { updateDocument } from "@/services/api";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { Card, Divider, Icon, ProgressBar } from "react-native-paper";
 import Button from "@/components/ui/Button";
-import { formatDateOnly, formatTimeOnly ,sendNotification} from "@/services/utils";
+import { formatDateAndMonthOnly, formatDateOnly, formatShiftTimeOnly, formatTimeOnly ,sendNotification} from "@/services/utils";
 import { AppContext } from "@/components/AppContext";
 import PatientUCard from "@/components/PatientUCard";
+import ConfettiCannon from 'react-native-confetti-cannon';
+import PatientCard from "@/components/PatientCard";
 
 interface Shift {
   id: number;
@@ -27,16 +29,21 @@ interface Shift {
 interface Patient {
   id: number;
   firstName: string;
+  lastName: string;
   gender: string;
   medicalConditions?: string[];
   image?: any;
 }
 
+
 const ShiftCheckIn: React.FC = () => {
-  const { id, shiftData, patientData } = useLocalSearchParams();
+  const { id, shiftData, patientData, token } = useLocalSearchParams();
+
+
+  console.log(token, 'ss');
+
   const navigation = useNavigation();
 
-  
 
   const context = useContext(AppContext);
 
@@ -44,18 +51,21 @@ const ShiftCheckIn: React.FC = () => {
     return <Text>Error: AppContext not found</Text>;
   }
 
-  const { token, caregivers, fetchData } = context;
+  const { caregivers, fetchData } = context;
 
   const shiftDataString = Array.isArray(shiftData) ? shiftData[0] : shiftData;
   const patientDataString = Array.isArray(patientData)
     ? patientData[0]
     : patientData;
 
+
+
   const [shifts, setShifts] = useState(JSON.parse(shiftDataString));
   const [patients, setPatients] = useState(JSON.parse(patientDataString));
 
 
   const curr_shift = shifts.find((s:any) => s.id === id);
+  console.log(curr_shift, 'ttttt');
 
 
   const [shift, setShift] = useState<Shift | null>(curr_shift);
@@ -63,18 +73,23 @@ const ShiftCheckIn: React.FC = () => {
     null
   );
   const [shiftStartButtonDisabled, setShiftStartButtonDisabled] =
-    useState(true);
-  const [shiftEndButtonDisabled, setShiftEndButtonDisabled] = useState(true);
+    useState(curr_shift.checkIn);
+  const [shiftEndButtonDisabled, setShiftEndButtonDisabled] = useState(curr_shift.checkOut);
   const [progress, setProgress] = useState(0);
+  const [showConfetti, setShowConfetti] = useState(false);
 
 
 
   // Find the shift and associated patient based on the ID
   useEffect(() => {
     const currentShift = shifts.find((s) => s.id === id);
+
     const associatedPatientData = patients.find(
       (p) => p.id === currentShift?.patientId
     );
+    console.log(currentShift, '????/')
+    console.log('All patient IDs:', patients.map(p => p.id));
+
 
     if (currentShift) {
       setShift(currentShift);
@@ -157,6 +172,7 @@ const ShiftCheckIn: React.FC = () => {
         updateData,
         token
       );
+      console.log(token, 'updateresult');
       if (updateResult.success) {
         setShift(updateData);
         fetchData();
@@ -192,7 +208,11 @@ const ShiftCheckIn: React.FC = () => {
         setShift(updateData);
         setProgress(1);
         fetchData();
+        setShowConfetti(true);
+
         await sendNotification('Shift ended', 'shift has been ended', caregivers.firstName, token);
+       
+        setTimeout(() => setShowConfetti(false), 10000);
 
         Alert.alert("Confirmation", "Shift ended successfully");
       } else {
@@ -213,7 +233,19 @@ const ShiftCheckIn: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Divider />
+        {showConfetti && (
+            <View style={styles.confettiContainer}>
+        <ConfettiCannon 
+        count={100} 
+        origin={{ x: 50, y: 1000 }} // Confetti starts from a different position
+        autoStart={true} // Start immediately
+        explosionSpeed={2000} // Speed of explosion
+        fallSpeed={2000} // Speed of falling
+        fadeOut={true}
+        />
+        </View>
+      )}
+
       <View style={styles.buttonContainer}>
         <Button
           handleButtonClick={handleStartShift}
@@ -227,13 +259,13 @@ const ShiftCheckIn: React.FC = () => {
         />
       </View>
 
-      <Divider />
+
 
       <View style={styles.progressContainer}>
         <Text style={styles.percentageText}>{Math.round(progress * 100)}%</Text>
         <ProgressBar
           progress={progress}
-          color="lightgreen"
+          color="#10B981"
           style={styles.progressBar}
         />
       </View>
@@ -251,7 +283,7 @@ const ShiftCheckIn: React.FC = () => {
           <View style={styles.row}>
             <Icon source="information-outline" size={20} color="#2C3E50" />
             <Text style={styles.cardText}>
-              {formatDateOnly(shift.startTime)} {formatTimeOnly(shift.endTime)}
+              {formatDateAndMonthOnly(shift.startTime)}, {formatShiftTimeOnly(shift.startTime)}-{formatShiftTimeOnly(shift.endTime)}
             </Text>
           </View>
         </View>
@@ -267,10 +299,11 @@ const ShiftCheckIn: React.FC = () => {
       </Card>
       <Divider />
 
-      <Text style={styles.shiftInfoHeading}>Your Patients</Text>
+      <Text style={styles.shiftInfoHeading}>Your Patient</Text>
       <View style={styles.patientList}>
-        <PatientUCard
+        {/* <PatientUCard
           name={associatedPatient.firstName}
+          lname={associatedPatient.lastName}
           gender={associatedPatient.gender}
           condition={associatedPatient.medicalConditions?.join(", ") || ""}
           image={associatedPatient.image}
@@ -283,7 +316,23 @@ const ShiftCheckIn: React.FC = () => {
               AllCaregivers: JSON.stringify(caregivers)
             }
           })}
-        />
+        /> */}
+          <PatientCard
+            image={associatedPatient.image}
+              name={associatedPatient.firstName} 
+              lname={associatedPatient.lastName} 
+              gender={associatedPatient.gender}
+              conditions={associatedPatient.medicalConditions}
+              onPress={() => router.push({
+                pathname: `/patients/[id]`,
+                params: {
+                  id: associatedPatient.id,  // Pass the id as a query parameter
+                  AllShifts: JSON.stringify(shifts),
+                  AllPatients: JSON.stringify(patients),  // Pass shift data as a query parameter
+                  AllCaregivers: JSON.stringify(caregivers)
+                }
+              })}
+            />
       </View>
     </View>
   );
@@ -291,6 +340,9 @@ const ShiftCheckIn: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
+    display:"flex",
+    flexDirection: "column",
+    paddingVertical: 40,
     backgroundColor: '#F8FBFF',
     height: '100%',
   },
@@ -302,17 +354,19 @@ const styles = StyleSheet.create({
   },
   progressContainer: {
     alignItems: "center",
-    marginVertical: 10,
+    // marginVertical: 10,
+    marginBottom:10,
     padding: 10,
   },
   progressBar: {
     width: 350,
     height: 15,
-    borderRadius: 5,
+    borderRadius: 95,
     marginHorizontal: 20,
     marginTop: 20,
-    backgroundColor: "#25578E",
+    backgroundColor: "#25578E",  
   },
+
   percentageText: {
     position: "absolute",
     top: 5,
@@ -332,6 +386,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginHorizontal: 20,
     elevation: 2,
+    marginBottom:30,
   },
   cardContent: {
     marginBottom: 10,
@@ -360,7 +415,18 @@ const styles = StyleSheet.create({
   },
   patientList: {
     marginHorizontal: 20,
+    height:100,
   },
+  confettiContainer:{
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 9999, // Ensures it's on top
+    elevation: 9999, // For Android compatibility
+    pointerEvents: "none", // Allows button presses to go through
+  }
 });
 
 export default ShiftCheckIn;

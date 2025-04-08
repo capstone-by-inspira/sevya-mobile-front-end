@@ -5,6 +5,9 @@ import { Redirect } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { getSecureData } from "../services/secureStorage";
 import EmergencyCall from "@/components/EmergencyCall";
+import 'react-native-gesture-handler';
+import 'react-native-reanimated';
+
 
 SplashScreen.preventAutoHideAsync();
 
@@ -13,8 +16,10 @@ export default function Index() {
 
   useEffect(() => {
     const checkAuth = async () => {
+      console.log('to');
       try {
         const token = await getSecureData("token");
+        console.log(token, 'token >>>>>>>>>>>>>');
         if (token) {
           setIsAuth(!!token);
         } else {

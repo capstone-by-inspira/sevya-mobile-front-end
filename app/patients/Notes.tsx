@@ -1,7 +1,10 @@
 import React, { useEffect, useState, useContext } from "react";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
+import * as Speech from "expo-speech";
+import { Audio } from "expo-av";
 import axios from "axios";
+import { v4 as uuidv4 } from "uuid";
 
 import {
   View,
@@ -47,10 +50,12 @@ import NoteCard from "@/components/NotesCard";
 import Icon from "react-native-vector-icons/FontAwesome"; // Or MaterialIcons
 
 import {
+  capitalize,
   formatDateOnly,
   formatLocalDateTime,
   formatTimeOnly,
 } from "@/services/utils";
+import AudioPlayer from "@/components/AudioPlayer";
 
 const Notes = () => {
   const { id, singlePatientData, singleCaregiverData } = useLocalSearchParams(); // Get patient ID
@@ -63,6 +68,10 @@ const Notes = () => {
   const [translatedNotes, setTranslatedNotes] = useState<{
     [key: number]: string;
   }>({});
+  const [recording, setRecording] = useState<Audio.Recording | null>(null);
+  const [voiceUri, setVoiceUri] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
 
   const [voiceMessage, setVoiceMessage] = useState("");
 
@@ -94,7 +103,7 @@ const Notes = () => {
   const [caregiverData, setCaregiverData] = useState(
     JSON.parse(caregiverDataString)
   );
-  console.log(caregiverData.image, "dddd.>>>>>>>");
+  // console.log(caregiverData.image, "dddd.>>>>>>>");
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -144,10 +153,10 @@ const Notes = () => {
       };
 
       const response = await translatePatientNotes(patientData);
-      console.log("translated", response);
+      // console.log("translated", response);
       const translatedText =
         response.translatedText.data.translations[0].translatedText;
-      console.log("result", translatedText);
+      // console.log("result", translatedText);
       setTranslatedNotes((prev) => ({
         ...prev,
         [index]: translatedText,
@@ -159,7 +168,10 @@ const Notes = () => {
 
   // Add a new note to Firebase
   const addNote = async () => {
-    if (!id || (!note.trim() && !imageUri && !voiceMessage)) return;
+    // console.log("Adding note...");
+
+    if (!id || (!note.trim() && !imageUri && !voiceMessage && !voiceUri))
+      return;
 
     try {
       const userData = await getSecureData("user");
@@ -169,7 +181,7 @@ const Notes = () => {
       }
 
       const user = JSON.parse(userData);
-      console.log(user, "asss");
+      // console.log("Got userData");
 
       if (!user?.name) {
         console.error("User name is missing.");
@@ -177,19 +189,27 @@ const Notes = () => {
       }
 
       let uploadedImageUrl = null;
+      let uploadedAudioUrl: string | null = null;
       if (imageUri) {
         uploadedImageUrl = await uploadImage(imageUri);
       }
 
+      // Upload audio if available
+      if (voiceUri) {
+        uploadedAudioUrl = await uploadAudio(voiceUri); // Assuming you have a function to upload audio
+      }
+      if (!note || !uploadedImageUrl || !uploadedAudioUrl) {
+      }
       const newNote = {
         caregiverFirstName: caregiverData.firstName,
         caregiverLastName: caregiverData.lastName,
         caregiverImage: caregiverData.image,
-        myNote: note || voiceMessage || "",
+        myNote: note || "",
         imageUrl: uploadedImageUrl || null,
+        audioUrl: uploadedAudioUrl || null,
         date: new Date().toISOString(),
       };
-      console.log(new Date(), "timeee/??????>>>>>>>>.");
+      // console.log(new Date(), "timeee/??????>>>>>>>>.");
 
       const docRef = doc(db, "patients", id as string);
       await updateDoc(docRef, {
@@ -200,8 +220,8 @@ const Notes = () => {
       setNote("");
       setImageUri(null);
       setVoiceMessage("");
-
-      console.log("Note added successfully!");
+      setVoiceUri(null);
+      // console.log("Note added successfully!");
     } catch (error) {
       console.error("Error adding note:", error);
     }
@@ -240,11 +260,11 @@ const Notes = () => {
   };
 
   const uploadImage = async (uri: string) => {
-    const mainLink = "http://3.227.60.242:8808/api/auth/upload";
-    console.log("Uploading image...");
+    const mainLink = "https://sevya-admin.site:8808/api/auth/upload";
+    // console.log("Uploading image...");
 
     try {
-      console.log("Uploading image...1");
+      // console.log("Uploading image...1");
       const formData = new FormData();
       formData.append("image", {
         uri,
@@ -252,13 +272,13 @@ const Notes = () => {
         type: "image/jpeg",
       } as any);
 
-      console.log("Uploading image...2");
+      // console.log("Uploading image...2");
       const uploadResponse = await axios.post(mainLink, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log("Uploading image...3");
+      // console.log("Uploading image...3");
 
       if (uploadResponse.status !== 200) {
         throw new Error("Image upload failed.");
@@ -270,8 +290,97 @@ const Notes = () => {
       return null;
     }
   };
+
+  const uploadAudio = async (audioUri) => {
+    if (!audioUri) return null;
+
+    try {
+      const fileName = `audio_${Date.now()}.mp3`; // Generate a unique filename
+      // Removed redundant redeclaration of storage
+      const reference = ref(storage, `audio/${fileName}`);
+
+      const response = await fetch(audioUri);
+      const blob = await response.blob();
+
+      // Upload the audio file
+      await uploadBytes(reference, blob);
+
+      // Get the uploaded file URL
+      const audioUrl = await getDownloadURL(reference);
+      clearRecording(); // Clear the recording after upload
+      console.log("Audio uploaded successfully:", audioUrl);
+      return audioUrl;
+    } catch (error) {
+      console.error("Error uploading audio:", error);
+      return null;
+    }
+  };
+
   const handleImageLongPress = (imageUrl: string) => {
     setFullImageUri(imageUrl);
+  };
+
+  const startRecording = async () => {
+    try {
+      const permission = await Audio.requestPermissionsAsync();
+      if (permission.status !== "granted") {
+        alert("Permission to access microphone is required!");
+        return;
+      }
+
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+        shouldDuckAndroid: true,
+        playThroughEarpieceAndroid: false, // Set to false to use the loudspeaker
+      });
+
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
+
+      setRecording(recording);
+      setIsRecording(true); // Hide text field and show recording indicator
+    } catch (err) {
+      console.error("Failed to start recording", err);
+    }
+  };
+
+  const stopRecording = async () => {
+    if (!recording) return;
+
+    await recording.stopAndUnloadAsync();
+    const uri = recording.getURI();
+
+    if (uri) {
+      setVoiceUri(uri); // Store the audio URI
+    }
+
+    // We only want to hide the recording indicator after the recording has been stopped
+    setIsRecording(false);
+    // Don't reset the recording state to null right away
+  };
+
+  const clearRecording = () => {
+    setRecording(null); // Clear the recording object
+    setVoiceUri(null); // Clear the voice URI
+  };
+
+  const playVoiceMessage = async () => {
+    if (!voiceUri) return;
+
+    const { sound } = await Audio.Sound.createAsync(
+      { uri: voiceUri },
+      { shouldPlay: true }
+    );
+
+    setIsPlaying(true);
+
+    sound.setOnPlaybackStatusUpdate((status) => {
+      if (status.isLoaded && status.didJustFinish) {
+        setIsPlaying(false);
+      }
+    });
   };
 
   // Inside your render method or functional component
@@ -316,9 +425,9 @@ const Notes = () => {
                       <Text style={styles.noteAuthor}>
                         By
                         {" " +
-                          item.caregiverFirstName +
+                          capitalize(item.caregiverFirstName) +
                           " " +
-                          item.caregiverLastName}
+                          capitalize(item.caregiverLastName)}
                       </Text>
                     </View>
 
@@ -351,12 +460,31 @@ const Notes = () => {
                       />
                     </TouchableOpacity>
                   )}
-                  <Text
-                    style={styles.noteTranslate}
-                    onPress={() => translateNote(item.myNote, index)}
-                  >
-                    See Translate
-                  </Text>
+
+                  {item.audioUrl && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setVoiceUri(item.audioUrl);
+                        playVoiceMessage();
+                      }}
+                      style={styles.playButton}
+                    >
+                      {item.audioUrl && (
+                        <AudioPlayer audioUrl={item.audioUrl} />
+                      )}
+                      {/* 
+                      <Icon name="play" size={24} color="black" />
+                      <Text style={styles.noteText}>Play Voice Note</Text> */}
+                    </TouchableOpacity>
+                  )}
+                  {item.myNote !== "" && (
+                    <Text
+                      style={styles.noteTranslate}
+                      onPress={() => translateNote(item.myNote, index)}
+                    >
+                      See Translate
+                    </Text>
+                  )}
                 </View>
               ))
             ) : (
@@ -399,24 +527,99 @@ const Notes = () => {
           </View>
         )}
 
-        <TextInput
-          style={styles.textInput}
-          value={note}
-          onChangeText={setNote}
-
-          multiline
-        />
+        {isRecording || recording !== null ? (
+          <View
+            style={[
+              styles.recordingIndicator,
+              {
+                backgroundColor:
+                  isRecording || recording === null ? "#ffe6e6" : "#d4edda",
+              },
+            ]}
+          >
+            {isRecording ? (
+              <>
+                <Icon name="microphone" size={24} color="red" />
+                <Text style={[styles.recordingText, { paddingLeft: 8 }]}>
+                  Recording...
+                </Text>
+              </>
+            ) : (
+              <>
+                <Icon name="check" size={24} color="green" />
+                <Text style={[styles.recordingText, { color: "green" }]}>
+                  Audio recorded!
+                </Text>
+                <TouchableOpacity onPress={clearRecording}>
+                  <Icon name="close" size={24} color="gray" paddingLeft="30%" />
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
+        ) : (
+          !imageUri && (
+            <TextInput
+              value={note}
+              onChangeText={setNote}
+              placeholder="Type a note...!"
+              placeholderTextColor={"#999"}
+              style={styles.textInput}
+            />
+          )
+        )}
 
         <TouchableOpacity
-          style={styles.imageButton}
-          onPress={() => setModalVisible(true)}
-        >
-          <Icon name="camera" style={styles.vIcon} />
-        </TouchableOpacity>
+          onPress={isRecording ? stopRecording : startRecording}
+        ></TouchableOpacity>
 
-        <TouchableOpacity style={styles.sendButton} onPress={addNote}>
-          <Text style={styles.sendText}>Send</Text>
-        </TouchableOpacity>
+        {!imageUri && (
+          <TouchableOpacity
+            style={styles.imageButton}
+            onPress={() => setModalVisible(true)}
+          >
+            {!isRecording && !recording && (
+              <Icon name="camera" style={styles.vIcon} />
+            )}
+          </TouchableOpacity>
+        )}
+
+        {/* Voice message */}
+        <View style={styles.voiceContainer}>
+          {!imageUri && (
+            <TouchableOpacity
+              onPress={recording ? stopRecording : startRecording}
+              style={styles.voiceButton}
+            >
+              {!voiceUri && (
+                <Icon
+                  style={styles.vIcon}
+                  name={recording ? "stop" : "microphone"}
+                  size={24}
+                  // color="white"
+                />
+              )}
+            </TouchableOpacity>
+          )}
+          {voiceUri && (
+            <TouchableOpacity
+              onPress={playVoiceMessage}
+              style={styles.playButton}
+            >
+              <Icon
+                style={[styles.vIcon, { paddingRight: 20 }]}
+                name={isPlaying ? "pause" : "play"}
+                size={24}
+                // color="white"
+              />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {!isRecording && (
+          <TouchableOpacity style={styles.sendButton} onPress={addNote}>
+            <Text style={styles.sendText}>Send</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Modal for image options */}
@@ -518,7 +721,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingTop: 10,
-
     paddingBottom: 25,
     backgroundColor: "#fff",
     borderTopWidth: 1,
@@ -531,7 +733,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flex: 1,
-    height: 'auto',
+    height: "auto",
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 18,
@@ -623,17 +825,16 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     resizeMode: "cover",
   },
-  closeButtonFullImage:{
+  closeButtonFullImage: {
     position: "absolute",
     top: 50,
     right: 25,
     backgroundColor: "lightgray",
     borderRadius: 10,
     padding: 5,
-    zIndex:99,
+    zIndex: 99,
   },
   closeButton: {
-
     position: "absolute",
     top: -10,
     right: -10,
@@ -666,6 +867,47 @@ const styles = StyleSheet.create({
 
   modalTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 20 },
   modalOption: { fontSize: 16, marginVertical: 10, textAlign: "center" },
+
+  voiceContainer: {
+    // backgroundColor: "#f8f9fa",
+    // padding: 20,
+    borderRadius: 10,
+    // width: 300,
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    // boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+    margin: "auto",
+  },
+
+  playButton: {
+    // backgroundColor: "#4caf50",
+    // color: "blue",
+    // border: "none",
+    // padding: 20,
+    fontSize: 16,
+    borderRadius: 5,
+    cursor: "pointer",
+    // transition: "background-color 0.3s ease",
+  },
+
+  playButtonHover: {
+    backgroundColor: "#45a049",
+  },
+  recordingIndicator: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "60%",
+    padding: 10,
+    borderRadius: 10,
+  },
+  recordingText: {
+    // marginLeft: 10,
+    // paddingLeft: 10,
+    color: "red",
+    fontWeight: "bold",
+  },
 });
 
 export default Notes;

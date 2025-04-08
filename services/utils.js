@@ -5,7 +5,13 @@ import { getSecureData } from './secureStorage';
 
 
 
-
+export const capitalize = (word)  => {
+    if (!word) return "";
+    return word
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+  };
 
 export const formatTimestamp = (timestamp, timeZone = "UTC") => {
     const date = new Date(timestamp);
@@ -73,6 +79,19 @@ export function formatLocalDateTime(dateString) {
     return date.toLocaleString('en-US', options);
 }
 
+export function formatLocalDate(dateString){
+
+    const date = new Date(dateString); // March 8, 2025
+
+    const day = date.getDate(); // 8
+    const month = date.toLocaleString('default', { month: 'long' }); // "March"
+    const year = date.getFullYear(); // 2025
+    const dayName = date.toLocaleString('default', { weekday: 'long' }); // "Saturday" (Note: March 8, 2025 is actually a Saturday)
+    
+    const formattedDate = `${day} ${month} ${year} (${dayName})`;
+    return formattedDate;
+
+}
 // Example usage
 const timestamp = "2025-03-21T17:27:01-07:00"; // Input timestamp
 console.log(formatLocalDateTime(timestamp));
@@ -86,11 +105,12 @@ export const sendNotification = async (title, body, createdBy, token) =>{
 
     }
     const res = await createDocument(
-        "notifications",
+        "notificationsWeb",
         data,
         token
       )
-      console.log(res, 'notification-created');
+    
+    console.log(res, 'notification-created');
 
 
 } 

@@ -81,11 +81,11 @@ const Patients = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.safeContainer}>
     <View style={styles.container}>
-      <Text style={styles.title}>My Patients</Text>
+      {/*<Text style={styles.title}>My Patients</Text>*/}
       <SearchBar
-        placeholder="Search patients..."
+        placeholder="Search Patients"
         value={searchText}
         onChangeText={handleSearch}
       />
@@ -96,8 +96,9 @@ const Patients = () => {
           renderItem={({ item }) => (
             <PatientCard
             image={item.image}
-              name={item.firstName}
-              gender={item.lastName}
+              name={item.firstName} 
+              lname={item.lastName} 
+              gender={item.gender}
               conditions={item.medicalConditions}
               onPress={() => handlePatientPress(item.id)}
             />
@@ -115,16 +116,22 @@ const Patients = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  safeContainer: {
     flex: 1,
+    backgroundColor: '#F8FBFF',
+    },
+  container: {
+    width:'100%',
+    flex: 1,
+
     backgroundColor: '#F8FBFF',
     padding: 20,
   },
-  title: {
-    fontSize: 14,
-    fontWeight: "bold",
-    marginBottom: 14,
-  },
+  //title: {
+  //  fontSize: 14,
+  //  fontWeight: "bold",
+  //  marginBottom: 14,
+  //},
   noDataText: {
     textAlign: "center",
     fontSize: 16,

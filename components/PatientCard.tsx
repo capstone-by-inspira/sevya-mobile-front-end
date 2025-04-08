@@ -1,75 +1,89 @@
 // import { Button } from "@react-navigation/elements";
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
-import Button from '@/components/ui/Button'
+import Button from "@/components/ui/Button";
+import { capitalize } from "@/services/utils";
+
 interface PatientCardProps {
   name: string;
+  lname: string;
   gender: string;
-  conditions: string[];
+  conditions: any;
   image: string;
   onPress: () => void; // Function for handling "View Details"
 }
 
 const PatientCard: React.FC<PatientCardProps> = ({
   name,
+  lname,
   gender,
   conditions,
   image,
   onPress,
 }) => {
   return (
-    <View style={styles.card}>
-      {/* Left: Circular Avatar Placeholder */}
-      <View >
-        <Image
-          style={styles.profileImage}
-          source={{
-            uri:image,
-          }}
-        />
+    <View style={styles.cardContainer}>
+      <View style={styles.card}>
+        {/* Left: Circular Avatar Placeholder */}
+        <View>
+          <Image
+            style={styles.profileImage}
+            source={{
+              uri: image,
+            }}
+          />
+        </View>
+        {/* Middle: Patient Info */}
+        <View style={styles.info}>
+          <Text style={styles.name}>
+            {capitalize(name)} {capitalize(lname)}
+          </Text>
+          <Text style={styles.gender}>({gender})</Text>
+          <Text style={styles.conditions}>
+            (
+            {conditions
+              .map((cond) => cond.charAt(0).toUpperCase() + cond.slice(1))
+              .join(", ")}
+            )
+          </Text>
+        </View>
+        {/* Right: "View Details" Button */}
+        {/* <TouchableOpacity onPress={onPress}>
+          <Text style={styles.details}>View Details</Text>
+        </TouchableOpacity> */}
+        <Button handleButtonClick={onPress} buttonText="View Details →" />
       </View>
-
-      {/* Middle: Patient Info */}
-      <View style={styles.info}>
-        <Text style={styles.name}>
-          {name} <Text style={styles.gender}>({gender})</Text>
-        </Text>
-        <Text style={styles.conditions}>({conditions.join(", ")})</Text>
-      </View>
-
-      {/* Right: "View Details" Button */}
-      {/* <TouchableOpacity onPress={onPress}>
-        <Text style={styles.details}>View Details</Text>
-      </TouchableOpacity> */}
-      <Button handleButtonClick={onPress} buttonText="View Details" />
-
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  cardContainer: {
+    flex: 1,
+
+    paddingHorizontal: 5,
+  },
   card: {
-    width:"100%",
+    width: "100%",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent:'space-between',
-    paddingLeft:20,
+    justifyContent: "space-between",
     backgroundColor: "white",
+    gap:3,
     borderRadius: 10,
-    paddingVertical: 5,
-
-    borderWidth: 1,
-    borderColor: "#ccc",
+    padding: 10,
     marginBottom: 10,
     marginTop: 10,
     boxShadow:
-      "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
+      "rgba(60, 64, 67, 0.3) 0px 2px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
   },
+  //boxShadow:
+  //"rgba(60, 64, 67, 0.3) 0px 1px 0px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
   profileImage: {
-   width:50,
-   height:50,
-   borderRadius:50,
-   marginRight:10
+    width: 70,
+    height: 70,
+    borderRadius: 50,
+    marginRight: 10,
   },
   cross: {
     fontSize: 20,
@@ -94,6 +108,20 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: "bold",
     textDecorationLine: "underline",
+  },
+  button: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#25578E",
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 15,
+    marginTop: 10,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 12,
+    marginRight: 5,
   },
 });
 

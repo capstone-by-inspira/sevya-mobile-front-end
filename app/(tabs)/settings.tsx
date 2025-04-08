@@ -20,7 +20,7 @@ const settings = () => {
   return (
     <View style={styles.container}>
       <ProfileScreen />
-      <Button handleButtonClick={logout} buttonText="Logout" />
+      {/* <Button handleButtonClick={logout} buttonText="Logout" /> */}
     </View>
   )
 }

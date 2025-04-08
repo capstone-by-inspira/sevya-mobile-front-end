@@ -17,11 +17,12 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { saveSecureData, getSecureData } from "@/services/secureStorage";
 import { API_URL } from "@/services/api";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons"; 
+import { LinearGradient } from 'expo-linear-gradient'; // Add this import
 
 
 const LoginScreen: React.FC = () => {
-  const [email, setEmail] = useState<string>("nammy@caregiver.com");
-  const [password, setPassword] = useState<string>("nammy123");
+  const [email, setEmail] = useState<string>("kandanamrata9@gmail.com");
+  const [password, setPassword] = useState<string>("namrata");
   const [secureText, setSecureText] = useState(true);
   const router = useRouter();
   const navigation = useNavigation();
@@ -69,7 +70,7 @@ const LoginScreen: React.FC = () => {
      
 
       if (first_time_login == null || first_time_login == undefined) {
-        router.replace("/screens/WelcomeFirst");
+        router.replace("/screens/Welcome");
       } else {
         console.log('go to home screen');
         router.replace("/(tabs)/home");
@@ -85,10 +86,18 @@ const LoginScreen: React.FC = () => {
   };
 
   return (
+  
     <ImageBackground
       source={require("../assets/main-bg.png")}
       style={styles.background}
     >
+        {/* <LinearGradient
+    colors={[ '#0D1F3A','#0D1F3A', '#050F1C']} // Adjust colors to match your design
+
+    start={{ x: 0, y: 0 }}
+    end={{ x: 0, y: 1 }}
+    // style={styles.containerMain}
+    > */}
       <View style={styles.overlay}>
         <View style={styles.logoContainer}>
           <Image
@@ -135,12 +144,20 @@ const LoginScreen: React.FC = () => {
           
         </View>
       </View>
+      {/* </LinearGradient> */}
     </ImageBackground>
+   
   );
 };
 
 const styles = StyleSheet.create({
+  containerMain: {
+    // flex: 1,
+    // opacity:1,
+   
+    },
   background: {
+   
     flex: 1,
     resizeMode: "cover",
   },
@@ -156,7 +173,7 @@ const styles = StyleSheet.create({
 
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(7, 24, 50, 0.7)",
+    backgroundColor: "rgba(7, 24, 50, 0.8)",
     justifyContent: "center",
     alignItems: "center",
   },
