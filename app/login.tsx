@@ -21,8 +21,8 @@ import { LinearGradient } from 'expo-linear-gradient'; // Add this import
 
 
 const LoginScreen: React.FC = () => {
-  const [email, setEmail] = useState<string>("nammy@caregiver.com");
-  const [password, setPassword] = useState<string>("nammy123");
+  const [email, setEmail] = useState<string>("kandanamrata9@gmail.com");
+  const [password, setPassword] = useState<string>("namrata");
   const [secureText, setSecureText] = useState(true);
   const router = useRouter();
   const navigation = useNavigation();

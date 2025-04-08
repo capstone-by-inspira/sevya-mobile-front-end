@@ -49,7 +49,9 @@ export default function Home() {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchData(); // Reload data
+    await fetchData(); // Reload data    checkLoader();
+    checkLoader();
+
     setRefreshing(false);
   }, [fetchData]);
 
@@ -67,6 +69,21 @@ export default function Home() {
 
   useEffect(() => {
     console.log(shifts.length);
+    console.log(patients.length, 'array shifts')
+
+    if (
+      Array.isArray(patients) && patients.length == 0 &&
+      caregivers   && Object.keys(caregivers).length &&
+      Array.isArray(shifts) && shifts.length == 0
+    ) {      console.log("use effect >>>>>>>>>");
+      setLoadedContent(true);
+    }else{
+      setLoadedContent(false);
+    }
+  }, [patients, caregivers, shifts]);
+
+
+  const checkLoader = () =>{
     if (
       Array.isArray(patients) && patients.length &&
       caregivers && Object.keys(caregivers).length &&
@@ -74,9 +91,9 @@ export default function Home() {
     ) {      console.log("use effect >>>>>>>>>");
       setLoadedContent(true);
     }else{
-      setLoadedContent(false);
+      setLoadedContent(true);
     }
-  }, [patients, caregivers, shifts]);
+  }
 
 
 
@@ -95,7 +112,7 @@ export default function Home() {
              <View style={{ height: 150, backgroundColor: "#F8FBFF" }}>
         <Image
           style={{ width: "auto", height: 150, borderRadius: 0, margin: 0 }}
-          source={require("@/assets/heroImage.jpeg")}
+          source={require("@/assets/heroImageCurve.png")}
         />
       </View>
         {!loadedContent ? (
@@ -123,17 +140,18 @@ export default function Home() {
 
             <Divider />
 
-            <View style={styles.patientList}>
+           {patients.length == 0 ? <></> :  <View style={styles.patientList}>
               <PatientList
                 patients={patients}
                 shifts={shifts}
                 caregivers={caregivers}
               ></PatientList>
             </View>
+}
             <EmergencyCall caregiver={caregivers} token={token}  patients ={patients}/>
           </View>
         )}
-        <Divider />
+
         <View style={styles.emergency}>
           <EmergencyHelpScreen />
         </View>

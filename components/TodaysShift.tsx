@@ -114,7 +114,7 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
   return (
     <View style={styles.container}>
       <Text style={styles.greeting}>
-        Hi {capitalize(caregiver.firstName)}
+        Welcome, {capitalize(caregiver.firstName)} {capitalize(caregiver.lastName)} !
 
         {shift && shift.id ? (
           shift.checkIn && shift.checkOut ? (
@@ -128,7 +128,7 @@ const TodaysShift: React.FC<TodayShiftProps> = ({
       </Text>
 
       <View style={styles.analytics}>
-        <DashboardCard title={"Time Off"} data={1} />
+        <DashboardCard title={"Assigned Patients"} data={patients.length} />
         <DashboardCard title={"Shift Covered"} data={shifts.length} />
       </View>
 
@@ -268,6 +268,8 @@ const styles = StyleSheet.create({
     fontStyle: "normal",
     fontWeight: "700",
     textAlign: "center",
+    
+
   },
   boldText: {
     fontWeight: "bold",

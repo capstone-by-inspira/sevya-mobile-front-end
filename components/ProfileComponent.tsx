@@ -174,6 +174,7 @@ const ProfileScreen = () => {
         </View>
       </ImageBackground>
 
+
       <View style={styles.detailsContainer}>
         <Text style={styles.detailText2}>Personal Info</Text>
         <Text style={styles.detailText}>
@@ -221,6 +222,8 @@ const ProfileScreen = () => {
 };
 
 const styles = StyleSheet.create({
+
+   
   container: {
     width: "100%",
     flex: 1,
@@ -322,7 +325,7 @@ const styles = StyleSheet.create({
   },
   backgroundImage: {
     width: "110%",
-    height: 308,
+    height: 350,
     padding: 0,
     resizeMode: "cover",
     justifyContent: "center",

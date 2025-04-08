@@ -26,27 +26,42 @@ import { LinearGradient } from 'expo-linear-gradient'; // Add this import
 
 const { width: screenWidth } = Dimensions.get("window");
 
-const slides = [
-  {
-    id: "1",
-    text: "On Sevya, you have  easy Shift Management, Easy Check-In and Shift Schedule Overview, to check daily your shifts and manage it efficiently.",
-    image: require("../../assets/images/Welcome1.png"),
-  },
-  {
-    id: "2",
-    text: "You can count on our Multilingual Support to translate notes instantly and Voice-to-Text Documentation Recording, to convert updates into text seamlessly.",
-    image: require("../../assets/images/Welcome2.png"),
-  },
-  {
-    id: "3",
-    text: "Get targeted recommendations for each patient using AI Care Plan: create a simple and effective routine with just one click.",
-    image: require("../../assets/images/Welcome3.png"),
-  },
-];
-
 
 
 const WelcomeCarousel = () => {
+  const slides = [
+    {
+      id: "1",
+      text: (
+        <Text>
+          On Sevya, you have easy  <Text style={styles.greenText}>Shift Management, Easy Check-In</Text> and{" "}
+          <Text style={styles.greenText}>Shift Schedule Overview</Text>, to check daily your shifts and manage it efficiently.
+        </Text>
+      ),
+      image: require("../../assets/images/Welcome1.png"),
+    },
+    {
+      id: "2",
+      text: (
+        <Text>
+          You can count on our <Text style={styles.greenText}>Multilingual Support</Text> to translate notes instantly and{" "}
+          <Text style={styles.greenText}>Voice-to-Text Documentation</Text>, to convert updates into text seamlessly.
+        </Text>
+      ),
+      image: require("../../assets/images/Welcome2.png"),
+    },
+    {
+      id: "3",
+      text: (
+        <Text>
+          Get targeted recommendations for each patient using{" "}
+          <Text style={styles.greenText}>AI Care Plan</Text> to create a simple and effective routine with just one click.
+        </Text>
+      ),
+      image: require("../../assets/images/Welcome3.png"),
+    },
+  ];
+  
   const [userdata, setUserData] = useState<{ name: string } | null>(null);
   const router = useRouter();
   const navigation = useNavigation();
@@ -99,7 +114,7 @@ const WelcomeCarousel = () => {
   return (
    
     <LinearGradient
-    colors={[ '#0D1F3A','#0D1F3A', '#050F1C']} // Adjust colors to match your design
+    colors={[ '#BDD9B0','#0D1F3A', '#050F1C']} // Adjust colors to match your design
     start={{ x: 0, y: 0 }}
     end={{ x: 0, y: 1 }}
     style={styles.containerMain}
@@ -139,7 +154,7 @@ const WelcomeCarousel = () => {
             )}
             loop // Enables infinite looping
             autoPlay // Enables automatic sliding
-            autoPlayInterval={2000} // Changes slide every 4 seconds
+            autoPlayInterval={4000} // Changes slide every 4 seconds
             mode="horizontal-stack"
             modeConfig={{
               snapDirection: "left",
@@ -195,6 +210,11 @@ const SlideComponent = ({
 export default WelcomeCarousel;
 
 const styles = StyleSheet.create({
+  greenText:{
+    color: '#BDD9B0',
+    fontStyle:'italic',
+
+  },
   blurContainer: {
     width: "auto",
     height: "auto",
@@ -216,7 +236,7 @@ const styles = StyleSheet.create({
   },
   MainImage: {
     width: "100%", // This makes sure the image covers the full width of the container
-    height: 250, // This ensures the image covers the full height of the container
+    height: 260, // This ensures the image covers the full height of the container
     resizeMode: "cover", // Ensures the image covers the entire space without distortion
   },
   carouselMainImage: {
@@ -232,7 +252,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   carouselMainText: {
-    margin: 0,
+    marginTop: -10,
+    marginBottom:30,
     padding: 0,
     height: 100,
     fontFamily: "Lato-Regular",

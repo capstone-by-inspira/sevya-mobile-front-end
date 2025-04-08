@@ -327,8 +327,8 @@ const ShiftCheckIn: React.FC = () => {
                 pathname: `/patients/[id]`,
                 params: {
                   id: associatedPatient.id,  // Pass the id as a query parameter
-                  AllShifts: JSON.stringify(shiftData),
-                  AllPatients: JSON.stringify(patientData),  // Pass shift data as a query parameter
+                  AllShifts: JSON.stringify(shifts),
+                  AllPatients: JSON.stringify(patients),  // Pass shift data as a query parameter
                   AllCaregivers: JSON.stringify(caregivers)
                 }
               })}
@@ -386,6 +386,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginHorizontal: 20,
     elevation: 2,
+    marginBottom:30,
   },
   cardContent: {
     marginBottom: 10,
