@@ -52,13 +52,13 @@
       "typedRoutes": true
     },
     "extra": {
-      "firebaseApiKey": "AIzaSyBX2gmQbTyv77Bep4DKVQrC--OVSx37q7s",
-      "firebaseAuthDomain": "sevya-f77df.firebaseapp.com",
-      "firebaseProjectId": "sevya-f77df",
-      "firebaseStorageBucket": "sevya-f77df.firebasestorage.app",
-      "firebaseMessagingSenderId": "62869950842",
-      "firebaseAppId": "1:62869950842:web:f0f59cb17ec508dbd786c3",
-      "firebaseMeasurementId": "G-E5Q564BTJ1",
+      "firebaseApiKey": "",
+      "firebaseAuthDomain": "",
+      "firebaseProjectId": "",
+      "firebaseStorageBucket": "",
+      "firebaseMessagingSenderId": "",
+      "firebaseAppId": "",
+      "firebaseMeasurementId": "",
       "router": {
         "origin": false
       },
